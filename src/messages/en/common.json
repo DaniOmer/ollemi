@@ -1,0 +1,168 @@
+{
+  "app": {
+    "name": "OlleMi",
+    "tagline": "Streamline Your Beauty Business"
+  },
+  "nav": {
+    "features": "Features",
+    "howItWorks": "How It Works",
+    "pricing": "Pricing",
+    "login": "Login",
+    "signup": "Sign Up"
+  },
+  "hero": {
+    "title": "Streamline Your Beauty Business",
+    "subtitle": "OlleMe helps beauty professionals manage appointments, showcase their business, and reduce no-shows with automated reminders.",
+    "startTrial": "Start Free Trial",
+    "seeHowItWorks": "See How It Works"
+  },
+  "features": {
+    "title": "Everything Your Beauty Business Needs",
+    "subtitle": "Powerful features designed specifically for beauty professionals.",
+    "booking": {
+      "title": "Online Booking",
+      "description": "Allow clients to book appointments 24/7 from their computer or smartphone."
+    },
+    "reminders": {
+      "title": "Automated Reminders",
+      "description": "Reduce no-shows with automated SMS and email reminders to clients."
+    },
+    "profile": {
+      "title": "Online Presence",
+      "description": "Easily create and customize your business profile to attract new clients."
+    }
+  },
+  "howItWorks": {
+    "title": "How It Works",
+    "subtitle": "Get started in minutes and transform your business.",
+    "step1": {
+      "title": "Create Your Profile",
+      "description": "Sign up and create your business profile with services, photos, and business hours."
+    },
+    "step2": {
+      "title": "Set Up Your Calendar",
+      "description": "Configure your availability and let clients book appointments online."
+    },
+    "step3": {
+      "title": "Start Accepting Bookings",
+      "description": "Share your booking link with clients and start receiving appointments."
+    }
+  },
+  "pricing": {
+    "title": "Simple, Transparent Pricing",
+    "subtitle": "No hidden fees. Cancel anytime.",
+    "basic": {
+      "title": "Basic",
+      "price": "€19",
+      "period": "/month",
+      "description": "Perfect for solo professionals starting out.",
+      "features": ["Online bookings", "Email reminders", "Business profile"],
+      "cta": "Get Started"
+    },
+    "pro": {
+      "title": "Pro",
+      "price": "€39",
+      "period": "/month",
+      "description": "For growing businesses that need more features.",
+      "popular": "Popular",
+      "features": [
+        "All Basic features",
+        "SMS reminders",
+        "Multiple staff members",
+        "Advanced analytics"
+      ],
+      "cta": "Get Started"
+    },
+    "premium": {
+      "title": "Premium",
+      "price": "€79",
+      "period": "/month",
+      "description": "For established businesses with multiple locations.",
+      "features": [
+        "All Pro features",
+        "Multiple locations",
+        "Custom branding",
+        "Priority support"
+      ],
+      "cta": "Get Started"
+    }
+  },
+  "cta": {
+    "title": "Ready to Grow Your Beauty Business?",
+    "subtitle": "Join thousands of beauty professionals who use OlleMe to streamline their business.",
+    "button": "Start Your Free Trial"
+  },
+  "footer": {
+    "description": "The ultimate appointment booking solution for beauty professionals.",
+    "product": "Product",
+    "company": "Company",
+    "legal": "Legal",
+    "termsOfService": "Terms of Service",
+    "privacyPolicy": "Privacy Policy",
+    "cookiePolicy": "Cookie Policy",
+    "gdpr": "GDPR",
+    "copyright": "© {year} OlleMe. All rights reserved."
+  },
+  "auth": {
+    "login": {
+      "title": "Sign in to your account",
+      "noAccount": "Or",
+      "createAccount": "create a new account",
+      "email": "Email address",
+      "password": "Password",
+      "rememberMe": "Remember me",
+      "forgotPassword": "Forgot your password?",
+      "button": "Sign in",
+      "or": "Or continue with",
+      "google": "Sign in with Google"
+    },
+    "signup": {
+      "title": "Create your account",
+      "haveAccount": "Already have an account?",
+      "signIn": "Sign in",
+      "fullName": "Full name",
+      "email": "Email address",
+      "password": "Password",
+      "confirmPassword": "Confirm password",
+      "accountType": "Account type",
+      "proProfessional": "I'm a beauty professional",
+      "client": "I'm a client looking for services",
+      "terms": "I agree to the",
+      "termsOfService": "Terms of Service",
+      "and": "and",
+      "privacyPolicy": "Privacy Policy",
+      "button": "Create account",
+      "or": "Or continue with",
+      "google": "Sign up with Google"
+    }
+  },
+  "dashboard": {
+    "overview": "Overview",
+    "appointments": "Appointments",
+    "clients": "Clients",
+    "services": "Services",
+    "profile": "Profile",
+    "welcomeMessage": "Welcome to your dashboard!",
+    "welcomeDescription": "Here's what's happening with your business today. Check your upcoming appointments and manage your client relationships.",
+    "todayAppointments": "Today's Appointments",
+    "upcomingAppointments": "Upcoming Appointments",
+    "totalClients": "Total Clients",
+    "viewAll": "View All",
+    "client": "Client",
+    "service": "Service",
+    "date": "Date",
+    "time": "Time",
+    "status": "Status",
+    "confirmed": "Confirmed",
+    "pending": "Pending",
+    "recentClients": "Recent Clients",
+    "name": "Name",
+    "email": "Email",
+    "lastVisit": "Last Visit",
+    "totalVisits": "Total Visits",
+    "appointmentsDescription": "Manage your appointments, bookings, and schedule.",
+    "clientsDescription": "Manage your client database and communication.",
+    "servicesDescription": "Manage your services, prices, and availability.",
+    "profileDescription": "Manage your profile, business information, and account settings."
+  }
+}

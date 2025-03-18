@@ -1,0 +1,172 @@
+{
+  "app": {
+    "name": "OlleMi",
+    "tagline": "Simplifiez votre entreprise de beauté"
+  },
+  "nav": {
+    "features": "Fonctionnalités",
+    "howItWorks": "Comment ça marche",
+    "pricing": "Tarifs",
+    "login": "Connexion",
+    "signup": "Inscription"
+  },
+  "hero": {
+    "title": "Simplifiez votre entreprise de beauté",
+    "subtitle": "OlleMe aide les professionnels de la beauté à gérer leurs rendez-vous, à présenter leur entreprise et à réduire les absences grâce à des rappels automatisés.",
+    "startTrial": "Commencer l'essai gratuit",
+    "seeHowItWorks": "Voir comment ça marche"
+  },
+  "features": {
+    "title": "Tout ce dont votre entreprise de beauté a besoin",
+    "subtitle": "Des fonctionnalités puissantes conçues spécifiquement pour les professionnels de la beauté.",
+    "booking": {
+      "title": "Réservation en ligne",
+      "description": "Permettez aux clients de réserver des rendez-vous 24h/24 et 7j/7 depuis leur ordinateur ou smartphone."
+    },
+    "reminders": {
+      "title": "Rappels automatisés",
+      "description": "Réduisez les absences grâce à des rappels automatisés par SMS et e-mail aux clients."
+    },
+    "profile": {
+      "title": "Présence en ligne",
+      "description": "Créez et personnalisez facilement le profil de votre entreprise pour attirer de nouveaux clients."
+    }
+  },
+  "howItWorks": {
+    "title": "Comment ça marche",
+    "subtitle": "Commencez en quelques minutes et transformez votre entreprise.",
+    "step1": {
+      "title": "Créez votre profil",
+      "description": "Inscrivez-vous et créez le profil de votre entreprise avec les services, les photos et les heures d'ouverture."
+    },
+    "step2": {
+      "title": "Configurez votre calendrier",
+      "description": "Configurez votre disponibilité et laissez les clients réserver des rendez-vous en ligne."
+    },
+    "step3": {
+      "title": "Commencez à accepter les réservations",
+      "description": "Partagez votre lien de réservation avec les clients et commencez à recevoir des rendez-vous."
+    }
+  },
+  "pricing": {
+    "title": "Tarification simple et transparente",
+    "subtitle": "Pas de frais cachés. Annulez à tout moment.",
+    "basic": {
+      "title": "Basique",
+      "price": "19€",
+      "period": "/mois",
+      "description": "Parfait pour les professionnels indépendants qui débutent.",
+      "features": [
+        "Réservations en ligne",
+        "Rappels par e-mail",
+        "Profil d'entreprise"
+      ],
+      "cta": "Commencer"
+    },
+    "pro": {
+      "title": "Pro",
+      "price": "39€",
+      "period": "/mois",
+      "description": "Pour les entreprises en croissance qui ont besoin de plus de fonctionnalités.",
+      "popular": "Populaire",
+      "features": [
+        "Toutes les fonctionnalités Basiques",
+        "Rappels par SMS",
+        "Plusieurs membres du personnel",
+        "Analyses avancées"
+      ],
+      "cta": "Commencer"
+    },
+    "premium": {
+      "title": "Premium",
+      "price": "79€",
+      "period": "/mois",
+      "description": "Pour les entreprises établies avec plusieurs emplacements.",
+      "features": [
+        "Toutes les fonctionnalités Pro",
+        "Emplacements multiples",
+        "Personnalisation de la marque",
+        "Support prioritaire"
+      ],
+      "cta": "Commencer"
+    }
+  },
+  "cta": {
+    "title": "Prêt à développer votre entreprise de beauté ?",
+    "subtitle": "Rejoignez des milliers de professionnels de la beauté qui utilisent OlleMe pour rationaliser leur entreprise.",
+    "button": "Commencer votre essai gratuit"
+  },
+  "footer": {
+    "description": "La solution ultime de réservation de rendez-vous pour les professionnels de la beauté.",
+    "product": "Produit",
+    "company": "Entreprise",
+    "legal": "Mentions légales",
+    "termsOfService": "Conditions d'utilisation",
+    "privacyPolicy": "Politique de confidentialité",
+    "cookiePolicy": "Politique de cookies",
+    "gdpr": "RGPD",
+    "copyright": "© {year} OlleMe. Tous droits réservés."
+  },
+  "auth": {
+    "login": {
+      "title": "Connectez-vous à votre compte",
+      "noAccount": "Ou",
+      "createAccount": "créer un nouveau compte",
+      "email": "Adresse e-mail",
+      "password": "Mot de passe",
+      "rememberMe": "Se souvenir de moi",
+      "forgotPassword": "Mot de passe oublié ?",
+      "button": "Se connecter",
+      "or": "Ou continuer avec",
+      "google": "Se connecter avec Google"
+    },
+    "signup": {
+      "title": "Créez votre compte",
+      "haveAccount": "Vous avez déjà un compte ?",
+      "signIn": "Se connecter",
+      "fullName": "Nom complet",
+      "email": "Adresse e-mail",
+      "password": "Mot de passe",
+      "confirmPassword": "Confirmer le mot de passe",
+      "accountType": "Type de compte",
+      "proProfessional": "Je suis un professionnel de la beauté",
+      "client": "Je suis un client à la recherche de services",
+      "terms": "J'accepte les",
+      "termsOfService": "Conditions d'utilisation",
+      "and": "et",
+      "privacyPolicy": "Politique de confidentialité",
+      "button": "Créer un compte",
+      "or": "Ou continuer avec",
+      "google": "S'inscrire avec Google"
+    }
+  },
+  "dashboard": {
+    "overview": "Aperçu",
+    "appointments": "Rendez-vous",
+    "clients": "Clients",
+    "services": "Services",
+    "profile": "Profil",
+    "welcomeMessage": "Bienvenue sur votre tableau de bord !",
+    "welcomeDescription": "Voici ce qui se passe avec votre entreprise aujourd'hui. Vérifiez vos prochains rendez-vous et gérez vos relations avec les clients.",
+    "todayAppointments": "Rendez-vous d'aujourd'hui",
+    "upcomingAppointments": "Prochains rendez-vous",
+    "totalClients": "Total des clients",
+    "viewAll": "Voir tout",
+    "client": "Client",
+    "service": "Service",
+    "date": "Date",
+    "time": "Heure",
+    "status": "Statut",
+    "confirmed": "Confirmé",
+    "pending": "En attente",
+    "recentClients": "Clients récents",
+    "name": "Nom",
+    "email": "Email",
+    "lastVisit": "Dernière visite",
+    "totalVisits": "Visites totales",
+    "appointmentsDescription": "Gérez vos rendez-vous, réservations et planning.",
+    "clientsDescription": "Gérez votre base de données clients et vos communications.",
+    "servicesDescription": "Gérez vos services, prix et disponibilité.",
+    "profileDescription": "Gérez votre profil, les informations de votre entreprise et les paramètres de votre compte."
+  }
+}
