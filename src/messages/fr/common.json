@@ -3,6 +3,89 @@
     "name": "OlleMi",
     "tagline": "Simplifiez votre entreprise de beauté"
   },
+  "client": {
+    "home": {
+      "title": "Trouvez et réservez votre salon de beauté idéal",
+      "subtitle": "Des milliers de professionnels de la beauté à votre service",
+      "search": {
+        "placeholder": "Rechercher un service, un salon...",
+        "location": "Où ?",
+        "locationPlaceholder": "Ville, code postal...",
+        "service": "Quoi ?",
+        "servicePlaceholder": "Coiffure, manucure...",
+        "date": "Quand ?",
+        "datePlaceholder": "Choisir une date",
+        "button": "Rechercher"
+      },
+      "categories": {
+        "title": "Explorez par catégorie",
+        "haircut": "Coiffure",
+        "nails": "Manucure",
+        "makeup": "Maquillage",
+        "skincare": "Soins du visage",
+        "massage": "Massage",
+        "barber": "Barbier",
+        "viewAll": "Voir tout"
+      },
+      "featured": {
+        "title": "Salons en vedette",
+        "viewAll": "Voir tout"
+      },
+      "popular": {
+        "title": "Populaire près de chez vous",
+        "viewAll": "Voir tout"
+      },
+      "howItWorks": {
+        "title": "Comment ça marche",
+        "step1": {
+          "title": "Recherchez",
+          "description": "Trouvez le salon parfait en fonction de vos besoins"
+        },
+        "step2": {
+          "title": "Réservez",
+          "description": "Choisissez un service et réservez en quelques clics"
+        },
+        "step3": {
+          "title": "Profitez",
+          "description": "Rendez-vous au salon et profitez de votre service"
+        }
+      },
+      "cta": {
+        "title": "Vous êtes un professionnel de la beauté ?",
+        "subtitle": "Rejoignez notre plateforme et développez votre entreprise",
+        "button": "Devenir partenaire"
+      }
+    },
+    "search": {
+      "title": "Résultats de recherche",
+      "filters": {
+        "title": "Filtres",
+        "price": "Prix",
+        "rating": "Évaluation",
+        "availability": "Disponibilité",
+        "services": "Services",
+        "apply": "Appliquer"
+      },
+      "sort": {
+        "title": "Trier par",
+        "recommended": "Recommandé",
+        "priceAsc": "Prix croissant",
+        "priceDesc": "Prix décroissant",
+        "rating": "Évaluation"
+      },
+      "noResults": "Aucun résultat trouvé. Essayez de modifier vos critères de recherche."
+    },
+    "professional": {
+      "about": "À propos",
+      "services": "Services",
+      "reviews": "Avis",
+      "location": "Emplacement",
+      "openingHours": "Heures d'ouverture",
+      "book": "Réserver",
+      "viewAllServices": "Voir tous les services",
+      "viewAllReviews": "Voir tous les avis"
+    }
+  },
   "nav": {
     "features": "Fonctionnalités",
     "howItWorks": "Comment ça marche",
@@ -105,7 +188,14 @@
     "privacyPolicy": "Politique de confidentialité",
     "cookiePolicy": "Politique de cookies",
     "gdpr": "RGPD",
-    "copyright": "© {year} OlleMe. Tous droits réservés."
+    "copyright": "© {year} OlleMe. Tous droits réservés.",
+    "forProfessionals": "Pour les professionnels",
+    "forClients": "Pour les clients",
+    "about": "À propos de nous",
+    "contact": "Contact",
+    "careers": "Carrières",
+    "blog": "Blog",
+    "faq": "FAQ"
   },
   "auth": {
     "login": {

@@ -3,9 +3,8 @@
 import { NextIntlClientProvider } from "next-intl";
 import { useEffect, useState } from "react";
 import React from "react";
-import Footer from "@/components/layouts/Footer";
 
-export default function LocaleLayout({
+export default function AuthLayout({
   children,
   params,
 }: {
@@ -55,8 +54,8 @@ export default function LocaleLayout({
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
       <div className="flex flex-col min-h-screen">
+        {/* Auth pages don't have a header */}
         <main className="flex-grow">{children}</main>
-        <Footer />
       </div>
     </NextIntlClientProvider>
   );
