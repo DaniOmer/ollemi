@@ -6,6 +6,7 @@
  * 2. useTranslationsFrom - allows fetching translations from a specified namespace
  */
 
+import { useMessages, useLocale } from "next-intl";
 import { useTranslations as useNextIntlTranslations } from "next-intl";
 
 /**
@@ -19,22 +20,28 @@ type TranslationFunction = {
 /**
  * Hook for retrieving translations from the common namespace in client components
  *
- * @example
- * const t = useTranslations();
- * return <h1>{t('header.title')}</h1>;
- *
- * // For array translations
- * const features = t<string[]>('pricing.basic.features');
- * return (
- *   <ul>
- *     {features.map((feature, index) => (
- *       <li key={index}>{feature}</li>
- *     ))}
- *   </ul>
- * );
  */
-export function useTranslations(): TranslationFunction {
-  return useNextIntlTranslations("common") as TranslationFunction;
+export function useTranslations(): {
+  t: TranslationFunction;
+} {
+  const messages = useMessages();
+
+  // Create a translation function that accesses nested properties
+  const t = (key: string) => {
+    const keys = key.split(".");
+    let value: any = messages;
+
+    for (const k of keys) {
+      if (value && typeof value === "object" && k in value) {
+        value = value[k];
+      } else {
+        return key; // Return the key if the path doesn't exist
+      }
+    }
+
+    return value;
+  };
+  return { t };
 }
 
 /**
