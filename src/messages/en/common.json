@@ -3,12 +3,98 @@
     "name": "OlleMi",
     "tagline": "Streamline Your Beauty Business"
   },
+  "client": {
+    "home": {
+      "title": "Find and Book Your Ideal Beauty Salon",
+      "subtitle": "Thousands of beauty professionals at your service",
+      "search": {
+        "placeholder": "Search for a service, salon...",
+        "location": "Where?",
+        "locationPlaceholder": "City, zip code...",
+        "service": "What?",
+        "servicePlaceholder": "Haircut, manicure...",
+        "date": "When?",
+        "datePlaceholder": "Choose a date",
+        "button": "Search"
+      },
+      "categories": {
+        "title": "Explore by Category",
+        "haircut": "Haircut",
+        "nails": "Nails",
+        "makeup": "Makeup",
+        "skincare": "Skincare",
+        "massage": "Massage",
+        "barber": "Barber",
+        "viewAll": "View All"
+      },
+      "featured": {
+        "title": "Featured Salons",
+        "viewAll": "View All"
+      },
+      "popular": {
+        "title": "Popular Near You",
+        "viewAll": "View All"
+      },
+      "howItWorks": {
+        "title": "How It Works",
+        "step1": {
+          "title": "Search",
+          "description": "Find the perfect salon based on your needs"
+        },
+        "step2": {
+          "title": "Book",
+          "description": "Choose a service and book in a few clicks"
+        },
+        "step3": {
+          "title": "Enjoy",
+          "description": "Visit the salon and enjoy your service"
+        }
+      },
+      "cta": {
+        "title": "Are you a beauty professional?",
+        "subtitle": "Join our platform and grow your business",
+        "button": "Become a Partner"
+      }
+    },
+    "search": {
+      "title": "Search Results",
+      "filters": {
+        "title": "Filters",
+        "price": "Price",
+        "rating": "Rating",
+        "availability": "Availability",
+        "services": "Services",
+        "apply": "Apply"
+      },
+      "sort": {
+        "title": "Sort by",
+        "recommended": "Recommended",
+        "priceAsc": "Price: Low to High",
+        "priceDesc": "Price: High to Low",
+        "rating": "Rating"
+      },
+      "noResults": "No results found. Try modifying your search criteria."
+    },
+    "professional": {
+      "about": "About",
+      "services": "Services",
+      "reviews": "Reviews",
+      "location": "Location",
+      "openingHours": "Opening Hours",
+      "book": "Book",
+      "viewAllServices": "View All Services",
+      "viewAllReviews": "View All Reviews"
+    }
+  },
   "nav": {
     "features": "Features",
     "howItWorks": "How It Works",
     "pricing": "Pricing",
     "login": "Login",
-    "signup": "Sign Up"
+    "signup": "Sign Up",
+    "legalDocs": "Legal Documents",
+    "backToHome": "Back to Home",
+    "backToTop": "Back to Top"
   },
   "hero": {
     "title": "Streamline Your Beauty Business",
@@ -99,9 +185,19 @@
     "legal": "Legal",
     "termsOfService": "Terms of Service",
     "privacyPolicy": "Privacy Policy",
-    "cookiePolicy": "Cookie Policy",
+    "cookiesPolicy": "Cookie Policy",
     "gdpr": "GDPR",
-    "copyright": "© {year} OlleMe. All rights reserved."
+    "copyright": "© {year} OlleMe. All rights reserved.",
+    "forProfessionals": "For Professionals",
+    "forClients": "For Clients",
+    "about": "About Us",
+    "contact": "Contact",
+    "careers": "Careers",
+    "blog": "Blog",
+    "faq": "FAQ"
+  },
+  "legal": {
+    "lastUpdated": "Last updated"
   },
   "auth": {
     "login": {

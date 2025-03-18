@@ -91,7 +91,10 @@
     "howItWorks": "Comment ça marche",
     "pricing": "Tarifs",
     "login": "Connexion",
-    "signup": "Inscription"
+    "signup": "Inscription",
+    "legalDocs": "Documents légaux",
+    "backToHome": "Retour à l'accueil",
+    "backToTop": "Retour en haut"
   },
   "hero": {
     "title": "Simplifiez votre entreprise de beauté",
@@ -186,7 +189,7 @@
     "legal": "Mentions légales",
     "termsOfService": "Conditions d'utilisation",
     "privacyPolicy": "Politique de confidentialité",
-    "cookiePolicy": "Politique de cookies",
+    "cookiesPolicy": "Politique de cookies",
     "gdpr": "RGPD",
     "copyright": "© {year} OlleMe. Tous droits réservés.",
     "forProfessionals": "Pour les professionnels",
@@ -196,6 +199,9 @@
     "careers": "Carrières",
     "blog": "Blog",
     "faq": "FAQ"
+  },
+  "legal": {
+    "lastUpdated": "Dernière mise à jour"
   },
   "auth": {
     "login": {
