@@ -1,6 +1,6 @@
 {
   "app": {
-    "name": "OlleMi",
+    "name": "Ollemi",
     "tagline": "Streamline Your Beauty Business"
   },
   "client": {
@@ -98,7 +98,7 @@
   },
   "hero": {
     "title": "Streamline Your Beauty Business",
-    "subtitle": "OlleMe helps beauty professionals manage appointments, showcase their business, and reduce no-shows with automated reminders.",
+    "subtitle": "Ollemi helps beauty professionals manage appointments, showcase their business, and reduce no-shows with automated reminders.",
     "startTrial": "Start Free Trial",
     "seeHowItWorks": "See How It Works"
   },
@@ -175,7 +175,7 @@
   },
   "cta": {
     "title": "Ready to Grow Your Beauty Business?",
-    "subtitle": "Join thousands of beauty professionals who use OlleMe to streamline their business.",
+    "subtitle": "Join thousands of beauty professionals who use Ollemi to streamline their business.",
     "button": "Start Your Free Trial"
   },
   "footer": {
@@ -187,7 +187,7 @@
     "privacyPolicy": "Privacy Policy",
     "cookiesPolicy": "Cookie Policy",
     "gdpr": "GDPR",
-    "copyright": "© {year} OlleMe. All rights reserved.",
+    "copyright": "© {year} Ollemi. All rights reserved.",
     "forProfessionals": "For Professionals",
     "forClients": "For Clients",
     "about": "About Us",

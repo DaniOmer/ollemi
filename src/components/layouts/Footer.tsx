@@ -221,7 +221,7 @@ export default function Footer() {
                   href={`/${locale}/legal/cookies`}
                   className="text-base text-gray-500 hover:text-gray-900"
                 >
-                  {t("footer.cookiePolicy")}
+                  {t("footer.cookiesPolicy")}
                 </Link>
               </li>
               <li>

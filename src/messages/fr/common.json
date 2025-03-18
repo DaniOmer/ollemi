@@ -1,6 +1,6 @@
 {
   "app": {
-    "name": "OlleMi",
+    "name": "Ollemi",
     "tagline": "Simplifiez votre entreprise de beauté"
   },
   "client": {
@@ -98,7 +98,7 @@
   },
   "hero": {
     "title": "Simplifiez votre entreprise de beauté",
-    "subtitle": "OlleMe aide les professionnels de la beauté à gérer leurs rendez-vous, à présenter leur entreprise et à réduire les absences grâce à des rappels automatisés.",
+    "subtitle": "Ollemi aide les professionnels de la beauté à gérer leurs rendez-vous, à présenter leur entreprise et à réduire les absences grâce à des rappels automatisés.",
     "startTrial": "Commencer l'essai gratuit",
     "seeHowItWorks": "Voir comment ça marche"
   },
@@ -179,7 +179,7 @@
   },
   "cta": {
     "title": "Prêt à développer votre entreprise de beauté ?",
-    "subtitle": "Rejoignez des milliers de professionnels de la beauté qui utilisent OlleMe pour rationaliser leur entreprise.",
+    "subtitle": "Rejoignez des milliers de professionnels de la beauté qui utilisent Ollemi pour rationaliser leur entreprise.",
     "button": "Commencer votre essai gratuit"
   },
   "footer": {
@@ -191,7 +191,7 @@
     "privacyPolicy": "Politique de confidentialité",
     "cookiesPolicy": "Politique de cookies",
     "gdpr": "RGPD",
-    "copyright": "© {year} OlleMe. Tous droits réservés.",
+    "copyright": "© {year} Ollemi. Tous droits réservés.",
     "forProfessionals": "Pour les professionnels",
     "forClients": "Pour les clients",
     "about": "À propos de nous",

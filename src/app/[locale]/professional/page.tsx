@@ -34,7 +34,7 @@ export default function ProfessionalHome() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <main className="flex-grow">
+      <div className="flex-grow">
         {/* Hero Section */}
         <section className="py-24 px-4 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-secondary/30 to-background z-0"></div>
@@ -140,7 +140,7 @@ export default function ProfessionalHome() {
             </Link>
           </div>
         </section>
-      </main>
+      </div>
     </div>
   );
 }

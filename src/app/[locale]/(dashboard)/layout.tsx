@@ -4,9 +4,9 @@ import { NextIntlClientProvider } from "next-intl";
 import { useEffect, useState } from "react";
 import React from "react";
 import Footer from "@/components/layouts/Footer";
-import ProfessionalHeader from "@/components/layouts/ProfessionalHeader";
+import DashboardHeader from "@/components/layouts/DashboardHeader";
 
-export default function ProfessionalLayout({
+export default function DashboardLayout({
   children,
   params,
 }: {
@@ -56,8 +56,7 @@ export default function ProfessionalLayout({
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
       <div className="flex flex-col min-h-screen">
-        <ProfessionalHeader />
-        <div className="flex-grow">{children}</div>
+        <main className="flex-grow">{children}</main>
       </div>
     </NextIntlClientProvider>
   );

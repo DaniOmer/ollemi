@@ -13,7 +13,7 @@ export default function DashboardHeader() {
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <div className="flex items-center">
           <div className="text-2xl font-bold gradient-text">
-            {t("app.name")}
+            <Link href="/">{t("app.name")}</Link>
           </div>
         </div>
         <div className="flex items-center gap-4">
