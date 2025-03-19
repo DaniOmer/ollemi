@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useTranslations } from "@/hooks/useTranslations";
 import DashboardHeader from "@/components/layouts/DashboardHeader";
@@ -15,11 +15,22 @@ import {
   UserCircle,
   Plus,
 } from "lucide-react";
-import { Appointment } from "@/types";
+import { Appointment, User } from "@/types";
+import { getCurrentUser } from "@/lib/services";
 
 export default function DashboardPage() {
   const { t } = useTranslations();
   const [activeTab, setActiveTab] = useState("overview");
+
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const response = await getCurrentUser();
+      setUser(response.data?.user || null);
+    };
+    fetchUser();
+  }, []);
 
   // Mock data for demonstration
   const upcomingAppointments = [
@@ -102,7 +113,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <DashboardHeader />
+      <DashboardHeader user={user} />
 
       <div className="container mx-auto px-4 py-8 flex flex-col md:flex-row gap-8">
         {/* Sidebar */}

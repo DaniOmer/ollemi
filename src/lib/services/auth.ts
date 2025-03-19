@@ -4,16 +4,10 @@ import {
   ApiResponse,
   setupAuthInterceptor,
 } from "./api";
+import { User } from "@/types";
 
 export type AuthResponse = {
-  user: {
-    id: string;
-    email: string;
-    role: string;
-    first_name?: string;
-    last_name?: string;
-    phone?: string;
-  };
+  user: User;
   session: {
     access_token: string;
     expires_at: number;
@@ -104,25 +98,10 @@ export async function signOut(): Promise<ApiResponse<null>> {
 
 export async function getCurrentUser(): Promise<
   ApiResponse<{
-    user: {
-      id: string;
-      email: string;
-      role: string;
-      first_name: string;
-      last_name: string;
-      phone?: string;
-    } | null;
+    user: User | null;
   }>
 > {
-  // Use private API to get the current user (requires auth)
   return fetchPrivateApi<{
-    user: {
-      id: string;
-      email: string;
-      role: string;
-      first_name: string;
-      last_name: string;
-      phone?: string;
-    } | null;
+    user: User | null;
   }>("/auth/user");
 }
