@@ -3,8 +3,12 @@ export interface User {
   id: string;
   email: string;
   role: "pro" | "client";
-  name: string;
+  first_name: string;
+  last_name: string;
+  phone?: string;
+  accept_terms: boolean;
   created_at: string;
+  updated_at?: string;
 }
 
 // Professional types

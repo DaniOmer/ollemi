@@ -6,7 +6,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "db:new": "npx supabase migration new",
+    "db:up": "npx supabase db push",
+    "db:start": "npx supabase start",
+    "db:reset": "npx supabase db reset",
+    "db:types": "npx supabase gen types typescript --project-id knbrbqjkgxwvopnqvonn > src/types/supabase.ts"
   },
   "dependencies": {
     "@fullcalendar/core": "^6.1.11",
@@ -19,6 +24,8 @@
     "@radix-ui/react-label": "^2.1.2",
     "@radix-ui/react-select": "^2.1.6",
     "@radix-ui/react-slot": "^1.1.2",
+    "@supabase/auth-helpers-nextjs": "^0.10.0",
+    "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.42.9",
     "@types/react-datepicker": "^6.0.1",
     "axios": "^1.8.3",
@@ -47,6 +54,7 @@
     "eslint": "8.57.0",
     "eslint-config-next": "15.2.3",
     "postcss": "8.4.38",
+    "supabase": "^2.19.7",
     "tailwindcss": "3.4.1",
     "typescript": "5.4.2"
   }

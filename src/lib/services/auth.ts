@@ -10,6 +10,9 @@ export type AuthResponse = {
     id: string;
     email: string;
     role: string;
+    first_name?: string;
+    last_name?: string;
+    phone?: string;
   };
   session: {
     access_token: string;
@@ -44,13 +47,27 @@ setupAuthInterceptor(getToken);
 
 export async function signUp(
   email: string,
-  password: string
+  password: string,
+  firstName?: string,
+  lastName?: string,
+  phone?: string,
+  role: string = "client",
+  acceptTerms: boolean = false
 ): Promise<ApiResponse<AuthResponse>> {
   const response = await fetchApi<AuthResponse>("/auth/signup", {
     method: "POST",
-    data: { email, password },
+    data: {
+      email,
+      password,
+      firstName,
+      lastName,
+      phone,
+      role,
+      acceptTerms,
+    },
   });
 
+  // Only save token if signup was successful and we have a token
   if (response.data?.session?.access_token) {
     saveToken(response.data.session.access_token);
   }
@@ -91,12 +108,21 @@ export async function getCurrentUser(): Promise<
       id: string;
       email: string;
       role: string;
-      name: string;
+      first_name: string;
+      last_name: string;
+      phone?: string;
     } | null;
   }>
 > {
   // Use private API to get the current user (requires auth)
   return fetchPrivateApi<{
-    user: { id: string; email: string; role: string; name: string } | null;
+    user: {
+      id: string;
+      email: string;
+      role: string;
+      first_name: string;
+      last_name: string;
+      phone?: string;
+    } | null;
   }>("/auth/user");
 }

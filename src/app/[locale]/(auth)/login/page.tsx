@@ -22,6 +22,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Mail, Lock, Loader2, AlertCircle } from "lucide-react";
 import { signIn } from "@/lib/services/auth";
+import { signInWithGoogle } from "@/lib/supabase/client";
 
 // Define the form schema with zod
 const loginFormSchema = z.object({
@@ -76,18 +77,31 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-secondary/30 to-background z-0"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-secondary/15 to-background z-0"></div>
+      <div className="absolute inset-0 bg-[url('/pattern-bg.svg')] opacity-10 z-0"></div>
 
       <div className="w-full max-w-md relative z-10">
-        <div className="flex justify-between items-center mb-6">
-          <Link href="/" className="text-2xl font-bold gradient-text">
+        <div className="flex justify-between items-center mb-8">
+          <Link
+            href="/"
+            className="text-2xl font-bold gradient-text flex items-center gap-2"
+          >
+            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+              <span className="text-primary text-lg">O</span>
+            </div>
             {t("app.name")}
           </Link>
           <LanguageSwitcher />
         </div>
 
-        <Card className="border-gradient shadow-soft animate-fade-in">
-          <CardHeader className="space-y-1">
+        <Card className="border-gradient shadow-xl rounded-xl animate-fade-in backdrop-blur-sm bg-card/95 overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-accent to-primary"></div>
+          <CardHeader className="space-y-2 pb-4">
+            <div className="flex justify-center mb-4">
+              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center shadow-md">
+                <Lock className="h-8 w-8 text-primary" strokeWidth={1.5} />
+              </div>
+            </div>
             <CardTitle className="text-2xl font-bold text-center gradient-text">
               {t("auth.login.title")}
             </CardTitle>
@@ -102,7 +116,7 @@ export default function LoginPage() {
             </p>
           </CardHeader>
 
-          <CardContent>
+          <CardContent className="pt-2 pb-6">
             {error && (
               <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-lg flex items-center text-destructive text-sm animate-fade-in">
                 <AlertCircle className="h-4 w-4 mr-2" />
@@ -125,7 +139,10 @@ export default function LoginPage() {
                     >
                       <FormLabel>{t("auth.login.email")}</FormLabel>
                       <div className="relative">
-                        <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Mail
+                          className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground"
+                          strokeWidth={1.5}
+                        />
                         <FormControl>
                           <Input
                             placeholder="email@example.com"
@@ -149,7 +166,10 @@ export default function LoginPage() {
                     >
                       <FormLabel>{t("auth.login.password")}</FormLabel>
                       <div className="relative">
-                        <Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Lock
+                          className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground"
+                          strokeWidth={1.5}
+                        />
                         <FormControl>
                           <Input
                             type="password"
@@ -199,7 +219,7 @@ export default function LoginPage() {
 
                 <Button
                   type="submit"
-                  className="w-full bg-primary hover:bg-primary/90 hover-lift animate-slide-up"
+                  className="w-full bg-primary hover:bg-primary/90 hover-lift animate-slide-up font-medium mt-2"
                   style={{ animationDelay: "400ms" }}
                   disabled={isLoading}
                 >
@@ -232,33 +252,43 @@ export default function LoginPage() {
 
               <Button
                 variant="outline"
-                className="mt-4 w-full border-primary/20 hover:bg-primary/5 transition-all"
-                onClick={() => {
-                  // Google sign-in logic would go here
+                className="mt-4 w-full border-primary/20 hover:bg-primary/5 transition-all flex items-center justify-center shadow-sm"
+                onClick={async () => {
+                  try {
+                    setIsLoading(true);
+                    await signInWithGoogle();
+                  } catch (error) {
+                    console.error("Google sign-in error:", error);
+                    setError(
+                      error instanceof Error
+                        ? error.message
+                        : "An error occurred during Google sign-in"
+                    );
+                    setIsLoading(false);
+                  }
                 }}
+                disabled={isLoading}
               >
-                <svg
-                  className="h-5 w-5 mr-2"
-                  aria-hidden="true"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M12.0003 4.75C13.7703 4.75 15.3553 5.36002 16.6053 6.54998L20.0303 3.125C17.9502 1.19 15.2353 0 12.0003 0C7.31028 0 3.25527 2.69 1.28027 6.60998L5.27028 9.70498C6.21525 6.86002 8.87028 4.75 12.0003 4.75Z"
-                    fill="#EA4335"
-                  />
-                  <path
-                    d="M23.49 12.275C23.49 11.49 23.415 10.73 23.3 10H12V14.51H18.47C18.18 15.99 17.34 17.25 16.08 18.1L19.945 21.1C22.2 19.01 23.49 15.92 23.49 12.275Z"
-                    fill="#4285F4"
-                  />
-                  <path
-                    d="M5.26498 14.2949C5.02498 13.5699 4.88501 12.7999 4.88501 11.9999C4.88501 11.1999 5.01998 10.4299 5.26498 9.7049L1.275 6.60986C0.46 8.22986 0 10.0599 0 11.9999C0 13.9399 0.46 15.7699 1.28 17.3899L5.26498 14.2949Z"
-                    fill="#FBBC05"
-                  />
-                  <path
-                    d="M12.0004 24.0001C15.2404 24.0001 17.9654 22.935 19.9454 21.095L16.0804 18.095C15.0054 18.82 13.6204 19.245 12.0004 19.245C8.8704 19.245 6.21537 17.135 5.2654 14.29L1.27539 17.385C3.25539 21.31 7.3104 24.0001 12.0004 24.0001Z"
-                    fill="#34A853"
-                  />
-                </svg>
+                {isLoading ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="mr-2"
+                  >
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
+                    <path d="M2 12h20"></path>
+                  </svg>
+                )}
                 {t("auth.login.google")}
               </Button>
             </div>
