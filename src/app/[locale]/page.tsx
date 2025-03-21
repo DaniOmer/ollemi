@@ -2,24 +2,16 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import { useEffect, useState } from "react";
 import { getProfessionals } from "@/lib/services/professionals";
 import { Professional } from "@/types";
 import { useTranslations } from "@/hooks/useTranslations";
-import {
-  Scissors,
-  Smartphone,
-  Palette,
-  Sun,
-  Smile,
-  User,
-  MapPin,
-  ChevronRight,
-  Search,
-} from "lucide-react";
+import { MapPin, ChevronRight, Search, Scissors } from "lucide-react";
 
-import ClientHeader from "@/components/layouts/ClientHeader";
+import Header from "@/components/layouts/Header";
+import Footer from "@/components/layouts/Footer";
+import Carousel from "@/components/ui/Carousel";
+import CategoryCard from "@/components/categories/CategoryCard";
 
 export default function Home() {
   const { t } = useTranslations();
@@ -72,38 +64,38 @@ export default function Home() {
     };
   }, []);
 
-  // Categories with icons
+  // Categories with images
   const categories = [
     {
       id: "haircut",
       name: t("client.home.categories.haircut"),
-      icon: <Scissors className="w-6 h-6" />,
+      imageUrl: "/images/categories/haircut.jpg",
     },
     {
       id: "nails",
       name: t("client.home.categories.nails"),
-      icon: <Smartphone className="w-6 h-6" />,
+      imageUrl: "/images/categories/nails.jpg",
     },
     {
       id: "makeup",
       name: t("client.home.categories.makeup"),
-      icon: <Palette className="w-6 h-6" />,
+      imageUrl: "/images/categories/makeup.jpg",
     },
     {
       id: "skincare",
       name: t("client.home.categories.skincare"),
-      icon: <Sun className="w-6 h-6" />,
+      imageUrl: "/images/categories/skincare.jpg",
     },
     {
       id: "massage",
       name: t("client.home.categories.massage"),
-      icon: <Smile className="w-6 h-6" />,
+      imageUrl: "/images/categories/massage.jpg",
     },
-    {
-      id: "barber",
-      name: t("client.home.categories.barber"),
-      icon: <User className="w-6 h-6" />,
-    },
+    // {
+    //   id: "barber",
+    //   name: t("client.home.categories.barber"),
+    //   imageUrl: "/images/categories/barber.jpg",
+    // },
   ];
 
   // Professional card component
@@ -166,14 +158,12 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Header/Navigation */}
-      <ClientHeader />
-
+      <Header />
       <main className="flex-grow">
         {/* Hero Section with Search */}
         <section className="py-24 px-4 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-secondary/30 to-background z-0"></div>
-          <div className="container mx-auto max-w-6xl relative z-10">
+          <div className="md:container mx-auto md:max-w-6xl relative z-10">
             <div className="text-center mb-12 animate-slide-up">
               <h1 className="text-4xl md:text-6xl font-bold leading-tight gradient-text mb-6">
                 {t("client.home.title")}
@@ -184,23 +174,8 @@ export default function Home() {
             </div>
 
             {/* Search Form */}
-            <div className="bg-card rounded-xl shadow-soft p-6 mb-12 animate-slide-up">
+            <div className="bg-card rounded-xl shadow-soft p-3 md:p-6 mb-6 md:mb-12 animate-slide-up">
               <div className="grid md:grid-cols-4 gap-4">
-                <div className="col-span-4 md:col-span-1">
-                  <label className="block text-sm font-medium mb-2">
-                    {t("client.home.search.location")}
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      placeholder={t("client.home.search.locationPlaceholder")}
-                      className="w-full px-4 py-3 pl-10 rounded-lg border border-input bg-background"
-                      value={searchLocation}
-                      onChange={(e) => setSearchLocation(e.target.value)}
-                    />
-                    <MapPin className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" />
-                  </div>
-                </div>
                 <div className="col-span-4 md:col-span-1">
                   <label className="block text-sm font-medium mb-2">
                     {t("client.home.search.service")}
@@ -218,6 +193,21 @@ export default function Home() {
                 </div>
                 <div className="col-span-4 md:col-span-1">
                   <label className="block text-sm font-medium mb-2">
+                    {t("client.home.search.location")}
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder={t("client.home.search.locationPlaceholder")}
+                      className="w-full px-4 py-3 pl-10 rounded-lg border border-input bg-background"
+                      value={searchLocation}
+                      onChange={(e) => setSearchLocation(e.target.value)}
+                    />
+                    <MapPin className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" />
+                  </div>
+                </div>
+                <div className="col-span-4 md:col-span-1">
+                  <label className="block text-sm font-medium mb-2">
                     {t("client.home.search.date")}
                   </label>
                   <input
@@ -228,7 +218,7 @@ export default function Home() {
                   />
                 </div>
                 <div className="col-span-4 md:col-span-1 flex items-end">
-                  <button className="w-full py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors flex items-center justify-center gap-2">
+                  <button className="w-full py-3.5 bg-primary rounded-lg text-white hover:bg-primary/90 transition-colors flex items-center justify-center gap-2">
                     <Search className="h-4 w-4" />
                     {t("client.home.search.button")}
                   </button>
@@ -236,54 +226,69 @@ export default function Home() {
               </div>
             </div>
           </div>
+          <div className="text-center animate-on-scroll">
+            <p className="mt-4 text-base md:text-xl text-muted-foreground max-w-2xl mx-auto">
+              <span className="text-primary font-bold">568 </span>
+              {t("client.home.proof.subtitle")}.
+            </p>
+          </div>
         </section>
 
         {/* Categories Section */}
-        <section id="categories" className="py-20 px-4 bg-secondary/30">
-          <div className="container mx-auto max-w-6xl">
-            <div className="flex justify-between items-center mb-12">
-              <h2 className="text-3xl font-bold gradient-text">
+        <section
+          id="categories"
+          className="py-10 md:py-20 px-4 bg-secondary/30"
+        >
+          <div className="md:container mx-auto max-w-6xl">
+            <div className="flex justify-between items-center gap-2 mb-12">
+              <h2 className="text-xl md:text-3xl font-bold gradient-text">
                 {t("client.home.categories.title")}
               </h2>
               <Link
                 href="/categories"
-                className="text-primary hover:underline flex items-center"
+                className="text-sm md:text-base text-primary hover:underline flex items-center"
               >
                 {t("client.home.categories.viewAll")}
-                <ChevronRight className="w-4 h-4 ml-1" />
+                <ChevronRight className="w-4 h-4 md:ml-1" />
               </Link>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+            <Carousel
+              slidesPerView={1.3}
+              spaceBetween={16}
+              breakpoints={{
+                500: { slidesPerView: 2.3, spaceBetween: 16 },
+                768: { slidesPerView: 3.3, spaceBetween: 20 },
+                1024: { slidesPerView: 4.3, spaceBetween: 24 },
+              }}
+              className=""
+              pagination={true}
+            >
               {categories.map((category) => (
-                <Link
+                <CategoryCard
                   key={category.id}
-                  href={`/category/${category.id}`}
-                  className="bg-card rounded-xl p-6 text-center hover-lift transition-all"
-                >
-                  <div className="w-12 h-12 bg-primary/10 text-primary rounded-full flex items-center justify-center mx-auto mb-4">
-                    {category.icon}
-                  </div>
-                  <span className="font-medium">{category.name}</span>
-                </Link>
+                  id={category.id}
+                  name={category.name}
+                  imageUrl={category.imageUrl}
+                />
               ))}
-            </div>
+            </Carousel>
           </div>
         </section>
 
         {/* Featured Professionals */}
-        <section className="py-20 px-4">
-          <div className="container mx-auto max-w-6xl">
-            <div className="flex justify-between items-center mb-12">
-              <h2 className="text-3xl font-bold gradient-text">
+        <section className="py-10 md:py-20 px-4">
+          <div className="md:container mx-auto max-w-6xl">
+            <div className="flex justify-between items-center gap-2 mb-12">
+              <h2 className="text-xl md:text-3xl font-bold gradient-text">
                 {t("client.home.featured.title")}
               </h2>
               <Link
                 href="/professionals"
-                className="text-primary hover:underline flex items-center"
+                className="text-sm md:text-base text-primary hover:underline flex items-center"
               >
                 {t("client.home.featured.viewAll")}
-                <ChevronRight className="w-4 h-4 ml-1" />
+                <ChevronRight className="w-4 h-4 md:ml-1" />
               </Link>
             </div>
 
@@ -327,12 +332,12 @@ export default function Home() {
         {/* How It Works Section */}
         <section
           id="how-it-works"
-          className="py-20 px-4 relative overflow-hidden"
+          className="py-10 md:py-20 px-4 relative overflow-hidden"
         >
           <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 to-accent/5 z-0"></div>
-          <div className="container mx-auto max-w-6xl relative z-10">
+          <div className="md:container mx-auto max-w-6xl relative z-10">
             <div className="text-center mb-16 animate-on-scroll">
-              <h2 className="text-3xl md:text-5xl font-bold gradient-text">
+              <h2 className="text-xl md:text-3xl font-bold gradient-text">
                 {t("client.home.howItWorks.title")}
               </h2>
             </div>
@@ -354,7 +359,7 @@ export default function Home() {
               {/* Step 2 */}
               <div className="text-center animate-on-scroll">
                 <div className="w-20 h-20 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center mx-auto mb-8 relative z-10 shadow-soft animate-pulse-subtle">
-                  <span className="text-2xl font-bold ">2</span>
+                  <span className="text-2xl font-bold">2</span>
                 </div>
                 <h3 className="text-xl font-semibold mb-3">
                   {t("client.home.howItWorks.step2.title")}
@@ -386,11 +391,11 @@ export default function Home() {
         {/* CTA Section */}
         <section className="py-24 px-4 relative overflow-hidden">
           <div className="absolute inset-0 gradient-bg z-0"></div>
-          <div className="container mx-auto max-w-4xl text-center relative z-10">
+          <div className="md:container mx-auto max-w-4xl text-center relative z-10">
             <h2 className="text-3xl md:text-5xl font-bold mb-6 text-white animate-on-scroll">
               {t("client.home.cta.title")}
             </h2>
-            <p className="text-xl mb-8 text-white/80 max-w-2xl mx-auto animate-on-scroll">
+            <p className="text-xl mb-8 text-white max-w-2xl mx-auto animate-on-scroll">
               {t("client.home.cta.subtitle")}
             </p>
             <Link
@@ -402,6 +407,7 @@ export default function Home() {
           </div>
         </section>
       </main>
+      <Footer />
     </div>
   );
 }

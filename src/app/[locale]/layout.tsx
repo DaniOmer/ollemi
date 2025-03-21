@@ -1,9 +1,9 @@
 "use client";
 
-import { NextIntlClientProvider } from "next-intl";
-import { useEffect, useState } from "react";
 import React from "react";
-import Footer from "@/components/layouts/Footer";
+import { useEffect, useState } from "react";
+import { NextIntlClientProvider } from "next-intl";
+import { ReduxProvider } from "@/lib/redux/provider";
 
 export default function LocaleLayout({
   children,
@@ -53,11 +53,12 @@ export default function LocaleLayout({
   }
 
   return (
-    <NextIntlClientProvider locale={locale} messages={messages}>
-      <div className="flex flex-col min-h-screen">
-        <div className="flex-grow">{children}</div>
-        <Footer />
-      </div>
-    </NextIntlClientProvider>
+    <ReduxProvider>
+      <NextIntlClientProvider locale={locale} messages={messages}>
+        <div className="flex flex-col min-h-screen">
+          <div className="flex-grow">{children}</div>
+        </div>
+      </NextIntlClientProvider>
+    </ReduxProvider>
   );
 }

@@ -5,6 +5,9 @@ const withNextIntl = createNextIntlPlugin("./next-intl.config.ts");
 
 const nextConfig: NextConfig = {
   /* config options here */
+  images: {
+    domains: ["picsum.photos"],
+  },
 };
 
 export default withNextIntl(nextConfig);

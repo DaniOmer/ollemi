@@ -36,9 +36,9 @@ export default function ProfessionalHome() {
     <div className="flex flex-col min-h-screen">
       <div className="flex-grow">
         {/* Hero Section */}
-        <section className="py-24 px-4 relative overflow-hidden">
+        <section className="py-10 md:py-24 px-4 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-secondary/30 to-background z-0"></div>
-          <div className="container mx-auto max-w-6xl relative z-10">
+          <div className="md:container mx-auto max-w-6xl relative z-10">
             <div className="grid md:grid-cols-2 gap-12 items-center">
               <div className="animate-slide-up">
                 <h1 className="text-4xl md:text-6xl font-bold leading-tight gradient-text">
@@ -77,13 +77,13 @@ export default function ProfessionalHome() {
         </section>
 
         {/* Features Section */}
-        <section id="features" className="py-20 px-4 bg-secondary/30">
-          <div className="container mx-auto max-w-6xl">
+        <section id="features" className="py-10 md:py-20 px-4 bg-secondary/30">
+          <div className="md:container mx-auto max-w-6xl">
             <div className="text-center mb-16 animate-on-scroll">
-              <h2 className="text-3xl md:text-5xl font-bold gradient-text">
+              <h2 className="text-xl md:text-5xl font-bold gradient-text">
                 {t("features.title")}
               </h2>
-              <p className="mt-4 text-xl text-muted-foreground max-w-2xl mx-auto">
+              <p className="mt-4 text-base md:text-xl text-muted-foreground max-w-2xl mx-auto">
                 {t("features.subtitle")}
               </p>
             </div>
@@ -93,15 +93,15 @@ export default function ProfessionalHome() {
         {/* How It Works Section */}
         <section
           id="how-it-works"
-          className="py-20 px-4 relative overflow-hidden"
+          className="py-10 md:py-20 px-4 relative overflow-hidden"
         >
           <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 to-accent/5 z-0"></div>
-          <div className="container mx-auto max-w-6xl relative z-10">
+          <div className="md:container mx-auto max-w-6xl relative z-10">
             <div className="text-center mb-16 animate-on-scroll">
-              <h2 className="text-3xl md:text-5xl font-bold gradient-text">
+              <h2 className="text-xl md:text-5xl font-bold gradient-text">
                 {t("howItWorks.title")}
               </h2>
-              <p className="mt-4 text-xl text-muted-foreground max-w-2xl mx-auto">
+              <p className="mt-4 text-base md:text-xl text-muted-foreground max-w-2xl mx-auto">
                 {t("howItWorks.subtitle")}
               </p>
             </div>
@@ -109,13 +109,13 @@ export default function ProfessionalHome() {
         </section>
 
         {/* Pricing Section */}
-        <section id="pricing" className="py-20 px-4 bg-secondary/30">
-          <div className="container mx-auto max-w-6xl">
+        <section id="pricing" className="py-10 md:py-20 px-4 bg-secondary/30">
+          <div className="md:container mx-auto max-w-6xl">
             <div className="text-center mb-16 animate-on-scroll">
-              <h2 className="text-3xl md:text-5xl font-bold gradient-text">
+              <h2 className="text-xl md:text-5xl font-bold gradient-text">
                 {t("pricing.title")}
               </h2>
-              <p className="mt-4 text-xl text-muted-foreground max-w-2xl mx-auto">
+              <p className="mt-4 text-base md:text-xl text-muted-foreground max-w-2xl mx-auto">
                 {t("pricing.subtitle")}
               </p>
             </div>
@@ -125,7 +125,7 @@ export default function ProfessionalHome() {
         {/* CTA Section */}
         <section className="py-24 px-4 relative overflow-hidden">
           <div className="absolute inset-0 gradient-bg z-0"></div>
-          <div className="container mx-auto max-w-4xl text-center relative z-10">
+          <div className="md:container mx-auto max-w-4xl text-center relative z-10">
             <h2 className="text-3xl md:text-5xl font-bold mb-6 text-white animate-on-scroll">
               {t("cta.title")}
             </h2>
