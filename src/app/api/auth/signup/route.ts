@@ -42,7 +42,23 @@ export async function POST(request: Request) {
       );
     }
 
-    return NextResponse.json(data);
+    // Créer la réponse
+    const response = NextResponse.json(data);
+
+    // Stocker le token dans un cookie pour le middleware si disponible
+    if (data.session?.access_token) {
+      response.cookies.set({
+        name: "access_token",
+        value: data.session.access_token,
+        httpOnly: true,
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 60 * 60 * 24 * 7, // 1 semaine
+        sameSite: "lax",
+      });
+    }
+
+    return response;
   } catch (error) {
     console.error(
       "Signup error:",
