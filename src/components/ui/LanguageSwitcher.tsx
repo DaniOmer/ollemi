@@ -40,7 +40,7 @@ export function LanguageSwitcher() {
       {locales.map((locale) => (
         <Button
           key={locale}
-          variant={locale === currentLocale ? "outline" : "default"}
+          variant={locale === currentLocale ? "default" : "outline"}
           size="sm"
           onClick={() => handleLocaleChange(locale)}
           aria-label={`Switch language to ${localeNames[locale]}`}

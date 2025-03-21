@@ -107,17 +107,17 @@ export default function Footer() {
                   href={`/${locale}`}
                   className="text-base text-gray-500 hover:text-gray-900"
                 >
-                  {t("nav.features")}
+                  {t("footer.forClients")}
                 </Link>
               </li>
-              <li>
+              {/* <li>
                 <Link
                   href={`/${locale}#how-it-works`}
                   className="text-base text-gray-500 hover:text-gray-900"
                 >
                   {t("nav.howItWorks")}
                 </Link>
-              </li>
+              </li> */}
               {/* <li>
                 <Link
                   href={`/${locale}#pricing`}
@@ -167,14 +167,14 @@ export default function Footer() {
                   {t("footer.contact")}
                 </Link>
               </li>
-              <li>
+              {/* <li>
                 <Link
                   href={`/${locale}/careers`}
                   className="text-base text-gray-500 hover:text-gray-900"
                 >
                   {t("footer.careers")}
                 </Link>
-              </li>
+              </li> */}
               {/* <li>
                 <Link
                   href={`/${locale}/blog`}

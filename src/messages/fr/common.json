@@ -54,6 +54,10 @@
         "title": "Vous êtes un professionnel de la beauté ?",
         "subtitle": "Rejoignez notre plateforme et développez votre entreprise",
         "button": "Devenir partenaire"
+      },
+      "proof": {
+        "title": "Preuve de concept",
+        "subtitle": "clients ont déjà réservé avec nous"
       }
     },
     "search": {
@@ -94,7 +98,14 @@
     "signup": "Inscription",
     "legalDocs": "Documents légaux",
     "backToHome": "Retour à l'accueil",
-    "backToTop": "Retour en haut"
+    "backToTop": "Retour en haut",
+    "logout": "Déconnexion",
+    "dashboard": "Tableau de bord",
+    "clientSection": "Espace Client",
+    "professionalSection": "Espace Pro",
+    "overview": "Vue d'ensemble",
+    "appointments": "Rendez-vous",
+    "settings": "Paramètres"
   },
   "hero": {
     "title": "Simplifiez votre entreprise de beauté",
@@ -266,5 +277,34 @@
     "clientsDescription": "Gérez votre base de données clients et vos communications.",
     "servicesDescription": "Gérez vos services, prix et disponibilité.",
     "profileDescription": "Gérez votre profil, les informations de votre entreprise et les paramètres de votre compte."
+  },
+  "common": {
+    "error": "Erreur",
+    "success": "Succès",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "add": "Ajouter",
+    "remove": "Supprimer",
+    "close": "Fermer",
+    "save": "Enregistrer",
+    "back": "Retour",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "sort": "Trier",
+    "loading": "Chargement...",
+    "noResults": "Aucun résultat trouvé",
+    "noData": "Aucune donnée disponible",
+    "noInternet": "Aucune connexion internet",
+    "noLocation": "Aucune localisation trouvée"
+  },
+  "notFound": {
+    "title": "404",
+    "heading": "Page introuvable",
+    "description": "La page que vous recherchez n'existe pas ou a été déplacée.",
+    "button": "Retour à l'accueil",
+    "support": "Si vous pensez qu'il s'agit d'une erreur, veuillez contacter notre support."
   }
 }
