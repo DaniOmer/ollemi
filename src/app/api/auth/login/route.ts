@@ -22,21 +22,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: error.message }, { status: 401 });
     }
 
-    // Récupérer les informations complètes de l'utilisateur, y compris le rôle
-    const { data: userData, error: userError } = await supabase
-      .from("users")
-      .select("*")
-      .eq("id", data.user?.id)
-      .single();
-
-    if (userError) {
-      console.error(
-        "Erreur lors de la récupération du profil utilisateur:",
-        userError
-      );
-    }
-
-    // Stocker le token dans un cookie pour le middleware
     const response = NextResponse.json(data);
 
     if (data.session?.access_token) {
@@ -51,16 +36,9 @@ export async function POST(request: Request) {
         sameSite: "lax",
       });
 
-      // Cookie pour les informations utilisateur (pour le middleware)
-      const userInfo = {
-        id: data.user?.id,
-        email: data.user?.email,
-        role: userData?.role,
-      };
-
       response.cookies.set({
         name: "user",
-        value: JSON.stringify(userInfo),
+        value: JSON.stringify(data.user.user_metadata),
         httpOnly: false, // Doit être false pour que le middleware puisse y accéder
         path: "/",
         secure: process.env.NODE_ENV === "production",

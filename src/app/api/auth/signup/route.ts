@@ -20,10 +20,10 @@ export async function POST(request: Request) {
       );
     }
 
-    const { data, error } = await supabase.auth.signUp({
+    // First, try to sign up the user
+    const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
-      phone,
       options: {
         data: {
           first_name: firstName,
@@ -35,25 +35,55 @@ export async function POST(request: Request) {
       },
     });
 
-    if (error) {
+    if (authError) {
+      console.error("Auth signup error:", authError);
       return NextResponse.json(
-        { error: error.message },
-        { status: error.status || 400 }
+        { error: authError.message },
+        { status: authError.status || 400 }
       );
     }
 
-    // Créer la réponse
-    const response = NextResponse.json(data);
+    if (!authData.user) {
+      console.error("No user data returned from signup");
+      return NextResponse.json(
+        { error: "Failed to create user" },
+        { status: 500 }
+      );
+    }
 
-    // Stocker le token dans un cookie pour le middleware si disponible
-    if (data.session?.access_token) {
+    // Create a response with the user data
+    const response = NextResponse.json({
+      user: authData.user,
+      session: authData.session,
+    });
+
+    // Set the access token cookie if available
+    if (authData.session?.access_token) {
+      // Cookie pour le token d'accès
       response.cookies.set({
         name: "access_token",
-        value: data.session.access_token,
+        value: authData.session.access_token,
         httpOnly: true,
         path: "/",
         secure: process.env.NODE_ENV === "production",
-        maxAge: 60 * 60 * 24 * 7, // 1 semaine
+        maxAge: 60 * 60 * 24 * 7, // 1 week
+        sameSite: "lax",
+      });
+
+      // Cookie pour les informations utilisateur (pour le middleware)
+      const userInfo = {
+        id: authData.user.id,
+        email: authData.user.email,
+        role: role || "client", // Par défaut, rôle client si non défini
+      };
+
+      response.cookies.set({
+        name: "user",
+        value: JSON.stringify(userInfo),
+        httpOnly: false, // Doit être false pour que le middleware puisse y accéder
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 60 * 60 * 24 * 7, // 1 week
         sameSite: "lax",
       });
     }
