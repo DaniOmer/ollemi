@@ -30,7 +30,6 @@ import {
 } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Mail, Lock, Loader2, AlertCircle } from "lucide-react";
-import { signIn } from "@/lib/services/auth";
 import { signInWithGoogle } from "@/lib/supabase/client";
 
 // Define the form schema with zod
@@ -61,8 +60,24 @@ export default function LoginPage() {
   }, [dispatch]);
 
   useEffect(() => {
-    if (isAuthenticated && user?.user_metadata.role) {
-      router.push(`/dashboard/${user.user_metadata.role}`);
+    if (isAuthenticated && user) {
+      try {
+        // Check if the function exists before calling it
+        const role = user.user_metadata.role;
+        const isOnboardingComplete = user.user_metadata.onboarding_completed;
+
+        if (!isOnboardingComplete) {
+          // User needs to complete onboarding
+          router.push("/onboarding/business-name");
+        } else {
+          // User doesn't need onboarding or it's complete
+          router.push(`/dashboard/${role}`);
+        }
+      } catch (error) {
+        console.error("Error checking onboarding status:", error);
+        // Fallback to default navigation
+        // router.push(`/dashboard/${user.user_metadata.role}`);
+      }
     }
   }, [isAuthenticated, user, router]);
 

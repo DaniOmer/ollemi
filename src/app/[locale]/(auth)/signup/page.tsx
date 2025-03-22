@@ -35,6 +35,7 @@ import {
   Loader2,
   AlertCircle,
   Phone,
+  CheckCircle,
 } from "lucide-react";
 import { signUp } from "@/lib/services/auth";
 import { signInWithGoogle } from "@/lib/supabase/client";
@@ -109,9 +110,21 @@ export default function SignupPage() {
         throw new Error(error);
       }
 
-      // Only redirect to login page if signup was successful
+      // Redirect to onboarding for professional users or to dashboard for clients
       if (data) {
-        router.push("/login");
+        // Afficher un message de succès
+        setError("Registration successful! Redirecting...");
+
+        // Petit délai pour permettre à l'utilisateur de voir le message
+        setTimeout(() => {
+          if (data.redirectUrl) {
+            console.log("Redirecting to:", data.redirectUrl);
+            // router.push(data.redirectUrl);
+          } else {
+            console.log("Redirecting to dashboard");
+            // router.push("/dashboard");
+          }
+        }, 1500);
       }
     } catch (err) {
       setError(
@@ -161,8 +174,18 @@ export default function SignupPage() {
 
           <CardContent className="pt-2 pb-6">
             {error && (
-              <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-lg flex items-center text-destructive text-sm animate-fade-in">
-                <AlertCircle className="h-4 w-4 mr-2" />
+              <div
+                className={`mb-4 p-3 ${
+                  error.includes("successful")
+                    ? "bg-green-100 border border-green-200 text-green-800"
+                    : "bg-destructive/10 border border-destructive/20 text-destructive"
+                } rounded-lg flex items-center text-sm animate-fade-in`}
+              >
+                {error.includes("successful") ? (
+                  <CheckCircle className="h-4 w-4 mr-2" />
+                ) : (
+                  <AlertCircle className="h-4 w-4 mr-2" />
+                )}
                 {error}
               </div>
             )}

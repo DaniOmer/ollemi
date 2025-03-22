@@ -5,6 +5,7 @@ import { locales, defaultLocale } from "./i18n";
 
 const protectedRoutes = ["/dashboard"];
 const authRoutes = ["/login", "/signup"];
+const onboardingRoutes = ["/onboarding"];
 const proRoutes = ["/dashboard/pro"];
 const clientRoutes = ["/dashboard/client"];
 
@@ -43,6 +44,19 @@ export default async function middleware(req: NextRequest) {
   if (isAuthenticated && user) {
     const hasProPermission = user.role === "admin" || user.role === "pro";
     const hasClientPermission = user.role === "admin" || user.role === "client";
+    const onboardingCompleted = user.onboarding_completed === true;
+
+    // Redirection vers l'onboarding si l'utilisateur n'a pas complété son onboarding
+    // et essaie d'accéder au dashboard
+    if (
+      hasProPermission &&
+      !onboardingCompleted &&
+      normalizedPath.startsWith("/dashboard")
+    ) {
+      return NextResponse.redirect(
+        new URL(`/${defaultLocale}/onboarding/business-name`, req.url)
+      );
+    }
 
     // Redirection si l'utilisateur n'a pas les permissions pour accéder à une route pro
     if (!hasProPermission && normalizedPath.startsWith("/dashboard/pro")) {
@@ -67,9 +81,13 @@ export default async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL(`/${defaultLocale}/login`, req.url));
   }
 
-  // Redirection après connexion vers le dashboard approprié
+  // Redirection après connexion vers le dashboard approprié ou l'onboarding si nécessaire
   if (isAuthRoute && isAuthenticated && user?.role) {
-    if (user.role === "pro") {
+    if (user.role === "pro" && !user.onboarding_completed) {
+      return NextResponse.redirect(
+        new URL(`/${defaultLocale}/onboarding/business-name`, req.url)
+      );
+    } else if (user.role === "pro") {
       return NextResponse.redirect(
         new URL(`/${defaultLocale}/dashboard/pro`, req.url)
       );

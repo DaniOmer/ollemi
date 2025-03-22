@@ -9,6 +9,8 @@ export interface User {
   accept_terms: boolean;
   created_at: string;
   updated_at?: string;
+  company_id?: string;
+  onboarding_completed?: boolean;
 }
 
 // Company types

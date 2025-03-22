@@ -60,7 +60,12 @@ export function extractToken(request: Request | NextRequest): string | null {
  */
 export function extractUserFromCookie(
   req: NextRequest
-): { id?: string; email?: string; role?: string } | null {
+): {
+  id?: string;
+  email?: string;
+  role?: string;
+  onboarding_completed?: boolean;
+} | null {
   try {
     const userCookie = req.cookies.get("user")?.value;
     if (!userCookie) return null;

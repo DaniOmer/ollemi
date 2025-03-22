@@ -19,6 +19,7 @@ import authReducer from "./slices/authSlice";
 import appointmentsReducer from "./slices/appointmentsSlice";
 import companiesReducer from "./slices/companiesSlice";
 import userReducer from "./slices/userSlice";
+import onboardingReducer from "./slices/onboardingSlice";
 
 // Create a custom storage that checks for window availability
 const customStorage = {
@@ -44,7 +45,7 @@ const customStorage = {
 const persistConfig = {
   key: "root",
   storage: typeof window !== "undefined" ? storage : customStorage,
-  whitelist: ["auth", "user"], // Only persist auth and user state
+  whitelist: ["auth", "user", "onboarding"], // Persist auth, user, and onboarding state
 };
 
 // Combine reducers
@@ -53,6 +54,7 @@ const rootReducer = combineReducers({
   appointments: appointmentsReducer,
   companies: companiesReducer,
   user: userReducer,
+  onboarding: onboardingReducer,
 });
 
 // Create persisted reducer

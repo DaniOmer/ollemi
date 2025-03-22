@@ -31,6 +31,7 @@ export async function POST(request: Request) {
           phone,
           role,
           accept_terms: acceptTerms,
+          onboarding_completed: role === "professional" ? false : true,
         },
       },
     });
@@ -55,6 +56,10 @@ export async function POST(request: Request) {
     const response = NextResponse.json({
       user: authData.user,
       session: authData.session,
+      redirectUrl:
+        role === "professional"
+          ? "/auth/onboarding/business-name"
+          : "/dashboard",
     });
 
     // Set the access token cookie if available
@@ -75,6 +80,7 @@ export async function POST(request: Request) {
         id: authData.user.id,
         email: authData.user.email,
         role: role || "client", // Par défaut, rôle client si non défini
+        onboarding_completed: role === "professional" ? false : true,
       };
 
       response.cookies.set({
