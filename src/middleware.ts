@@ -3,8 +3,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { extractToken, extractUserFromCookie } from "./lib/supabase/client";
 import { locales, defaultLocale } from "./i18n";
 
-const protectedRoutes = ["/dashboard/pro", "/dashboard/client"];
+const protectedRoutes = ["/dashboard"];
 const authRoutes = ["/login", "/signup"];
+const proRoutes = ["/dashboard/pro"];
+const clientRoutes = ["/dashboard/client"];
 
 const intlMiddleware = createMiddleware({
   locales,
@@ -37,29 +39,49 @@ export default async function middleware(req: NextRequest) {
   const isAuthenticated = token !== null;
   const user = extractUserFromCookie(req);
 
-  // Vérifier si l'utilisateur est authentifié mais non autorisé pour les routes admin/pro
+  // Vérifier si l'utilisateur est authentifié mais non autorisé pour les routes spécifiques
   if (isAuthenticated && user) {
     const hasProPermission = user.role === "admin" || user.role === "pro";
     const hasClientPermission = user.role === "admin" || user.role === "client";
 
+    // Redirection si l'utilisateur n'a pas les permissions pour accéder à une route pro
     if (!hasProPermission && normalizedPath.startsWith("/dashboard/pro")) {
-      return NextResponse.redirect(new URL(`/${defaultLocale}`, req.url));
+      return NextResponse.redirect(
+        new URL(`/${defaultLocale}/dashboard`, req.url)
+      );
     }
 
+    // Redirection si l'utilisateur n'a pas les permissions pour accéder à une route client
     if (
       !hasClientPermission &&
       normalizedPath.startsWith("/dashboard/client")
     ) {
-      return NextResponse.redirect(new URL(`/${defaultLocale}`, req.url));
+      return NextResponse.redirect(
+        new URL(`/${defaultLocale}/dashboard`, req.url)
+      );
     }
   }
 
+  // Redirection vers la page de connexion si l'utilisateur n'est pas authentifié
   if (isProtected && !isAuthenticated) {
     return NextResponse.redirect(new URL(`/${defaultLocale}/login`, req.url));
   }
 
-  if (isAuthRoute && isAuthenticated) {
-    return NextResponse.redirect(new URL(`/${defaultLocale}`, req.url));
+  // Redirection après connexion vers le dashboard approprié
+  if (isAuthRoute && isAuthenticated && user?.role) {
+    if (user.role === "pro") {
+      return NextResponse.redirect(
+        new URL(`/${defaultLocale}/dashboard/pro`, req.url)
+      );
+    } else if (user.role === "client") {
+      return NextResponse.redirect(
+        new URL(`/${defaultLocale}/dashboard/client`, req.url)
+      );
+    } else {
+      return NextResponse.redirect(
+        new URL(`/${defaultLocale}/dashboard`, req.url)
+      );
+    }
   }
 
   // 2. Gestion i18n

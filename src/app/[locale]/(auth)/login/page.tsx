@@ -60,16 +60,11 @@ export default function LoginPage() {
     dispatch(clearError());
   }, [dispatch]);
 
-  // Redirect to dashboard if already authenticated
   useEffect(() => {
-    if (isAuthenticated) {
-      if (user?.role === "pro") {
-        router.push("/dashboard/pro");
-      } else {
-        router.push("/dashboard/client");
-      }
+    if (isAuthenticated && user?.user_metadata.role) {
+      router.push(`/dashboard/${user.user_metadata.role}`);
     }
-  }, [isAuthenticated, router, user]);
+  }, [isAuthenticated, user, router]);
 
   // Set up the form with react-hook-form and zod validation
   const form = useForm<LoginFormValues>({
@@ -83,12 +78,16 @@ export default function LoginPage() {
 
   // Handle form submission
   const onSubmit = async (values: LoginFormValues) => {
-    await dispatch(
-      login({
-        email: values.email,
-        password: values.password,
-      })
-    );
+    try {
+      await dispatch(
+        login({
+          email: values.email,
+          password: values.password,
+        })
+      ).unwrap();
+    } catch (error) {
+      console.error("Login failed:", error);
+    }
   };
 
   return (
