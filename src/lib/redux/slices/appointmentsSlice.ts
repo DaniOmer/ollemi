@@ -148,6 +148,29 @@ const appointmentsSlice = createSlice({
     ) => {
       state.currentAppointment = action.payload;
     },
+    // Add realtime sync actions
+    addAppointmentRealtime: (state, action: PayloadAction<Appointment>) => {
+      state.appointments.push(action.payload);
+    },
+    updateAppointmentRealtime: (state, action: PayloadAction<Appointment>) => {
+      const index = state.appointments.findIndex(
+        (appointment) => appointment.id === action.payload.id
+      );
+      if (index !== -1) {
+        state.appointments[index] = action.payload;
+      }
+      if (state.currentAppointment?.id === action.payload.id) {
+        state.currentAppointment = action.payload;
+      }
+    },
+    deleteAppointmentRealtime: (state, action: PayloadAction<string>) => {
+      state.appointments = state.appointments.filter(
+        (appointment) => appointment.id !== action.payload
+      );
+      if (state.currentAppointment?.id === action.payload) {
+        state.currentAppointment = null;
+      }
+    },
   },
   extraReducers: (builder) => {
     // Fetch all appointments
@@ -254,7 +277,13 @@ const appointmentsSlice = createSlice({
 });
 
 // Export actions and reducer
-export const { clearError, setCurrentAppointment } = appointmentsSlice.actions;
+export const {
+  clearError,
+  setCurrentAppointment,
+  addAppointmentRealtime,
+  updateAppointmentRealtime,
+  deleteAppointmentRealtime,
+} = appointmentsSlice.actions;
 
 // Base selector
 const selectAppointmentsState = (state: RootState) =>
@@ -285,11 +314,11 @@ export const selectAppointmentsError = createSelector(
 export const selectUpcomingAppointments = createSelector(
   [selectAppointments],
   (appointments) => {
-    const now = new Date();
+    const now = new Date().toISOString();
     return appointments
       .filter((appointment: Appointment) => {
         const appointmentDate = new Date(appointment.start_time);
-        return appointmentDate > now;
+        return appointmentDate > new Date(now);
       })
       .sort((a: Appointment, b: Appointment) => {
         return (
@@ -302,11 +331,11 @@ export const selectUpcomingAppointments = createSelector(
 export const selectPastAppointments = createSelector(
   [selectAppointments],
   (appointments) => {
-    const now = new Date();
+    const now = new Date().toISOString();
     return appointments
       .filter((appointment: Appointment) => {
         const appointmentDate = new Date(appointment.start_time);
-        return appointmentDate <= now;
+        return appointmentDate <= new Date(now);
       })
       .sort((a: Appointment, b: Appointment) => {
         return (

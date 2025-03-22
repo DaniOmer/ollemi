@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -10,6 +10,13 @@ import { useTranslations } from "@/hooks/useTranslations";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, Plus } from "lucide-react";
+import { supabase } from "@/lib/supabase/client";
+import { useDispatch } from "react-redux";
+import {
+  addAppointmentRealtime,
+  updateAppointmentRealtime,
+  deleteAppointmentRealtime,
+} from "@/lib/redux/slices/appointmentsSlice";
 
 interface AppointmentCalendarProps {
   appointments?: Appointment[];
@@ -24,11 +31,40 @@ export function AppointmentCalendar({
   onDateSelect,
   isReadOnly = false,
 }: AppointmentCalendarProps) {
+  const dispatch = useDispatch();
   const { t } = useTranslations();
   const calendarRef = useRef<FullCalendar | null>(null);
   const [view, setView] = useState<"timeGridWeek" | "timeGridDay">(
     "timeGridWeek"
   );
+
+  // Set up Supabase Realtime subscription
+  useEffect(() => {
+    const subscription = supabase
+      .channel("appointments")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "appointments",
+        },
+        (payload) => {
+          if (payload.eventType === "INSERT") {
+            dispatch(addAppointmentRealtime(payload.new as Appointment));
+          } else if (payload.eventType === "UPDATE") {
+            dispatch(updateAppointmentRealtime(payload.new as Appointment));
+          } else if (payload.eventType === "DELETE") {
+            dispatch(deleteAppointmentRealtime(payload.old.id));
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [dispatch]);
 
   // Convert appointments to FullCalendar events
   const events = appointments.map((appointment) => ({
@@ -73,7 +109,7 @@ export function AppointmentCalendar({
   };
 
   return (
-    <Card>
+    <Card className="border-none">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-xl font-bold">
           {t("dashboard.appointments")}
@@ -95,22 +131,6 @@ export function AppointmentCalendar({
             <Clock className="h-4 w-4 mr-2" />
             {t("calendar.dayView")}
           </Button>
-          {!isReadOnly && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                const now = new Date();
-                const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
-                if (onDateSelect) {
-                  onDateSelect(now, oneHourLater);
-                }
-              }}
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              {t("calendar.newAppointment")}
-            </Button>
-          )}
         </div>
       </CardHeader>
       <CardContent>

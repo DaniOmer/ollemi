@@ -3,8 +3,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { getProfessionals } from "@/lib/services/professionals";
-import { Professional } from "@/types";
+import { getCompanies } from "@/lib/services/companies";
+import { Professional, Company } from "@/types";
 import { useTranslations } from "@/hooks/useTranslations";
 import { MapPin, ChevronRight, Search, Scissors } from "lucide-react";
 
@@ -12,31 +12,28 @@ import Header from "@/components/layouts/Header";
 import Footer from "@/components/layouts/Footer";
 import Carousel from "@/components/ui/Carousel";
 import CategoryCard from "@/components/categories/CategoryCard";
+import { useAppSelector } from "@/lib/redux/store";
+import {
+  selectCompanies,
+  selectCompaniesLoading,
+} from "@/lib/redux/slices/companiesSlice";
 
 export default function Home() {
   const { t } = useTranslations();
   const [professionals, setProfessionals] = useState<Professional[]>([]);
-  const [loading, setLoading] = useState(true);
   const [searchLocation, setSearchLocation] = useState("");
   const [searchService, setSearchService] = useState("");
   const [searchDate, setSearchDate] = useState("");
 
-  // Fetch professionals
-  useEffect(() => {
-    const fetchProfessionals = async () => {
-      try {
-        const response = await getProfessionals();
-        if (response.data) {
-          setProfessionals(response.data);
-        }
-      } catch (error) {
-        console.error("Error fetching professionals:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const companies = useAppSelector(selectCompanies);
+  const loading = useAppSelector(selectCompaniesLoading);
 
-    fetchProfessionals();
+  // Fetch companies
+  useEffect(() => {
+    const fetchCompanies = async () => {
+      const response = await getCompanies();
+    };
+    fetchCompanies();
   }, []);
 
   // Add animation classes on scroll
@@ -91,11 +88,6 @@ export default function Home() {
       name: t("client.home.categories.massage"),
       imageUrl: "/images/categories/massage.jpg",
     },
-    // {
-    //   id: "barber",
-    //   name: t("client.home.categories.barber"),
-    //   imageUrl: "/images/categories/barber.jpg",
-    // },
   ];
 
   // Professional card component
@@ -110,36 +102,35 @@ export default function Home() {
           {professional.photos && professional.photos.length > 0 ? (
             <Image
               src={professional.photos[0].url}
-              alt={professional.photos[0].alt || professional.business_name}
+              alt={professional.photos[0].alt || professional.name}
               fill
               className="object-cover"
             />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="text-4xl font-bold text-primary/20">
-                {professional.business_name.charAt(0)}
+                {professional.name.charAt(0)}
               </div>
             </div>
           )}
         </div>
         <div className="p-5">
-          <h3 className="text-xl font-semibold mb-2">
-            {professional.business_name}
-          </h3>
+          <h3 className="text-xl font-semibold mb-2">{professional.name}</h3>
           <div className="flex items-center text-sm text-muted-foreground mb-3">
             <MapPin className="w-4 h-4 mr-1" />
             {professional.city}
           </div>
           <div className="flex flex-wrap gap-2 mb-4">
-            {professional.services.slice(0, 3).map((service) => (
-              <span
-                key={service.id}
-                className="text-xs px-2 py-1 bg-secondary rounded-full"
-              >
-                {service.name}
-              </span>
-            ))}
-            {professional.services.length > 3 && (
+            {professional.services &&
+              professional.services.slice(0, 3).map((service) => (
+                <span
+                  key={service.id}
+                  className="text-xs px-2 py-1 bg-secondary rounded-full"
+                >
+                  {service.name}
+                </span>
+              ))}
+            {professional.services && professional.services.length > 3 && (
               <span className="text-xs px-2 py-1 bg-secondary rounded-full">
                 +{professional.services.length - 3}
               </span>
@@ -227,7 +218,7 @@ export default function Home() {
             </div>
           </div>
           <div className="text-center animate-on-scroll">
-            <p className="mt-4 text-base md:text-xl text-muted-foreground max-w-2xl mx-auto">
+            <p className="mt-10 text-base md:text-xl text-muted-foreground max-w-2xl mx-auto">
               <span className="text-primary font-bold">568 </span>
               {t("client.home.proof.subtitle")}.
             </p>
@@ -235,10 +226,7 @@ export default function Home() {
         </section>
 
         {/* Categories Section */}
-        <section
-          id="categories"
-          className="py-10 md:py-20 px-4 bg-secondary/30"
-        >
+        <section id="categories" className="py-10 px-4 bg-secondary/30">
           <div className="md:container mx-auto max-w-6xl">
             <div className="flex justify-between items-center gap-2 mb-12">
               <h2 className="text-xl md:text-3xl font-bold gradient-text">
@@ -277,7 +265,7 @@ export default function Home() {
         </section>
 
         {/* Featured Professionals */}
-        <section className="py-10 md:py-20 px-4">
+        <section className="py-10 px-4">
           <div className="md:container mx-auto max-w-6xl">
             <div className="flex justify-between items-center gap-2 mb-12">
               <h2 className="text-xl md:text-3xl font-bold gradient-text">
@@ -312,13 +300,10 @@ export default function Home() {
                   </div>
                 ))}
               </div>
-            ) : professionals.length > 0 ? (
+            ) : companies.length > 0 ? (
               <div className="grid md:grid-cols-3 gap-8">
-                {professionals.slice(0, 3).map((professional) => (
-                  <ProfessionalCard
-                    key={professional.id}
-                    professional={professional}
-                  />
+                {companies.slice(0, 3).map((company: Company) => (
+                  <ProfessionalCard key={company.id} professional={company} />
                 ))}
               </div>
             ) : (

@@ -1,32 +1,17 @@
 "use client";
 
-import React from "react";
-import { useEffect, useState } from "react";
 import { NextIntlClientProvider } from "next-intl";
-import { ReduxProvider } from "@/lib/redux/provider";
+import { useEffect, useState } from "react";
 
-export default function LocaleLayout({
-  children,
-  params,
-}: {
+interface IntlProviderProps {
   children: React.ReactNode;
-  params: { locale: string };
-}) {
-  // Properly unwrap params using React.use()
-  const unwrappedParams = React.use(params as any);
-  const locale = (unwrappedParams as { locale: string }).locale;
+  locale: string;
+}
 
+export default function IntlProvider({ children, locale }: IntlProviderProps) {
   const [messages, setMessages] = useState<Record<string, any> | null>(null);
 
-  // Set the HTML lang attribute on the client side
   useEffect(() => {
-    if (locale) {
-      document.documentElement.lang = locale;
-    }
-  }, [locale]);
-
-  useEffect(() => {
-    // Load messages dynamically
     import(`@/messages/${locale}/common.json`)
       .then((module) => {
         setMessages(module.default);
@@ -60,12 +45,8 @@ export default function LocaleLayout({
   }
 
   return (
-    <ReduxProvider>
-      <NextIntlClientProvider locale={locale} messages={messages}>
-        <div className="flex flex-col min-h-screen">
-          <div className="flex-grow">{children}</div>
-        </div>
-      </NextIntlClientProvider>
-    </ReduxProvider>
+    <NextIntlClientProvider locale={locale} messages={messages}>
+      {children}
+    </NextIntlClientProvider>
   );
 }

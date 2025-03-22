@@ -306,5 +306,14 @@
     "description": "La page que vous recherchez n'existe pas ou a été déplacée.",
     "button": "Retour à l'accueil",
     "support": "Si vous pensez qu'il s'agit d'une erreur, veuillez contacter notre support."
+  },
+  "calendar": {
+    "newAppointment": "Nouveau rendez-vous",
+    "dayView": "Vue journalière",
+    "weekView": "Vue hebdomadaire",
+    "monthView": "Vue mensuelle",
+    "today": "Aujourd'hui",
+    "yesterday": "Hier",
+    "tomorrow": "Demain"
   }
 }

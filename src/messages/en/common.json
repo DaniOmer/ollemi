@@ -303,5 +303,14 @@
     "description": "The page you're looking for doesn't exist or has been moved.",
     "button": "Return to homepage",
     "support": "If you believe this is an error, please contact support."
+  },
+  "calendar": {
+    "newAppointment": "New Appointment",
+    "dayView": "Day View",
+    "weekView": "Week View",
+    "monthView": "Month View",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "tomorrow": "Tomorrow"
   }
 }

@@ -5,6 +5,7 @@ import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import { useTranslations } from "@/hooks/useTranslations";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/store";
 import { selectIsAuthenticated, logout } from "@/lib/redux/slices/authSlice";
+import { selectUser } from "@/lib/redux/slices/authSlice";
 import { selectUserProfile } from "@/lib/redux/slices/userSlice";
 import { useRouter, usePathname } from "next/navigation";
 import {
@@ -22,6 +23,7 @@ import { useState, useEffect } from "react";
 export default function Header() {
   const { t } = useTranslations();
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
+  const user = useAppSelector(selectUser);
   const profile = useAppSelector(selectUserProfile);
 
   const dispatch = useAppDispatch();
@@ -33,7 +35,8 @@ export default function Header() {
 
   const isProfessionalSection = pathname?.includes("/professional");
 
-  const dashboardPath = profile?.role === "pro" ? "/pro" : "/client";
+  const dashboardPath =
+    user?.user_metadata?.role === "pro" ? "/pro" : "/client";
 
   // Handle scroll effect for header
   useEffect(() => {

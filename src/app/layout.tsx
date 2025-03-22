@@ -11,15 +11,17 @@ export const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+// This is a server component by default (no "use client" directive)
 export default function RootLayout({
   children,
-  params,
 }: {
   children: React.ReactNode;
-  params?: { locale?: string };
 }) {
   return (
-    <html lang={params?.locale || "en"}>
+    <html suppressHydrationWarning>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         {children}
       </body>

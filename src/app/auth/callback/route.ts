@@ -44,9 +44,17 @@ export async function GET(request: NextRequest) {
           // Créer la réponse de redirection basée sur le rôle
           let redirectUrl;
           if (profileData?.role === "pro") {
-            redirectUrl = new URL(`/${defaultLocale}/pro`, request.url);
+            redirectUrl = new URL(
+              `/${defaultLocale}/dashboard/pro`,
+              request.url
+            );
+          } else if (profileData?.role === "client") {
+            redirectUrl = new URL(
+              `/${defaultLocale}/dashboard/client`,
+              request.url
+            );
           } else {
-            redirectUrl = new URL(`/${defaultLocale}/client`, request.url);
+            redirectUrl = new URL(`/${defaultLocale}/dashboard`, request.url);
           }
 
           // Créer la réponse et définir le cookie
