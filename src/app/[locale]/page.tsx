@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { getCompanies } from "@/lib/services/companies";
+import { getCategories, Category } from "@/lib/services/categories";
 import { Professional, Company } from "@/types";
 import { useTranslations } from "@/hooks/useTranslations";
 import { MapPin, ChevronRight, Search, Scissors } from "lucide-react";
@@ -24,6 +25,8 @@ export default function Home() {
   const [searchLocation, setSearchLocation] = useState("");
   const [searchService, setSearchService] = useState("");
   const [searchDate, setSearchDate] = useState("");
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
 
   const companies = useAppSelector(selectCompanies);
   const loading = useAppSelector(selectCompaniesLoading);
@@ -34,6 +37,26 @@ export default function Home() {
       const response = await getCompanies();
     };
     fetchCompanies();
+  }, []);
+
+  // Fetch categories
+  useEffect(() => {
+    const fetchCategories = async () => {
+      setCategoriesLoading(true);
+      try {
+        const response = await getCategories();
+        if (response.data) {
+          setCategories(response.data);
+        } else {
+          console.error("Failed to fetch categories:", response.error);
+        }
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      } finally {
+        setCategoriesLoading(false);
+      }
+    };
+    fetchCategories();
   }, []);
 
   // Add animation classes on scroll
@@ -60,35 +83,6 @@ export default function Home() {
       animatedElements.forEach((el) => observer.unobserve(el));
     };
   }, []);
-
-  // Categories with images
-  const categories = [
-    {
-      id: "haircut",
-      name: t("client.home.categories.haircut"),
-      imageUrl: "/images/categories/haircut.jpg",
-    },
-    {
-      id: "nails",
-      name: t("client.home.categories.nails"),
-      imageUrl: "/images/categories/nails.jpg",
-    },
-    {
-      id: "makeup",
-      name: t("client.home.categories.makeup"),
-      imageUrl: "/images/categories/makeup.jpg",
-    },
-    {
-      id: "skincare",
-      name: t("client.home.categories.skincare"),
-      imageUrl: "/images/categories/skincare.jpg",
-    },
-    {
-      id: "massage",
-      name: t("client.home.categories.massage"),
-      imageUrl: "/images/categories/massage.jpg",
-    },
-  ];
 
   // Professional card component
   const ProfessionalCard = ({
@@ -241,26 +235,43 @@ export default function Home() {
               </Link>
             </div>
 
-            <Carousel
-              slidesPerView={1.3}
-              spaceBetween={16}
-              breakpoints={{
-                500: { slidesPerView: 2.3, spaceBetween: 16 },
-                768: { slidesPerView: 3.3, spaceBetween: 20 },
-                1024: { slidesPerView: 4.3, spaceBetween: 24 },
-              }}
-              className=""
-              pagination={true}
-            >
-              {categories.map((category) => (
-                <CategoryCard
-                  key={category.id}
-                  id={category.id}
-                  name={category.name}
-                  imageUrl={category.imageUrl}
-                />
-              ))}
-            </Carousel>
+            {categoriesLoading ? (
+              // Skeleton loaders for categories
+              Array(5)
+                .fill(0)
+                .map((_, i) => (
+                  <div
+                    key={i}
+                    className="bg-card rounded-xl overflow-hidden animate-pulse"
+                  >
+                    <div className="h-48 bg-primary/5"></div>
+                    <div className="p-4">
+                      <div className="h-6 w-24 bg-primary/5 rounded"></div>
+                    </div>
+                  </div>
+                ))
+            ) : (
+              <Carousel
+                slidesPerView={1.3}
+                spaceBetween={16}
+                breakpoints={{
+                  500: { slidesPerView: 2.3, spaceBetween: 16 },
+                  768: { slidesPerView: 3.3, spaceBetween: 20 },
+                  1024: { slidesPerView: 4.3, spaceBetween: 24 },
+                }}
+                className=""
+                pagination={true}
+              >
+                {categories.map((category) => (
+                  <CategoryCard
+                    key={category.id}
+                    id={category.id}
+                    name={category.name}
+                    imageUrl={category.imageUrl}
+                  />
+                ))}
+              </Carousel>
+            )}
           </div>
         </section>
 
