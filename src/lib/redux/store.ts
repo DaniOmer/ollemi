@@ -17,7 +17,7 @@ import {
 // Import reducers
 import authReducer from "./slices/authSlice";
 import appointmentsReducer from "./slices/appointmentsSlice";
-import professionalsReducer from "./slices/professionalsSlice";
+import companiesReducer from "./slices/companiesSlice";
 import userReducer from "./slices/userSlice";
 
 // Create a custom storage that checks for window availability
@@ -51,7 +51,7 @@ const persistConfig = {
 const rootReducer = combineReducers({
   auth: authReducer,
   appointments: appointmentsReducer,
-  professionals: professionalsReducer,
+  companies: companiesReducer,
   user: userReducer,
 });
 
@@ -78,10 +78,10 @@ if (typeof window !== "undefined") {
 
 export { store, persistor };
 
-// Export types for TypeScript
+// Infer the `RootState` and `AppDispatch` types from the store itself
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 
 // Use throughout your app instead of plain `useDispatch` and `useSelector`
-export const useAppDispatch = () => useDispatch<AppDispatch>();
+export const useAppDispatch: () => AppDispatch = useDispatch;
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;

@@ -11,22 +11,23 @@ export interface User {
   updated_at?: string;
 }
 
-// Professional types
-export interface Professional {
+// Company types
+export interface Company {
   id: string;
   user_id: string;
-  business_name: string;
-  description: string;
-  address: string;
-  city: string;
-  zipcode: string;
-  phone: string;
+  name: string;
+  description?: string;
+  address?: string;
+  city?: string;
+  zipcode?: string;
+  phone?: string;
   website?: string;
   instagram?: string;
   facebook?: string;
-  opening_hours: OpeningHours;
-  services: Service[];
-  photos: Photo[];
+  imageUrl?: string;
+  opening_hours?: OpeningHours;
+  services?: Service[];
+  photos?: Photo[];
 }
 
 export interface OpeningHours {
@@ -49,17 +50,26 @@ export interface DayHours {
 
 export interface Service {
   id: string;
-  pro_id: string;
+  company_id: string;
   name: string;
   description?: string;
   price: number;
   duration: number; // in minutes
-  category: string;
+  category?: string;
+}
+
+// Service form data (without id and company_id)
+export interface ServiceFormData {
+  name: string;
+  description?: string;
+  price: number;
+  duration: number;
+  category?: string;
 }
 
 export interface Photo {
   id: string;
-  pro_id: string;
+  company_id: string;
   url: string;
   alt?: string;
   featured: boolean;
@@ -68,7 +78,7 @@ export interface Photo {
 // Appointment types
 export interface Appointment {
   id: string;
-  pro_id: string;
+  company_id: string;
   client_id?: string;
   client_email: string;
   client_name: string;
@@ -89,4 +99,10 @@ export interface SearchParams {
   price_min?: number;
   price_max?: number;
   rating?: number;
+}
+
+// For backward compatibility
+export interface Professional extends Company {
+  name: string;
+  user_id: string;
 }
