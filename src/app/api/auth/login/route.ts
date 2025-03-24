@@ -22,7 +22,20 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: error.message }, { status: 401 });
     }
 
-    const response = NextResponse.json(data);
+    const { data: userData, error: userError } = await supabase
+      .from("users")
+      .select("*")
+      .eq("id", data.user.id)
+      .single();
+
+    if (userError) {
+      return NextResponse.json({ error: userError.message }, { status: 401 });
+    }
+
+    const response = NextResponse.json({
+      ...data,
+      user_data: userData,
+    });
 
     if (data.session?.access_token) {
       // Cookie pour le token d'accès
@@ -38,7 +51,10 @@ export async function POST(request: Request) {
 
       response.cookies.set({
         name: "user",
-        value: JSON.stringify(data.user.user_metadata),
+        value: JSON.stringify({
+          ...userData,
+          metadata: data.user.user_metadata,
+        }),
         httpOnly: false, // Doit être false pour que le middleware puisse y accéder
         path: "/",
         secure: process.env.NODE_ENV === "production",
