@@ -63,12 +63,12 @@ export default function ProfessionalDashboard() {
   // Fetch data on component mount
   useEffect(() => {
     dispatch(fetchUserProfile());
-    if (user?.id) {
-      dispatch(fetchCompanyById(user.id));
-      dispatch(fetchServices(user.id));
+    if (user?.company_id) {
+      dispatch(fetchCompanyById(user.company_id));
+      dispatch(fetchServices(user.company_id));
       dispatch(fetchAppointments());
     }
-  }, [dispatch, isAuthenticated, router, user?.id]);
+  }, [dispatch, isAuthenticated, router, user?.company_id]);
 
   // Stats
   const todayAppointments = upcomingAppointments.filter(
@@ -107,7 +107,7 @@ export default function ProfessionalDashboard() {
       {/* Welcome Section */}
       <div>
         <h1 className="text-3xl font-bold text-foreground">
-          Bonjour, {currentCompany?.name || "Pro"}
+          Bonjour, {currentCompany?.name}
         </h1>
       </div>
 

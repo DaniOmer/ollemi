@@ -16,10 +16,9 @@ export async function GET(
       .single();
 
     if (error && error.code !== "PGRST116") {
-      // PGRST116 is "no rows returned" - in this case we just return 0 points
-      console.error("Error fetching user points:", error);
+      // PGRST116 is "no rows returned"
       return NextResponse.json(
-        { error: "Error fetching user points" },
+        { error: "Error fetching user company" },
         { status: 500 }
       );
     }

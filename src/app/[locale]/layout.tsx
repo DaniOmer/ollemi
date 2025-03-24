@@ -4,6 +4,7 @@ import React from "react";
 import { useEffect, useState } from "react";
 import { NextIntlClientProvider } from "next-intl";
 import { ReduxProvider } from "@/lib/redux/provider";
+import { Toaster } from "react-hot-toast";
 
 export default function LocaleLayout({
   children,
@@ -65,6 +66,7 @@ export default function LocaleLayout({
         <div className="flex flex-col min-h-screen">
           <div className="flex-grow">{children}</div>
         </div>
+        <Toaster position="top-right" />
       </NextIntlClientProvider>
     </ReduxProvider>
   );

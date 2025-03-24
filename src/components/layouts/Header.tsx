@@ -35,8 +35,7 @@ export default function Header() {
 
   const isProfessionalSection = pathname?.includes("/professional");
 
-  const dashboardPath =
-    user?.user_metadata?.role === "pro" ? "/pro" : "/client";
+  const dashboardPath = user?.role === "pro" ? "/pro" : "/client";
 
   // Handle scroll effect for header
   useEffect(() => {
