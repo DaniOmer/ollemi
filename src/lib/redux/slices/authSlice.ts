@@ -139,7 +139,7 @@ const authSlice = createSlice({
       .addCase(login.fulfilled, (state, action) => {
         if (action.payload) {
           state.loading = false;
-          state.user = action.payload.user;
+          state.user = action.payload.user_data;
           state.token = action.payload.session.access_token;
         }
       })

@@ -80,7 +80,7 @@ export default function OnboardingLayout({
             </div>
           </div>
 
-          <div className="p-8">
+          <div className="p-2 md:p-8">
             <div className="mb-10">
               <h2 className="mb-4 text-xl font-bold text-gray-800">
                 Account setup
@@ -88,7 +88,7 @@ export default function OnboardingLayout({
               <Stepper steps={steps} className="mb-8" />
             </div>
 
-            <div className="rounded-lg border border-gray-100 bg-white p-6 shadow-sm">
+            <div className="rounded-lg md:border border-gray-100 bg-white md:p-6 shadow-sm">
               {children}
             </div>
           </div>

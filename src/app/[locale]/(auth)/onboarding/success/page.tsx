@@ -58,7 +58,7 @@ export default function SuccessPage() {
     };
 
     saveOnboardingData();
-  }, [dispatch, onboardingData]);
+  }, []);
 
   const goToDashboard = () => {
     // Redirect to professional dashboard after onboarding

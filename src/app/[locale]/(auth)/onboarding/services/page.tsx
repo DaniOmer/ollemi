@@ -9,14 +9,16 @@ import {
   selectServices,
   setServices,
 } from "@/lib/redux/slices/onboardingSlice";
+import { getCategories } from "@/lib/services/categories";
+import Image from "next/image";
 
-interface ServiceOption {
+interface CategoryData {
   id: string;
   name: string;
-  icon: JSX.Element;
+  imageUrl: string;
 }
 
-interface ServiceData {
+interface SelectedCategoryData {
   id: string;
   isPrimary: boolean;
 }
@@ -26,13 +28,38 @@ export default function ServicesPage() {
   const dispatch = useAppDispatch();
   const storedServices = useAppSelector(selectServices);
 
-  const [selectedServices, setSelectedServices] = useState<ServiceData[]>([]);
+  const [categories, setCategories] = useState<CategoryData[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<
+    SelectedCategoryData[]
+  >([]);
   const [loading, setLoading] = useState(false);
+  const [fetchingCategories, setFetchingCategories] = useState(true);
+
+  // Fetch categories from API
+  useEffect(() => {
+    const fetchCategoriesData = async () => {
+      setFetchingCategories(true);
+      try {
+        const response = await getCategories();
+        if (response.data) {
+          setCategories(response.data);
+        } else {
+          console.error("Failed to fetch categories:", response.error);
+        }
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      } finally {
+        setFetchingCategories(false);
+      }
+    };
+
+    fetchCategoriesData();
+  }, []);
 
   // Load data from Redux store when component mounts
   useEffect(() => {
     if (storedServices && storedServices.length > 0) {
-      // Convert from array of strings to array of ServiceData objects
+      // Convert from array of strings to array of SelectedCategoryData objects
       // For backward compatibility with existing data structure
       if (typeof storedServices[0] === "string") {
         const primaryService =
@@ -41,177 +68,51 @@ export default function ServicesPage() {
           id,
           isPrimary: id === primaryService,
         }));
-        setSelectedServices(formattedServices);
+        setSelectedCategories(formattedServices);
       } else {
-        setSelectedServices(storedServices as ServiceData[]);
+        setSelectedCategories(storedServices as SelectedCategoryData[]);
       }
     }
   }, [storedServices]);
 
-  const serviceOptions: ServiceOption[] = [
-    {
-      id: "haircuts",
-      name: "Haircuts & styling",
-      icon: (
-        <svg
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M15 5L12 2M12 2L9 5M12 2V13M8 6L3 10M3 10L8 14M3 10H10M16 6L21 10M21 10L16 14M21 10H14M5 20H19C20.1046 20 21 19.1046 21 18V16H3V18C3 19.1046 3.89543 20 5 20Z"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      ),
-    },
-    {
-      id: "nails",
-      name: "Nail services",
-      icon: (
-        <svg
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M12 6C12 3.79086 10.2091 2 8 2C5.79086 2 4 3.79086 4 6C4 7.4533 4.77926 8.72079 5.9374 9.40062M12 6H16M12 6V18M16 6C18.2091 6 20 7.79086 20 10C20 12.2091 18.2091 14 16 14M16 6C17.3833 6 18.6177 6.67235 19.391 7.6875M20 22L17 19M17 19L14 22M17 19V16M8 14H12M8 14C5.79086 14 4 15.7909 4 18C4 20.2091 5.79086 22 8 22C10.2091 22 12 20.2091 12 18"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      ),
-    },
-    {
-      id: "eyebrows",
-      name: "Eyebrows & lashes",
-      icon: (
-        <svg
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M12 7C14.7614 7 17 9.23858 17 12M12 7C9.23858 7 7 9.23858 7 12M12 7V4M17 12C17 14.7614 14.7614 17 12 17M17 12H20M12 17C9.23858 17 7 14.7614 7 12M12 17V20M7 12H4"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      ),
-    },
-    {
-      id: "facials",
-      name: "Facials & skincare",
-      icon: (
-        <svg
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M12 2L15 5.5M12 2L9 5.5M12 2V8M4 10L2 14M2 14L4 18M2 14H8M20 10L22 14M22 14L20 18M22 14H16M12 16C14.2091 16 16 14.2091 16 12C16 9.79086 14.2091 8 12 8C9.79086 8 8 9.79086 8 12C8 14.2091 9.79086 16 12 16ZM12 16V20C12 21.1046 12.8954 22 14 22H18M12 16V20C12 21.1046 11.1046 22 10 22H6"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      ),
-    },
-    {
-      id: "injectables",
-      name: "Injectables & fillers",
-      icon: (
-        <svg
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M17 7L7 17M17 7H12M17 7V12M14 3L14 6M10 3V6M6 10H3M6 14H3M14 21V18M10 21V18M21 10H18M21 14H18"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      ),
-    },
-    {
-      id: "makeup",
-      name: "Makeup",
-      icon: (
-        <svg
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M21 10H3M16 20V10M8 20V10M3 10L3.81365 5.13636C3.92449 4.46275 4.51058 4 5.19452 4H18.8055C19.4894 4 20.0755 4.46275 20.1864 5.13636L21 10Z"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      ),
-    },
-  ];
-
-  const toggleService = (serviceId: string) => {
-    const isSelected = selectedServices.some(
-      (service) => service.id === serviceId
+  const toggleCategory = (categoryId: string) => {
+    const isSelected = selectedCategories.some(
+      (category) => category.id === categoryId
     );
 
     if (isSelected) {
-      // Remove the service
-      setSelectedServices(
-        selectedServices.filter((service) => service.id !== serviceId)
+      // Remove the category
+      setSelectedCategories(
+        selectedCategories.filter((category) => category.id !== categoryId)
       );
     } else {
-      // Add the service, set as primary if it's the first one
+      // Add the category, set as primary if it's the first one
       const isPrimary =
-        selectedServices.length === 0 ||
-        !selectedServices.some((service) => service.isPrimary);
-      setSelectedServices([...selectedServices, { id: serviceId, isPrimary }]);
+        selectedCategories.length === 0 ||
+        !selectedCategories.some((category) => category.isPrimary);
+      setSelectedCategories([
+        ...selectedCategories,
+        { id: categoryId, isPrimary },
+      ]);
     }
   };
 
-  const setPrimary = (serviceId: string) => {
-    setSelectedServices(
-      selectedServices.map((service) => ({
-        ...service,
-        isPrimary: service.id === serviceId,
+  const setPrimary = (categoryId: string) => {
+    setSelectedCategories(
+      selectedCategories.map((category) => ({
+        ...category,
+        isPrimary: category.id === categoryId,
       }))
     );
   };
 
-  const isServiceSelected = (serviceId: string) => {
-    return selectedServices.some((service) => service.id === serviceId);
+  const isCategorySelected = (categoryId: string) => {
+    return selectedCategories.some((category) => category.id === categoryId);
   };
 
-  const isServicePrimary = (serviceId: string) => {
-    return selectedServices.some(
-      (service) => service.id === serviceId && service.isPrimary
+  const isCategoryPrimary = (categoryId: string) => {
+    return selectedCategories.some(
+      (category) => category.id === categoryId && category.isPrimary
     );
   };
 
@@ -221,12 +122,24 @@ export default function ServicesPage() {
 
     try {
       // Save data to Redux store
-      dispatch(setServices(selectedServices));
+      dispatch(setServices(selectedCategories));
+
+      // Save data to localStorage - store only IDs for consistency
+      const serviceIds = selectedCategories.map((category) => category.id);
+      localStorage.setItem("onboarding_services", JSON.stringify(serviceIds));
+
+      // Store primary service ID separately
+      const primaryService = selectedCategories.find(
+        (category) => category.isPrimary
+      );
+      if (primaryService) {
+        localStorage.setItem("onboarding_primary_service", primaryService.id);
+      }
 
       // Navigate to next step
       router.push("/onboarding/team-size");
     } catch (error) {
-      console.error("Error saving services:", error);
+      console.error("Error saving categories:", error);
     } finally {
       setLoading(false);
     }
@@ -235,62 +148,86 @@ export default function ServicesPage() {
   return (
     <div>
       <h2 className="mb-6 text-2xl font-semibold">
-        What services do you offer?
+        What categories do you offer?
       </h2>
       <p className="mb-8 text-gray-600">
-        Choose your primary and up to 3 related service types
+        Choose your primary and up to 3 related service categories
       </p>
 
       <form onSubmit={handleSubmit}>
-        <div className="grid grid-cols-2 gap-4 mb-8">
-          {serviceOptions.map((service) => (
-            <div
-              key={service.id}
-              onClick={() => toggleService(service.id)}
-              className={`relative p-4 border rounded-lg cursor-pointer transition-all ${
-                isServiceSelected(service.id)
-                  ? "border-primary shadow-sm"
-                  : "border-gray-200"
-              }`}
-            >
-              {isServicePrimary(service.id) && (
-                <span className="absolute top-2 right-2 text-xs font-medium text-primary px-2 py-1 bg-primary/10 rounded-full">
-                  Primary
-                </span>
-              )}
-              <div className="flex items-center">
+        {fetchingCategories ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+            {Array(6)
+              .fill(0)
+              .map((_, index) => (
                 <div
-                  className={`mr-3 ${
-                    isServiceSelected(service.id)
-                      ? "text-primary"
-                      : "text-gray-500"
-                  }`}
+                  key={index}
+                  className="p-4 border rounded-lg animate-pulse h-[90px]"
                 >
-                  {service.icon}
-                </div>
-                <span className="font-medium truncate">{service.name}</span>
-                {isServiceSelected(service.id) && (
-                  <CheckCircle className="ml-auto h-5 w-5 text-primary flex-shrink-0" />
-                )}
-              </div>
-              {isServiceSelected(service.id) &&
-                !isServicePrimary(service.id) && (
-                  <div className="mt-3 text-right">
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setPrimary(service.id);
-                      }}
-                      className="text-xs text-primary hover:underline"
-                    >
-                      Set as primary
-                    </button>
+                  <div className="flex items-center">
+                    <div className="w-8 h-8 rounded-full bg-gray-200 mr-3"></div>
+                    <div className="w-24 h-6 bg-gray-200 rounded"></div>
                   </div>
+                </div>
+              ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+            {categories.map((category) => (
+              <div
+                key={category.id}
+                onClick={() => toggleCategory(category.id)}
+                className={`relative p-4 border rounded-lg cursor-pointer transition-all ${
+                  isCategorySelected(category.id)
+                    ? "border-primary shadow-sm"
+                    : "border-gray-200"
+                }`}
+              >
+                {isCategoryPrimary(category.id) && (
+                  <span className="absolute top-2 right-2 text-xs font-medium text-primary px-2 py-1 bg-primary/10 rounded-full">
+                    Primary
+                  </span>
                 )}
-            </div>
-          ))}
-        </div>
+                <div className="flex items-center">
+                  <div
+                    className={`relative w-8 h-8 mr-3 rounded-full overflow-hidden flex-shrink-0 ${
+                      isCategorySelected(category.id)
+                        ? "ring-2 ring-primary"
+                        : ""
+                    }`}
+                  >
+                    <Image
+                      src={category.imageUrl}
+                      alt={category.name}
+                      fill
+                      className="object-cover"
+                      sizes="32px"
+                    />
+                  </div>
+                  <span className="font-medium truncate">{category.name}</span>
+                  {isCategorySelected(category.id) && (
+                    <CheckCircle className="ml-auto h-5 w-5 text-primary flex-shrink-0" />
+                  )}
+                </div>
+                {isCategorySelected(category.id) &&
+                  !isCategoryPrimary(category.id) && (
+                    <div className="mt-3 text-right">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setPrimary(category.id);
+                        }}
+                        className="text-xs text-primary hover:underline"
+                      >
+                        Set as primary
+                      </button>
+                    </div>
+                  )}
+              </div>
+            ))}
+          </div>
+        )}
 
         <div className="flex justify-between">
           <Button
@@ -305,9 +242,10 @@ export default function ServicesPage() {
           <Button
             type="submit"
             disabled={
-              selectedServices.length === 0 ||
-              !selectedServices.some((service) => service.isPrimary) ||
-              loading
+              selectedCategories.length === 0 ||
+              !selectedCategories.some((category) => category.isPrimary) ||
+              loading ||
+              fetchingCategories
             }
             className="min-w-[120px]"
           >

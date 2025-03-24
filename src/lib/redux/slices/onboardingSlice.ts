@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../store";
+import { createSelector } from "@reduxjs/toolkit";
 
 export interface OnboardingState {
   businessName: string;
@@ -77,17 +78,44 @@ export const {
 } = onboardingSlice.actions;
 
 // Selectors
-export const selectBusinessInfo = (state: RootState) => ({
-  businessName: state.onboarding.businessName,
-  website: state.onboarding.website,
-});
-export const selectServices = (state: RootState) => state.onboarding.services;
-export const selectTeamSize = (state: RootState) => state.onboarding.teamSize;
-export const selectLocation = (state: RootState) => state.onboarding.location;
-export const selectCurrentStep = (state: RootState) =>
-  state.onboarding.currentStep;
-export const selectIsOnboardingCompleted = (state: RootState) =>
-  state.onboarding.isCompleted;
-export const selectAllOnboardingData = (state: RootState) => state.onboarding;
+const selectOnboardingState = (state: RootState) => state.onboarding;
+
+export const selectBusinessInfo = createSelector(
+  [selectOnboardingState],
+  (onboarding) => ({
+    businessName: onboarding.businessName,
+    website: onboarding.website,
+  })
+);
+
+export const selectServices = createSelector(
+  [selectOnboardingState],
+  (onboarding) => onboarding.services
+);
+
+export const selectTeamSize = createSelector(
+  [selectOnboardingState],
+  (onboarding) => onboarding.teamSize
+);
+
+export const selectLocation = createSelector(
+  [selectOnboardingState],
+  (onboarding) => onboarding.location
+);
+
+export const selectCurrentStep = createSelector(
+  [selectOnboardingState],
+  (onboarding) => onboarding.currentStep
+);
+
+export const selectIsOnboardingCompleted = createSelector(
+  [selectOnboardingState],
+  (onboarding) => onboarding.isCompleted
+);
+
+export const selectAllOnboardingData = createSelector(
+  [selectOnboardingState],
+  (onboarding) => onboarding
+);
 
 export default onboardingSlice.reducer;

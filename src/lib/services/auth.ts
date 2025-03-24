@@ -8,19 +8,25 @@ import { User } from "@/types";
 
 export type AuthResponse = {
   user: User;
+  user_data: User;
   session: {
     access_token: string;
     expires_at: number;
+    refresh_token?: string;
   };
   redirectUrl?: string;
 };
 
 // Token storage and retrieval functions
 const ACCESS_TOKEN_KEY = "access_token";
+const REFRESH_TOKEN_KEY = "refresh_token";
 
-export const saveToken = (token: string): void => {
+export const saveToken = (token: string, refreshToken?: string): void => {
   if (typeof window !== "undefined") {
     localStorage.setItem(ACCESS_TOKEN_KEY, token);
+    if (refreshToken) {
+      localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+    }
   }
 };
 
@@ -31,14 +37,53 @@ export const getToken = (): string | null => {
   return null;
 };
 
+export const getRefreshToken = (): string | null => {
+  if (typeof window !== "undefined") {
+    return localStorage.getItem(REFRESH_TOKEN_KEY);
+  }
+  return null;
+};
+
 export const removeToken = (): void => {
   if (typeof window !== "undefined") {
     localStorage.removeItem(ACCESS_TOKEN_KEY);
+    localStorage.removeItem(REFRESH_TOKEN_KEY);
   }
 };
 
-// Initialize auth interceptor
-setupAuthInterceptor(getToken);
+/**
+ * Refreshes the access token using the refresh token
+ * @returns A boolean indicating if the token was successfully refreshed
+ */
+export const refreshToken = async (): Promise<boolean> => {
+  try {
+    const refreshToken = getRefreshToken();
+    if (!refreshToken) {
+      return false;
+    }
+
+    const response = await fetchApi<AuthResponse>("/auth/refresh", {
+      method: "POST",
+      data: { refresh_token: refreshToken },
+    });
+
+    if (response.data?.session?.access_token) {
+      saveToken(
+        response.data.session.access_token,
+        response.data.session.refresh_token
+      );
+      return true;
+    }
+
+    return false;
+  } catch (error) {
+    console.error("Error refreshing token:", error);
+    return false;
+  }
+};
+
+// Initialize auth interceptor with refresh token capability
+setupAuthInterceptor(getToken, refreshToken);
 
 export async function signUp(
   email: string,
@@ -64,7 +109,10 @@ export async function signUp(
 
   // Only save token if signup was successful and we have a token
   if (response.data?.session?.access_token) {
-    saveToken(response.data.session.access_token);
+    saveToken(
+      response.data.session.access_token,
+      response.data.session.refresh_token
+    );
   }
 
   return response;
@@ -80,7 +128,10 @@ export async function signIn(
   });
 
   if (response.data?.session?.access_token) {
-    saveToken(response.data.session.access_token);
+    saveToken(
+      response.data.session.access_token,
+      response.data.session.refresh_token
+    );
   }
 
   return response;

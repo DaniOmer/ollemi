@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase/client";
 import { extractToken, createAuthClient } from "@/lib/supabase/client";
+
 export async function POST(request: Request) {
   try {
     // Get token from the request
@@ -15,80 +15,98 @@ export async function POST(request: Request) {
     const { data, error } = await supabaseWithAuth.auth.getUser();
 
     if (error || !data.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    if (!data.user.user_metadata.company_id) {
+      console.error("Unauthorized access:", error);
       return NextResponse.json(
-        { error: "User has no company assigned" },
-        { status: 400 }
-      );
-    }
-
-    if (!data.user.user_metadata.company_id) {
-      console.error("User has no company_id");
-      return NextResponse.json(
-        { error: "User has no company assigned" },
-        { status: 400 }
+        { error: "Unauthorized access" },
+        { status: 401 }
       );
     }
 
     const requestData = await request.json();
 
-    // Update the company with the onboarding data
-    const { error: updateCompanyError } = await supabase
+    // Check if user already has a company
+    const { data: existingCompany, error: queryError } = await supabaseWithAuth
       .from("companies")
-      .update({
-        name: requestData.businessName || undefined,
-        address: requestData.location?.address || undefined,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", data.user.user_metadata.company_id);
+      .select("id")
+      .eq("user_id", data.user.id)
+      .single();
 
-    if (updateCompanyError) {
-      console.error("Error updating company:", updateCompanyError);
-      return NextResponse.json(
-        { error: "Failed to update company data" },
-        { status: 500 }
-      );
+    let companyId;
+
+    if (existingCompany) {
+      // User already has a company, use that instead of creating a new one
+      console.log("User already has a company, using existing one");
+      companyId = existingCompany.id;
+
+      // Update existing company information
+      const { error: updateError } = await supabaseWithAuth
+        .from("companies")
+        .update({
+          name: requestData.businessName,
+          address: requestData.location?.address,
+          website: requestData.website,
+          team_size: requestData.teamSize,
+          industry: requestData.industry,
+        })
+        .eq("id", companyId);
+
+      if (updateError) {
+        console.error("Error updating company:", updateError);
+        return NextResponse.json(
+          { error: "Failed to update company" },
+          { status: 500 }
+        );
+      }
+    } else {
+      // Create a new company for the user
+      const { data: companyData, error: companyError } = await supabaseWithAuth
+        .from("companies")
+        .insert({
+          name: requestData.businessName,
+          address: requestData.location?.address,
+          website: requestData.website,
+          team_size: requestData.teamSize,
+          industry: requestData.industry,
+          user_id: data.user.id,
+        })
+        .select("id")
+        .single();
+
+      if (companyError) {
+        console.error("Error creating company:", companyError);
+        return NextResponse.json(
+          { error: "Failed to create company" },
+          { status: 500 }
+        );
+      }
+
+      companyId = companyData.id;
+
+      // Update user metadata with the new company_id
+      const { error: updateUserError } = await supabaseWithAuth
+        .from("users")
+        .update({
+          company_id: companyId,
+          onboarding_completed: true,
+        })
+        .eq("id", data.user.id);
+
+      if (updateUserError) {
+        console.error("Error updating user metadata:", updateUserError);
+        return NextResponse.json(
+          { error: "Failed to assign company to user" },
+          { status: 500 }
+        );
+      }
     }
 
-    // Mark user's onboarding as completed
-    const { error: updateUserError } = await supabase
-      .from("users")
-      .update({
-        onboarding_completed: true,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", data.user.id);
-
-    if (updateUserError) {
-      console.error("Error updating user:", updateUserError);
-      return NextResponse.json(
-        { error: "Failed to update user data" },
-        { status: 500 }
-      );
-    }
-
-    // Update user metadata in auth.users
-    const { error: updateAuthError } = await supabase.auth.updateUser({
-      data: {
-        onboarding_completed: true,
-      },
-    });
-
-    if (updateAuthError) {
-      console.error("Error updating auth user metadata:", updateAuthError);
-      // Continue anyway as this is not critical
-    }
-
-    // Process service categories
+    // Process service categories - regardless of whether company is new or existing
     if (requestData.services && Array.isArray(requestData.services)) {
       // Delete any existing categories for this company to avoid duplicates
-      const { error: deleteCategories } = await supabase
+      const { error: deleteCategories } = await supabaseWithAuth
         .from("company_categories")
         .delete()
-        .eq("company_id", data.user.user_metadata.company_id);
+        .eq("company_id", companyId);
 
       if (deleteCategories) {
         console.error(
@@ -101,76 +119,24 @@ export async function POST(request: Request) {
         );
       }
 
-      // For each service selected, find the corresponding category and create the association
-      for (const serviceName of requestData.services) {
-        // Find the category ID by name
-        const { data: categoryData, error: categoryError } = await supabase
-          .from("categories")
-          .select("id")
-          .eq("name", serviceName)
-          .single();
+      // For each service ID selected, create the association
+      for (const categoryId of requestData.services) {
+        // Create the association between company and category directly using the ID
+        const { error: insertError } = await supabaseWithAuth
+          .from("company_categories")
+          .insert({
+            company_id: companyId,
+            category_id: categoryId,
+            created_at: new Date().toISOString(),
+          });
 
-        if (categoryError) {
-          console.error("Error finding category:", categoryError);
-          continue; // Skip this category but continue with others
+        if (insertError) {
+          console.error("Error inserting category association:", insertError);
+          return NextResponse.json(
+            { error: "Failed to associate service category" },
+            { status: 500 }
+          );
         }
-
-        if (categoryData && categoryData.id) {
-          // Create the association between company and category
-          const { error: insertError } = await supabase
-            .from("company_categories")
-            .insert({
-              company_id: data.user.user_metadata.company_id,
-              category_id: categoryData.id,
-              created_at: new Date().toISOString(),
-            });
-
-          if (insertError) {
-            console.error("Error inserting category association:", insertError);
-            return NextResponse.json(
-              { error: "Failed to associate service category" },
-              { status: 500 }
-            );
-          }
-        }
-      }
-    }
-
-    // Store team size
-    if (requestData.teamSize) {
-      const { error: updateTeamSizeError } = await supabase
-        .from("companies")
-        .update({
-          team_size: requestData.teamSize,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", data.user.user_metadata.company_id);
-
-      if (updateTeamSizeError) {
-        console.error("Error updating team size:", updateTeamSizeError);
-        return NextResponse.json(
-          { error: "Failed to update team size data" },
-          { status: 500 }
-        );
-      }
-    }
-
-    // Store any additional fields if present
-    if (requestData.industry) {
-      const { error: updateIndustryError } = await supabase
-        .from("companies")
-        .update({
-          industry: requestData.industry,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", data.user.user_metadata.company_id);
-
-      if (updateIndustryError) {
-        console.error("Error updating industry:", updateIndustryError);
-        return NextResponse.json(
-          { error: "Failed to update industry data" },
-          { status: 500 }
-        );
       }
     }
 

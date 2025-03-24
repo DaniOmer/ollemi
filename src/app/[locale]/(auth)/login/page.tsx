@@ -63,8 +63,8 @@ export default function LoginPage() {
     if (isAuthenticated && user) {
       try {
         // Check if the function exists before calling it
-        const role = user.user_metadata.role;
-        const isOnboardingComplete = user.user_metadata.onboarding_completed;
+        const role = user.role;
+        const isOnboardingComplete = user.onboarding_completed;
 
         if (!isOnboardingComplete) {
           // User needs to complete onboarding

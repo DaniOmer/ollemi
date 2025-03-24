@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { MapPin } from "lucide-react";
+import { fetchPrivateApi } from "@/lib/services/api";
 
 interface LocationSuggestion {
   id: string;
@@ -78,12 +79,9 @@ export default function LocationPage() {
       // In a real app, you would make an API call to update the company here
       // with all the collected data from onboarding
       try {
-        const response = await fetch("/api/auth/complete-onboarding", {
+        const response = await fetchPrivateApi("/auth/complete-onboarding", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
+          data: {
             businessName,
             services,
             teamSize,
@@ -91,11 +89,11 @@ export default function LocationPage() {
               id: "custom",
               address: searchQuery,
             },
-          }),
+          },
         });
 
-        if (!response.ok) {
-          throw new Error("Failed to complete onboarding");
+        if (response.error) {
+          throw new Error(response.error || "Failed to complete onboarding");
         }
       } catch (error) {
         console.error("Error completing onboarding:", error);
