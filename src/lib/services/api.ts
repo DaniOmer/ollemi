@@ -27,7 +27,11 @@ export const httpClientPrivate: AxiosInstance = axios.create({
 });
 
 // Intercept requests to add auth token for private client
-export const setupAuthInterceptor = (getAccessToken: () => string | null) => {
+export const setupAuthInterceptor = (
+  getAccessToken: () => string | null,
+  refreshAccessToken: () => Promise<boolean>
+) => {
+  // Request interceptor - adds token to requests
   httpClientPrivate.interceptors.request.use(
     (config) => {
       const token = getAccessToken();
@@ -37,6 +41,55 @@ export const setupAuthInterceptor = (getAccessToken: () => string | null) => {
       return config;
     },
     (error) => Promise.reject(error)
+  );
+
+  // Response interceptor - handles token expiration
+  httpClientPrivate.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+      const originalRequest = error.config;
+
+      // If error is 401/403 and we haven't tried to refresh the token yet
+      if (
+        (error.response?.status === 401 || error.response?.status === 403) &&
+        !originalRequest._retry &&
+        (error.response?.data?.code === "token_expired" ||
+          error.response?.data?.error?.includes("expired") ||
+          error.response?.data?.error?.includes("invalid JWT"))
+      ) {
+        originalRequest._retry = true;
+
+        try {
+          // Try to refresh the token
+          const refreshed = await refreshAccessToken();
+
+          if (refreshed) {
+            // If token refresh succeeded, retry the original request
+            const token = getAccessToken();
+            if (token) {
+              originalRequest.headers.Authorization = `Bearer ${token}`;
+            }
+            return httpClientPrivate(originalRequest);
+          } else {
+            // If refresh failed, we need to redirect to login
+            if (typeof window !== "undefined") {
+              // Clear any auth state here
+              console.log("Token refresh failed, redirecting to login");
+              // You can dispatch an event or directly navigate
+              window.location.href = "/login";
+            }
+          }
+        } catch (refreshError) {
+          console.error("Token refresh failed:", refreshError);
+          // Handle failed refresh by redirecting to login
+          if (typeof window !== "undefined") {
+            window.location.href = "/login";
+          }
+        }
+      }
+
+      return Promise.reject(error);
+    }
   );
 };
 
