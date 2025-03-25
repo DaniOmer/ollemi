@@ -37,25 +37,28 @@ export default function ServicesPage() {
 
   // Fetch services on component mount
   useEffect(() => {
-    if (user?.id) {
-      dispatch(fetchServices(user.id));
+    if (user?.company_id) {
+      dispatch(fetchServices(user.company_id));
     }
-  }, [dispatch, user?.id]);
+  }, [dispatch, user?.company_id]);
 
   // Handle service form submission
-  const handleServiceSubmit = (formData: Omit<Service, "id">) => {
+  const handleServiceSubmit = (
+    formData: Omit<Service, "id" | "company_id">
+  ) => {
     if (editingService) {
       dispatch(
         updateServiceThunk({
           id: editingService.id,
-          service: { ...formData, company_id: user?.id || "" },
+          service: { ...formData, company_id: user?.company_id || "" },
+          companyId: user?.company_id || "",
         })
       );
     } else {
       dispatch(
         createServiceThunk({
-          ...formData,
-          company_id: user?.id || "",
+          service: { ...formData, company_id: user?.company_id || "" },
+          companyId: user?.company_id || "",
         })
       );
     }
@@ -112,7 +115,12 @@ export default function ServicesPage() {
                   "Êtes-vous sûr de vouloir supprimer ce service ?"
                 )
               ) {
-                dispatch(deleteServiceThunk(serviceId));
+                dispatch(
+                  deleteServiceThunk({
+                    id: serviceId,
+                    companyId: user?.company_id || "",
+                  })
+                );
               }
             }}
           />

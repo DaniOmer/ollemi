@@ -16,15 +16,19 @@ export async function getServices(
   return fetchApi<Service[]>(`/companies/${companyId}/services`);
 }
 
-export async function getService(id: string): Promise<ApiResponse<Service>> {
-  return fetchApi<Service>(`/services/${id}`);
+export async function getService(
+  id: string,
+  companyId: string
+): Promise<ApiResponse<Service>> {
+  return fetchApi<Service>(`/companies/${companyId}/services/${id}`);
 }
 
 // Private endpoints (require authentication)
 export async function createService(
-  serviceData: Omit<Service, "id">
+  serviceData: Omit<Service, "id">,
+  companyId: string
 ): Promise<ApiResponse<Service>> {
-  return fetchPrivateApi<Service>("/services", {
+  return fetchPrivateApi<Service>(`/companies/${companyId}/services`, {
     method: "POST",
     data: serviceData,
   });
@@ -32,16 +36,20 @@ export async function createService(
 
 export async function updateService(
   id: string,
-  serviceData: Partial<Service>
+  serviceData: Partial<Service>,
+  companyId: string
 ): Promise<ApiResponse<Service>> {
-  return fetchPrivateApi<Service>(`/services/${id}`, {
+  return fetchPrivateApi<Service>(`/companies/${companyId}/services/${id}`, {
     method: "PUT",
     data: serviceData,
   });
 }
 
-export async function deleteService(id: string): Promise<ApiResponse<null>> {
-  return fetchPrivateApi<null>(`/services/${id}`, {
+export async function deleteService(
+  id: string,
+  companyId: string
+): Promise<ApiResponse<null>> {
+  return fetchPrivateApi<null>(`/companies/${companyId}/services/${id}`, {
     method: "DELETE",
   });
 }

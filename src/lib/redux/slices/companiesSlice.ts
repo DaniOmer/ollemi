@@ -121,9 +121,12 @@ export const fetchServices = createAsyncThunk(
 
 export const fetchServiceById = createAsyncThunk(
   "companies/fetchServiceById",
-  async (id: string, { rejectWithValue }) => {
+  async (
+    { id, companyId }: { id: string; companyId: string },
+    { rejectWithValue }
+  ) => {
     try {
-      const response = await getService(id);
+      const response = await getService(id, companyId);
       if (response.error) {
         return rejectWithValue(response.error);
       }
@@ -136,9 +139,12 @@ export const fetchServiceById = createAsyncThunk(
 
 export const createServiceThunk = createAsyncThunk(
   "companies/createService",
-  async (service: Omit<Service, "id">, { rejectWithValue }) => {
+  async (
+    { service, companyId }: { service: Omit<Service, "id">; companyId: string },
+    { rejectWithValue }
+  ) => {
     try {
-      const response = await createService(service);
+      const response = await createService(service, companyId);
       if (response.error) {
         return rejectWithValue(response.error);
       }
@@ -152,11 +158,15 @@ export const createServiceThunk = createAsyncThunk(
 export const updateServiceThunk = createAsyncThunk(
   "companies/updateService",
   async (
-    { id, service }: { id: string; service: Partial<Service> },
+    {
+      id,
+      service,
+      companyId,
+    }: { id: string; service: Partial<Service>; companyId: string },
     { rejectWithValue }
   ) => {
     try {
-      const response = await updateService(id, service);
+      const response = await updateService(id, service, companyId);
       if (response.error) {
         return rejectWithValue(response.error);
       }
@@ -169,9 +179,12 @@ export const updateServiceThunk = createAsyncThunk(
 
 export const deleteServiceThunk = createAsyncThunk(
   "companies/deleteService",
-  async (id: string, { rejectWithValue }) => {
+  async (
+    { id, companyId }: { id: string; companyId: string },
+    { rejectWithValue }
+  ) => {
     try {
-      const response = await deleteService(id);
+      const response = await deleteService(id, companyId);
       if (response.error) {
         return rejectWithValue(response.error);
       }
