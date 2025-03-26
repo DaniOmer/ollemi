@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
-import { extractToken, createAuthClient } from "@/lib/supabase/client";
+import {
+  supabase,
+  extractToken,
+  createAuthClient,
+} from "@/lib/supabase/client";
 
 export async function GET(
   request: Request,
@@ -7,26 +11,24 @@ export async function GET(
 ) {
   const { id } = await params;
 
-  // Get token from the request
-  const token = extractToken(request);
-  if (!token)
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  const supabase = createAuthClient(token);
-
   const { data, error } = await supabase
     .from("services")
     .select("*")
     .eq("company_id", id);
 
-  if (error) {
+  if (error && error.code !== "PGRST116") {
     console.error(
       "Something went wrong when trying to fetch services for company",
-      id
+      error
     );
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
+    );
+  } else if (error && error.code === "PGRST116") {
+    return NextResponse.json(
+      { error: "No services found for company" },
+      { status: 404 }
     );
   }
 

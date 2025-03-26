@@ -58,9 +58,7 @@ export function extractToken(request: Request | NextRequest): string | null {
  * @param req - The request to extract the user from
  * @returns The user from the cookie
  */
-export function extractUserFromCookie(
-  req: NextRequest
-): {
+export function extractUserFromCookie(req: NextRequest): {
   id?: string;
   email?: string;
   role?: string;
