@@ -79,18 +79,6 @@
       },
       "noResults": "No results found. Try modifying your search criteria."
     },
-    "professional": {
-      "about": "About",
-      "services": "Services",
-      "reviews": "Reviews",
-      "location": "Location",
-      "openingHours": "Opening Hours",
-      "book": "Book",
-      "viewAllServices": "View All Services",
-      "viewAllReviews": "View All Reviews",
-      "viewProfile": "View Profile",
-      "noLocation": "No location available"
-    },
     "category": {
       "subheading": "Find the best professionals in this category",
       "searchPlaceholder": "Search by professional name",
@@ -102,6 +90,32 @@
       "tryDifferentSearch": "Try a different search term or clear the search",
       "clearSearch": "Clear Search",
       "comingSoon": "Advanced filter options coming soon"
+    }
+  },
+  "professional": {
+    "about": "About",
+    "services": "Services",
+    "reviews": "Reviews",
+    "location": "Location",
+    "openingHours": "Opening Hours",
+    "book": "Book",
+    "viewAllServices": "View All Services",
+    "viewAllReviews": "View All Reviews",
+    "viewProfile": "View Profile",
+    "noLocation": "No location available",
+    "contact": "Contact",
+    "socialMedia": "Social Media",
+    "minutes": "minutes",
+    "closed": "Closed",
+    "notFound": "Professional not found",
+    "days": {
+      "monday": "Monday",
+      "tuesday": "Tuesday",
+      "wednesday": "Wednesday",
+      "thursday": "Thursday",
+      "friday": "Friday",
+      "saturday": "Saturday",
+      "sunday": "Sunday"
     }
   },
   "nav": {

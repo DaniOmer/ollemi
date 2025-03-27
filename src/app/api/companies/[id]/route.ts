@@ -8,10 +8,37 @@ export async function GET(
   try {
     const { id } = await params;
 
-    // First, try to get the company by ID
-    let { data: company, error } = await supabase
+    // Fetch company with all related data
+    const { data: company, error } = await supabase
       .from("companies")
-      .select("*")
+      .select(
+        `
+        *,
+        services (
+          id,
+          name,
+          description,
+          price,
+          duration,
+          category
+        ),
+        opening_hours (
+          id,
+          day_of_week,
+          open,
+          start_time,
+          end_time,
+          break_start_time,
+          break_end_time
+        ),
+        company_categories (
+          category:categories (
+            id,
+            name
+          )
+        )
+      `
+      )
       .eq("id", id)
       .single();
 
@@ -37,7 +64,26 @@ export async function GET(
       );
     }
 
-    return NextResponse.json(company);
+    // Transform the data to match the expected format
+    const transformedCompany = {
+      ...company,
+      services: company.services || [],
+      opening_hours:
+        company.opening_hours?.reduce((acc: any, curr: any) => {
+          acc[curr.day_of_week] = {
+            open: curr.open,
+            start: curr.start_time,
+            end: curr.end_time,
+            break_start: curr.break_start_time,
+            break_end: curr.break_end_time,
+          };
+          return acc;
+        }, {}) || {},
+      categories:
+        company.company_categories?.map((cc: any) => cc.category) || [],
+    };
+
+    return NextResponse.json(transformedCompany);
   } catch (error: any) {
     return NextResponse.json(
       { error: error.message || "Failed to fetch company" },

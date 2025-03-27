@@ -79,18 +79,6 @@
       },
       "noResults": "Aucun résultat trouvé. Essayez de modifier vos critères de recherche."
     },
-    "professional": {
-      "about": "À propos",
-      "services": "Services",
-      "reviews": "Avis",
-      "location": "Emplacement",
-      "openingHours": "Heures d'ouverture",
-      "book": "Réserver",
-      "viewAllServices": "Voir tous les services",
-      "viewAllReviews": "Voir tous les avis",
-      "viewProfile": "Voir le profil",
-      "noLocation": "Aucun emplacement disponible"
-    },
     "category": {
       "subheading": "Trouvez les meilleurs professionnels dans cette catégorie",
       "searchPlaceholder": "Rechercher par nom de professionnel",
@@ -102,6 +90,32 @@
       "tryDifferentSearch": "Essayez un terme différent ou effacez la recherche",
       "clearSearch": "Effacer la recherche",
       "comingSoon": "Options de filtrage avancées bientôt disponibles"
+    }
+  },
+  "professional": {
+    "about": "À propos",
+    "services": "Services",
+    "reviews": "Avis",
+    "location": "Emplacement",
+    "openingHours": "Heures d'ouverture",
+    "book": "Réserver",
+    "viewAllServices": "Voir tous les services",
+    "viewAllReviews": "Voir tous les avis",
+    "viewProfile": "Voir le profil",
+    "noLocation": "Aucun emplacement disponible",
+    "contact": "Contact",
+    "socialMedia": "Réseaux sociaux",
+    "minutes": "minutes",
+    "closed": "Fermé",
+    "notFound": "Professionnel non trouvé",
+    "days": {
+      "monday": "Lundi",
+      "tuesday": "Mardi",
+      "wednesday": "Mercredi",
+      "thursday": "Jeudi",
+      "friday": "Vendredi",
+      "saturday": "Samedi",
+      "sunday": "Dimanche"
     }
   },
   "nav": {

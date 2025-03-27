@@ -110,7 +110,7 @@ const CategoryPage = () => {
           <h3 className="text-xl font-semibold mb-2">{professional.name}</h3>
           <div className="flex items-center text-sm text-muted-foreground mb-3">
             <MapPin className="w-4 h-4 mr-1" />
-            {professional.city || t("client.professional.noLocation")}
+            {professional.city || t("professional.noLocation")}
           </div>
           {professional.services && professional.services.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-4">
@@ -133,7 +133,7 @@ const CategoryPage = () => {
             href={`/professional/${professional.id}`}
             className="block w-full py-2 bg-primary text-white rounded-lg text-center hover:bg-primary/90 transition-colors"
           >
-            {t("client.professional.viewProfile")}
+            {t("professional.viewProfile")}
           </Link>
         </div>
       </div>
