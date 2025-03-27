@@ -87,7 +87,21 @@
       "openingHours": "Heures d'ouverture",
       "book": "Réserver",
       "viewAllServices": "Voir tous les services",
-      "viewAllReviews": "Voir tous les avis"
+      "viewAllReviews": "Voir tous les avis",
+      "viewProfile": "Voir le profil",
+      "noLocation": "Aucun emplacement disponible"
+    },
+    "category": {
+      "subheading": "Trouvez les meilleurs professionnels dans cette catégorie",
+      "searchPlaceholder": "Rechercher par nom de professionnel",
+      "filter": "Filtrer",
+      "professionalsFound": "professionnels trouvés",
+      "noProfessionals": "Aucun professionnel trouvé dans cette catégorie",
+      "checkBack": "Veuillez revenir plus tard ou explorer une autre catégorie",
+      "noSearchResults": "Aucun résultat ne correspond à votre recherche",
+      "tryDifferentSearch": "Essayez un terme différent ou effacez la recherche",
+      "clearSearch": "Effacer la recherche",
+      "comingSoon": "Options de filtrage avancées bientôt disponibles"
     }
   },
   "nav": {

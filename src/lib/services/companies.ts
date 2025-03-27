@@ -1,5 +1,5 @@
 import { fetchApi, fetchPrivateApi, ApiResponse } from "./api";
-import { Company, Service } from "@/types";
+import { Company, Service, Professional } from "@/types";
 
 // Public endpoints
 export async function getCompanies(): Promise<ApiResponse<Company[]>> {
@@ -8,6 +8,22 @@ export async function getCompanies(): Promise<ApiResponse<Company[]>> {
 
 export async function getCompany(id: string): Promise<ApiResponse<Company>> {
   return fetchApi<Company>(`/companies/${id}`);
+}
+
+export async function getCompaniesByCategory(
+  categoryId: string
+): Promise<ApiResponse<Professional[]>> {
+  return fetchApi<Professional[]>(`/categories/${categoryId}/companies`);
+}
+
+export async function updateCompany(
+  id: string,
+  companyData: Partial<Company>
+): Promise<ApiResponse<Company>> {
+  return fetchPrivateApi<Company>(`/companies/${id}`, {
+    method: "PUT",
+    data: companyData,
+  });
 }
 
 export async function getServices(
@@ -51,15 +67,5 @@ export async function deleteService(
 ): Promise<ApiResponse<null>> {
   return fetchPrivateApi<null>(`/companies/${companyId}/services/${id}`, {
     method: "DELETE",
-  });
-}
-
-export async function updateCompany(
-  id: string,
-  companyData: Partial<Company>
-): Promise<ApiResponse<Company>> {
-  return fetchPrivateApi<Company>(`/companies/${id}`, {
-    method: "PUT",
-    data: companyData,
   });
 }

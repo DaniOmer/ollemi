@@ -2,7 +2,7 @@
 
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { createSelector } from "@reduxjs/toolkit";
-import { Company, Service, ServiceFormData } from "@/types";
+import { Category, Company, Service, ServiceFormData } from "@/types";
 import { RootState } from "../store";
 import {
   getCompanies,
@@ -13,12 +13,14 @@ import {
   updateService,
   deleteService,
   updateCompany,
+  getCompaniesByCategory,
 } from "@/lib/services/companies";
 
 // Define the state type
 interface CompaniesState {
   companies: Company[];
   currentCompany: Company | null;
+  companiesByCategory: Company[];
   services: Service[];
   currentService: Service | null;
   loading: boolean;
@@ -29,6 +31,7 @@ interface CompaniesState {
 const initialState: CompaniesState = {
   companies: [],
   currentCompany: null,
+  companiesByCategory: [],
   services: [],
   currentService: null,
   loading: false,
@@ -99,6 +102,23 @@ export const updateCompanyThunk = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(error.message || "Failed to update company");
+    }
+  }
+);
+
+export const fetchCompaniesByCategory = createAsyncThunk(
+  "companies/fetchByCategory",
+  async (categoryId: string, { rejectWithValue }) => {
+    try {
+      const response = await getCompaniesByCategory(categoryId);
+      if (response.error) {
+        return rejectWithValue(response.error);
+      }
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.message || "Failed to fetch companies by category"
+      );
     }
   }
 );
@@ -372,6 +392,25 @@ const companiesSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       });
+
+    // Fetch companies by category
+    builder
+      .addCase(fetchCompaniesByCategory.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchCompaniesByCategory.fulfilled, (state, action) => {
+        state.loading = false;
+        if (action.payload) {
+          state.companiesByCategory = action.payload;
+        } else {
+          state.companiesByCategory = [];
+        }
+      })
+      .addCase(fetchCompaniesByCategory.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      });
   },
 });
 
@@ -379,39 +418,43 @@ const companiesSlice = createSlice({
 export const { clearError, setCurrentCompany, setCurrentService } =
   companiesSlice.actions;
 
-// Base selectors
-const selectCompaniesState = (state: RootState) => (state as any).companies;
+// Selectors
+export const selectCompaniesState = (state: RootState) =>
+  (state as any).companies;
 
-// Memoized selectors
 export const selectCompanies = createSelector(
   [selectCompaniesState],
-  (state) => state.companies
-);
-
-export const selectCurrentCompany = createSelector(
-  [selectCompaniesState],
-  (state) => state.currentCompany
+  (companiesState) => companiesState.companies
 );
 
 export const selectCompaniesLoading = createSelector(
   [selectCompaniesState],
-  (state) => state.loading
+  (companiesState) => companiesState.loading
 );
 
 export const selectCompaniesError = createSelector(
   [selectCompaniesState],
-  (state) => state.error
+  (companiesState) => companiesState.error
 );
 
-// Service selectors
+export const selectCurrentCompany = createSelector(
+  [selectCompaniesState],
+  (companiesState) => companiesState.currentCompany
+);
+
+export const selectCompaniesByCategory = createSelector(
+  [selectCompaniesState],
+  (companiesState) => companiesState.companiesByCategory
+);
+
 export const selectServices = createSelector(
   [selectCompaniesState],
-  (state) => state.services
+  (companiesState) => companiesState.services
 );
 
 export const selectCurrentService = createSelector(
   [selectCompaniesState],
-  (state) => state.currentService
+  (companiesState) => companiesState.currentService
 );
 
 // Derived selectors

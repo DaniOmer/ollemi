@@ -3,9 +3,9 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { getCompanies } from "@/lib/services/companies";
-import { getCategories, Category } from "@/lib/services/categories";
-import { Professional, Company } from "@/types";
+import { fetchCompanies } from "@/lib/redux/slices/companiesSlice";
+import { fetchCategories } from "@/lib/redux/slices/categoriesSlice";
+import { Professional, Company, Category } from "@/types";
 import { useTranslations } from "@/hooks/useTranslations";
 import { MapPin, ChevronRight, Search, Scissors } from "lucide-react";
 
@@ -13,51 +13,43 @@ import Header from "@/components/layouts/Header";
 import Footer from "@/components/layouts/Footer";
 import Carousel from "@/components/ui/Carousel";
 import CategoryCard from "@/components/categories/CategoryCard";
-import { useAppSelector } from "@/lib/redux/store";
+import { useAppSelector, useAppDispatch } from "@/lib/redux/store";
 import {
   selectCompanies,
   selectCompaniesLoading,
 } from "@/lib/redux/slices/companiesSlice";
+import {
+  selectCategories,
+  selectCategoriesLoading,
+} from "@/lib/redux/slices/categoriesSlice";
 
 export default function Home() {
   const { t } = useTranslations();
-  const [professionals, setProfessionals] = useState<Professional[]>([]);
   const [searchLocation, setSearchLocation] = useState("");
   const [searchService, setSearchService] = useState("");
   const [searchDate, setSearchDate] = useState("");
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [categoriesLoading, setCategoriesLoading] = useState(true);
 
+  const dispatch = useAppDispatch();
   const companies = useAppSelector(selectCompanies);
+  const categories = useAppSelector(selectCategories);
+  const categoriesLoading = useAppSelector(selectCategoriesLoading);
   const loading = useAppSelector(selectCompaniesLoading);
 
   // Fetch companies
   useEffect(() => {
-    const fetchCompanies = async () => {
-      const response = await getCompanies();
+    const fetchCompanyList = async () => {
+      await dispatch(fetchCompanies());
     };
-    fetchCompanies();
-  }, []);
+    fetchCompanyList();
+  }, [dispatch]);
 
   // Fetch categories
   useEffect(() => {
-    const fetchCategories = async () => {
-      setCategoriesLoading(true);
-      try {
-        const response = await getCategories();
-        if (response.data) {
-          setCategories(response.data);
-        } else {
-          console.error("Failed to fetch categories:", response.error);
-        }
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-      } finally {
-        setCategoriesLoading(false);
-      }
+    const fetchCompanyCategories = async () => {
+      await dispatch(fetchCategories());
     };
-    fetchCategories();
-  }, []);
+    fetchCompanyCategories();
+  }, [dispatch]);
 
   // Add animation classes on scroll
   useEffect(() => {
@@ -262,7 +254,7 @@ export default function Home() {
                 className=""
                 pagination={true}
               >
-                {categories.map((category) => (
+                {categories.map((category: Category) => (
                   <CategoryCard
                     key={category.id}
                     id={category.id}

@@ -87,7 +87,21 @@
       "openingHours": "Opening Hours",
       "book": "Book",
       "viewAllServices": "View All Services",
-      "viewAllReviews": "View All Reviews"
+      "viewAllReviews": "View All Reviews",
+      "viewProfile": "View Profile",
+      "noLocation": "No location available"
+    },
+    "category": {
+      "subheading": "Find the best professionals in this category",
+      "searchPlaceholder": "Search by professional name",
+      "filter": "Filter",
+      "professionalsFound": "professionals found",
+      "noProfessionals": "No professionals found in this category",
+      "checkBack": "Please check back later or explore a different category",
+      "noSearchResults": "No results matching your search",
+      "tryDifferentSearch": "Try a different search term or clear the search",
+      "clearSearch": "Clear Search",
+      "comingSoon": "Advanced filter options coming soon"
     }
   },
   "nav": {

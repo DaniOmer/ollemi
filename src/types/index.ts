@@ -32,6 +32,12 @@ export interface Company {
   photos?: Photo[];
 }
 
+export interface Category {
+  id: string;
+  name: string;
+  imageUrl: string;
+}
+
 export interface OpeningHours {
   monday: DayHours;
   tuesday: DayHours;

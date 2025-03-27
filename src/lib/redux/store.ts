@@ -20,6 +20,7 @@ import appointmentsReducer from "./slices/appointmentsSlice";
 import companiesReducer from "./slices/companiesSlice";
 import userReducer from "./slices/userSlice";
 import onboardingReducer from "./slices/onboardingSlice";
+import categoriesReducer from "./slices/categoriesSlice";
 
 // Create a custom storage that checks for window availability
 const customStorage = {
@@ -55,6 +56,7 @@ const rootReducer = combineReducers({
   companies: companiesReducer,
   user: userReducer,
   onboarding: onboardingReducer,
+  categories: categoriesReducer,
 });
 
 // Create persisted reducer
