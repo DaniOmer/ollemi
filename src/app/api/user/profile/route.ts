@@ -21,7 +21,7 @@ export async function GET(request: Request) {
     // Get user profile from the users table
     const { data: profile, error: profileError } = await supabaseWithAuth
       .from("users")
-      .select("id, first_name, last_name, email, phone, avatar_url, created_at")
+      .select("*")
       .eq("id", data.user.id)
       .single();
 
@@ -73,7 +73,7 @@ export async function PUT(request: Request) {
         avatar_url: body.avatar_url,
       })
       .eq("id", data.user.id)
-      .select("id, first_name, last_name, email, phone, avatar_url, created_at")
+      .select("*")
       .single();
 
     if (updateError) {

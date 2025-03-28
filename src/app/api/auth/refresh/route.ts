@@ -12,7 +12,7 @@ export async function POST(request: Request) {
     console.error("Token refresh error:", error);
     return NextResponse.json(
       { error: "Token refresh failed" },
-      { status: 401 }
+      { status: 400 }
     );
   }
 

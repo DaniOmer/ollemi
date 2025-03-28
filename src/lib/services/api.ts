@@ -124,7 +124,6 @@ httpClientPrivate.interceptors.response.use(
       try {
         // Try to refresh the token
         const refreshed = await fetchRefreshToken();
-        console.log("refreshed", refreshed);
         if (refreshed) {
           // If token refresh succeeded, retry the original request
           const token = getAccessToken();

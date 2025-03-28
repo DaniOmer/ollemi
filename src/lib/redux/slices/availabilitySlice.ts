@@ -7,7 +7,7 @@ import {
 
 const initialState: AvailabilityState = {
   businessHours: [],
-  loading: false,
+  status: "idle",
   error: null,
 };
 
@@ -60,28 +60,28 @@ const availabilitySlice = createSlice({
     builder
       // Fetch business hours
       .addCase(fetchBusinessHours.pending, (state) => {
-        state.loading = true;
+        state.status = "loading";
         state.error = null;
       })
       .addCase(fetchBusinessHours.fulfilled, (state, action) => {
-        state.loading = false;
+        state.status = "succeeded";
         state.businessHours = action.payload;
       })
       .addCase(fetchBusinessHours.rejected, (state, action) => {
-        state.loading = false;
+        state.status = "failed";
         state.error = action.error.message || "Failed to fetch business hours";
       })
       // Update business hours
       .addCase(updateBusinessHours.pending, (state) => {
-        state.loading = true;
+        state.status = "loading";
         state.error = null;
       })
       .addCase(updateBusinessHours.fulfilled, (state, action) => {
-        state.loading = false;
+        state.status = "succeeded";
         state.businessHours = action.payload;
       })
       .addCase(updateBusinessHours.rejected, (state, action) => {
-        state.loading = false;
+        state.status = "failed";
         state.error = action.error.message || "Failed to update business hours";
       });
   },
@@ -90,9 +90,9 @@ const availabilitySlice = createSlice({
 export const selectBusinessHours = (state: {
   availability: AvailabilityState;
 }) => state.availability.businessHours;
-export const selectAvailabilityLoading = (state: {
+export const selectAvailabilityStatus = (state: {
   availability: AvailabilityState;
-}) => state.availability.loading;
+}) => state.availability.status;
 export const selectAvailabilityError = (state: {
   availability: AvailabilityState;
 }) => state.availability.error;

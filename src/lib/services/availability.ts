@@ -5,7 +5,7 @@ export async function getBusinessHours(
   companyId: string
 ): Promise<ApiResponse<BusinessHours[]>> {
   return fetchPrivateApi<BusinessHours[]>(
-    `/availability?company_id=${companyId}`
+    `/companies/${companyId}/availability`
   );
 }
 
@@ -13,11 +13,14 @@ export async function updateBusinessHours(
   companyId: string,
   businessHours: BusinessHours[]
 ): Promise<ApiResponse<BusinessHours[]>> {
-  return fetchPrivateApi<BusinessHours[]>(`/availability`, {
-    method: "PUT",
-    data: {
-      companyId,
-      businessHours,
-    },
-  });
+  return fetchPrivateApi<BusinessHours[]>(
+    `/companies/${companyId}/availability`,
+    {
+      method: "PUT",
+      data: {
+        companyId,
+        businessHours,
+      },
+    }
+  );
 }

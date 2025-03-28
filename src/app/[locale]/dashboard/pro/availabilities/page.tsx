@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import toast from "react-hot-toast";
 import {
   Clock,
   Save,
@@ -46,8 +46,8 @@ import {
   fetchBusinessHours,
   updateBusinessHours,
   selectBusinessHours,
-  selectAvailabilityLoading,
   selectAvailabilityError,
+  selectAvailabilityStatus,
 } from "@/lib/redux/slices/availabilitySlice";
 import { BusinessHours } from "@/types";
 
@@ -126,9 +126,9 @@ const PRESETS = {
 export default function AvailabilitiesPage() {
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectUserProfile);
-  const businessHours = useSelector(selectBusinessHours);
-  const loading = useSelector(selectAvailabilityLoading);
-  const error = useSelector(selectAvailabilityError);
+  const businessHours = useAppSelector(selectBusinessHours);
+  const status = useAppSelector(selectAvailabilityStatus);
+  const error = useAppSelector(selectAvailabilityError);
 
   const [hours, setHours] = useState<BusinessHours[]>([]);
   const [saved, setSaved] = useState(false);
@@ -221,7 +221,6 @@ export default function AvailabilitiesPage() {
   };
 
   const handleSave = async () => {
-    console.log(user);
     if (user?.company_id) {
       await dispatch(
         updateBusinessHours({
@@ -229,8 +228,9 @@ export default function AvailabilitiesPage() {
           businessHours: hours,
         })
       );
-      setSaved(true);
-      setTimeout(() => setSaved(false), 3000);
+    }
+    if (status === "succeeded") {
+      toast.success("Les horaires ont été enregistrés avec succès");
     }
   };
 
@@ -348,15 +348,6 @@ export default function AvailabilitiesPage() {
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
-
-      {/* Success Message */}
-      {saved && (
-        <Alert className="bg-green-50 border-green-200">
-          <AlertDescription className="text-green-800">
-            Les horaires ont été enregistrés avec succès
-          </AlertDescription>
         </Alert>
       )}
 
@@ -554,10 +545,10 @@ export default function AvailabilitiesPage() {
       <div className="flex justify-end">
         <Button
           onClick={handleSave}
-          disabled={loading}
+          disabled={status === "loading"}
           className="min-w-[200px]"
         >
-          {loading ? (
+          {status === "loading" ? (
             "Enregistrement..."
           ) : (
             <>

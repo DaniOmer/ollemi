@@ -114,3 +114,18 @@ export interface Professional extends Company {
   name: string;
   user_id: string;
 }
+
+export interface BusinessHours {
+  day_of_week: string;
+  open: boolean;
+  start_time: string;
+  end_time: string;
+  break_start_time?: string;
+  break_end_time?: string;
+}
+
+export interface AvailabilityState {
+  businessHours: BusinessHours[];
+  status: "idle" | "loading" | "succeeded" | "failed";
+  error: string | null;
+}
