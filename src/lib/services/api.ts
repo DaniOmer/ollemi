@@ -1,6 +1,9 @@
 // Generic API service for making requests to Next.js API routes
 // This abstracts away the implementation details of the backend
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
+import { store } from "@/lib/redux/store";
+import { logout } from "@/lib/redux/slices/authSlice";
+import { clearError, resetState } from "@/lib/redux/slices/userSlice";
 
 export type ApiResponse<T> = {
   data: T | null;
@@ -121,7 +124,7 @@ httpClientPrivate.interceptors.response.use(
       try {
         // Try to refresh the token
         const refreshed = await fetchRefreshToken();
-
+        console.log("refreshed", refreshed);
         if (refreshed) {
           // If token refresh succeeded, retry the original request
           const token = getAccessToken();
@@ -131,19 +134,19 @@ httpClientPrivate.interceptors.response.use(
           return httpClientPrivate(originalRequest);
         } else {
           // If refresh failed, we need to redirect to login
+          removeToken();
+          store.dispatch(resetState());
+
           if (typeof window !== "undefined") {
-            // Clear any auth state here
-            console.log("Token refresh failed, redirecting to login");
-            // You can dispatch an event or directly navigate
             window.location.href = "/login";
           }
         }
       } catch (refreshError) {
         console.error("Token refresh failed:", refreshError);
         // Handle failed refresh by redirecting to login
-        if (typeof window !== "undefined") {
-          window.location.href = "/login";
-        }
+        // if (typeof window !== "undefined") {
+        //   window.location.href = "/login";
+        // }
       }
     }
 

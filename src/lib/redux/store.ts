@@ -21,6 +21,7 @@ import companiesReducer from "./slices/companiesSlice";
 import userReducer from "./slices/userSlice";
 import onboardingReducer from "./slices/onboardingSlice";
 import categoriesReducer from "./slices/categoriesSlice";
+import availabilityReducer from "./slices/availabilitySlice";
 
 // Create a custom storage that checks for window availability
 const customStorage = {
@@ -57,6 +58,7 @@ const rootReducer = combineReducers({
   user: userReducer,
   onboarding: onboardingReducer,
   categories: categoriesReducer,
+  availability: availabilityReducer,
 });
 
 // Create persisted reducer
@@ -87,5 +89,5 @@ export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 
 // Use throughout your app instead of plain `useDispatch` and `useSelector`
-export const useAppDispatch: () => AppDispatch = useDispatch;
+export const useAppDispatch = () => useDispatch<AppDispatch>();
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;

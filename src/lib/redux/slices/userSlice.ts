@@ -207,6 +207,9 @@ const userSlice = createSlice({
     setLanguage: (state, action: PayloadAction<string>) => {
       state.preferences.language = action.payload;
     },
+    resetState: (state) => {
+      state = initialState;
+    },
   },
   extraReducers: (builder) => {
     // Fetch user profile
@@ -371,7 +374,8 @@ const userSlice = createSlice({
 });
 
 // Export actions and reducer
-export const { clearError, setTheme, setLanguage } = userSlice.actions;
+export const { clearError, setTheme, setLanguage, resetState } =
+  userSlice.actions;
 
 // Base selector
 const selectUserState = (state: RootState) => (state as any).user;

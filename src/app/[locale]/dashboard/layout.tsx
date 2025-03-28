@@ -50,14 +50,13 @@ export default function DashboardLayout({
           label: "Réservations",
           icon: Calendar,
         },
+        {
+          href: "/dashboard/pro/availabilities",
+          label: "Disponibilités",
+          icon: Clock,
+        },
         { href: "/dashboard/pro/services", label: "Services", icon: Scissors },
         { href: "/dashboard/pro/customers", label: "Clients", icon: Users },
-        { href: "/dashboard/pro/schedule", label: "Planning", icon: Clock },
-        {
-          href: "/dashboard/pro/payments",
-          label: "Paiements",
-          icon: CreditCard,
-        },
         {
           href: "/dashboard/pro/documents",
           label: "Documents",
@@ -168,7 +167,7 @@ export default function DashboardLayout({
         {/* Footer */}
         <footer className="bg-white border-t border-gray-200">
           <div className="px-4 py-3 text-center text-sm text-gray-600">
-            © 2024 Ollemi Pro. Tous droits réservés.
+            © {new Date().getFullYear()} Ollemi Pro. Tous droits réservés.
           </div>
         </footer>
       </div>
