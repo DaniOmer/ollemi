@@ -30,6 +30,10 @@ export interface Company {
   opening_hours?: OpeningHours;
   services?: Service[];
   photos?: Photo[];
+  team?: TeamMember[];
+  reviews?: Review[];
+  rating?: number;
+  reviewCount?: number;
 }
 
 export interface Category {
@@ -64,6 +68,7 @@ export interface Service {
   price: number;
   duration: number; // in minutes
   category?: string;
+  imageUrl?: string;
 }
 
 // Service form data (without id and company_id)
@@ -128,4 +133,18 @@ export interface AvailabilityState {
   businessHours: BusinessHours[];
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
+}
+
+export interface TeamMember {
+  id: string;
+  name: string;
+  role: string;
+  imageUrl?: string;
+}
+
+export interface Review {
+  id: string;
+  rating: number;
+  comment: string;
+  date: string;
 }

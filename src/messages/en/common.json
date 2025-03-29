@@ -108,6 +108,8 @@
     "minutes": "minutes",
     "closed": "Closed",
     "notFound": "Professional not found",
+    "openUntil": "Open until {time}",
+    "bookFor": "Book for {duration} minutes - {price}€",
     "days": {
       "monday": "Monday",
       "tuesday": "Tuesday",

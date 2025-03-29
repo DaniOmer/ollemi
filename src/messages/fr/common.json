@@ -99,6 +99,7 @@
     "location": "Emplacement",
     "openingHours": "Heures d'ouverture",
     "book": "Réserver",
+    "booking": "Réservation",
     "viewAllServices": "Voir tous les services",
     "viewAllReviews": "Voir tous les avis",
     "viewProfile": "Voir le profil",
@@ -108,6 +109,8 @@
     "minutes": "minutes",
     "closed": "Fermé",
     "notFound": "Professionnel non trouvé",
+    "openUntil": "Ouvert jusqu'à {time}",
+    "bookFor": "Réserver pour {duration} minutes - {price}€",
     "days": {
       "monday": "Lundi",
       "tuesday": "Mardi",
