@@ -37,11 +37,24 @@ export async function POST(request: Request) {
       user_data: userData,
     });
 
-    if (data.session?.access_token) {
+    console.log("data.session", data.session);
+
+    if (data.session?.access_token && data.session?.refresh_token) {
       // Cookie pour le token d'accès
       response.cookies.set({
         name: "access_token",
         value: data.session.access_token,
+        httpOnly: true,
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 60 * 60 * 24 * 7, // 1 semaine
+        sameSite: "lax",
+      });
+
+      // Cookie pour le refresh token
+      response.cookies.set({
+        name: "refresh_token",
+        value: data.session.refresh_token,
         httpOnly: true,
         path: "/",
         secure: process.env.NODE_ENV === "production",

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Service } from "@/types";
 import { Calendar } from "@/components/ui/calendar";
-import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale/fr";
 

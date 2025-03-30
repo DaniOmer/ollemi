@@ -1,7 +1,6 @@
 import { createClient, User, Session } from "@supabase/supabase-js";
 import { StorageError } from "@supabase/storage-js";
 import { NextRequest } from "next/server";
-
 /**
  * Supabase client configuration
  *
@@ -53,6 +52,19 @@ export function extractToken(request: Request | NextRequest): string | null {
 }
 
 /**
+ * Remove token from cookie
+ * This function is used to remove the token from the cookie
+ * @param req - The request to remove the token from
+ * @returns The request without the token
+ */
+export async function removeTokenFromCookie(
+  req: NextRequest
+): Promise<NextRequest> {
+  // The actual cookie removal should be handled at the page/route level
+  return req;
+}
+
+/**
  * Extract user from cookie
  * This function is used to extract the user from the cookie
  * @param req - The request to extract the user from
@@ -72,6 +84,19 @@ export function extractUserFromCookie(req: NextRequest): {
     console.error("Error extracting user from cookie:", error);
     return null;
   }
+}
+
+/**
+ * Remove user from cookie
+ * This function is used to remove the user from the cookie
+ * @param req - The request to remove the user from
+ * @returns The request without the user
+ */
+export async function removeUserFromCookie(
+  req: NextRequest
+): Promise<NextRequest> {
+  // The actual cookie removal should be handled at the page/route level
+  return req;
 }
 
 /**

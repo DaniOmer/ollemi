@@ -5,7 +5,16 @@ export async function POST(request: Request) {
   try {
     // Get token from the request
     const token = extractToken(request);
-    if (!token) return NextResponse.json({ user: null }, { status: 401 });
+    if (!token) {
+      const response = NextResponse.json(
+        { success: true, message: "Already logged out" },
+        { status: 200 }
+      );
+      response.cookies.delete("access_token");
+      response.cookies.delete("refresh_token");
+      response.cookies.delete("user");
+      return response;
+    }
 
     // Create a new Supabase client with the token
     const supabaseWithAuth = createAuthClient(token);
@@ -20,6 +29,7 @@ export async function POST(request: Request) {
     // Delete the authentication cookie
     const response = NextResponse.json({ success: true });
     response.cookies.delete("access_token");
+    response.cookies.delete("refresh_token");
     response.cookies.delete("user");
 
     return response;

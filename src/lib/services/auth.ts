@@ -1,10 +1,4 @@
-import {
-  fetchApi,
-  fetchPrivateApi,
-  ApiResponse,
-  saveToken,
-  removeToken,
-} from "./api";
+import { fetchApi, fetchPrivateApi, ApiResponse } from "./api";
 import { User } from "@/types";
 
 export type AuthResponse = {
@@ -40,14 +34,6 @@ export async function signUp(
     },
   });
 
-  // Only save token if signup was successful and we have a token
-  if (response.data?.session?.access_token) {
-    saveToken(
-      response.data.session.access_token,
-      response.data.session.refresh_token
-    );
-  }
-
   return response;
 }
 
@@ -60,13 +46,6 @@ export async function signIn(
     data: { email, password },
   });
 
-  if (response.data?.session?.access_token) {
-    saveToken(
-      response.data.session.access_token,
-      response.data.session.refresh_token
-    );
-  }
-
   return response;
 }
 
@@ -74,9 +53,6 @@ export async function signOut(): Promise<ApiResponse<null>> {
   const response = await fetchPrivateApi<null>("/auth/logout", {
     method: "POST",
   });
-
-  // Remove token regardless of response
-  removeToken();
 
   return response;
 }

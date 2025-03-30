@@ -40,6 +40,11 @@ export default async function middleware(req: NextRequest) {
   const isAuthenticated = token !== null;
   const user = extractUserFromCookie(req);
 
+  // Redirection vers la page de connexion si l'utilisateur n'est pas authentifié
+  if (isProtected && !isAuthenticated) {
+    return NextResponse.redirect(new URL(`/${defaultLocale}/login`, req.url));
+  }
+
   // Vérifier si l'utilisateur est authentifié mais non autorisé pour les routes spécifiques
   if (isAuthenticated && user) {
     const hasProPermission = user.role === "admin" || user.role === "pro";
@@ -60,9 +65,7 @@ export default async function middleware(req: NextRequest) {
 
     // Redirection si l'utilisateur n'a pas les permissions pour accéder à une route pro
     if (!hasProPermission && normalizedPath.startsWith("/dashboard/pro")) {
-      return NextResponse.redirect(
-        new URL(`/${defaultLocale}/dashboard`, req.url)
-      );
+      return NextResponse.redirect(new URL(`/${defaultLocale}`, req.url));
     }
 
     // Redirection si l'utilisateur n'a pas les permissions pour accéder à une route client
@@ -70,37 +73,28 @@ export default async function middleware(req: NextRequest) {
       !hasClientPermission &&
       normalizedPath.startsWith("/dashboard/client")
     ) {
-      return NextResponse.redirect(
-        new URL(`/${defaultLocale}/dashboard`, req.url)
-      );
+      return NextResponse.redirect(new URL(`/${defaultLocale}`, req.url));
     }
-  }
-
-  // Redirection vers la page de connexion si l'utilisateur n'est pas authentifié
-  if (isProtected && !isAuthenticated) {
-    return NextResponse.redirect(new URL(`/${defaultLocale}/login`, req.url));
   }
 
   // Redirection après connexion vers le dashboard approprié ou l'onboarding si nécessaire
-  if (isAuthRoute && isAuthenticated && user?.role) {
-    if (user.role === "pro" && !user.onboarding_completed) {
-      return NextResponse.redirect(
-        new URL(`/${defaultLocale}/onboarding/business-name`, req.url)
-      );
-    } else if (user.role === "pro") {
-      return NextResponse.redirect(
-        new URL(`/${defaultLocale}/dashboard/pro`, req.url)
-      );
-    } else if (user.role === "client") {
-      return NextResponse.redirect(
-        new URL(`/${defaultLocale}/dashboard/client`, req.url)
-      );
-    } else {
-      return NextResponse.redirect(
-        new URL(`/${defaultLocale}/dashboard`, req.url)
-      );
-    }
-  }
+  // if (isAuthRoute && isAuthenticated && user?.role) {
+  //   if (user.role === "pro" && !user.onboarding_completed) {
+  //     return NextResponse.redirect(
+  //       new URL(`/${defaultLocale}/onboarding/business-name`, req.url)
+  //     );
+  //   } else if (user.role === "pro") {
+  //     return NextResponse.redirect(
+  //       new URL(`/${defaultLocale}/dashboard/pro`, req.url)
+  //     );
+  //   } else if (user.role === "client") {
+  //     return NextResponse.redirect(
+  //       new URL(`/${defaultLocale}/dashboard/client`, req.url)
+  //     );
+  //   } else {
+  //     return NextResponse.redirect(new URL(`/${defaultLocale}`, req.url));
+  //   }
+  // }
 
   // 2. Gestion i18n
   return intlMiddleware(req);

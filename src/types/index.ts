@@ -148,3 +148,10 @@ export interface Review {
   comment: string;
   date: string;
 }
+
+export interface ServiceCategory {
+  id: string;
+  name: string;
+  description?: string;
+  imageUrl?: string;
+}
