@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase/client";
+import {
+  supabase,
+  extractToken,
+  createAuthClient,
+} from "@/lib/supabase/client";
 import { createClient } from "@supabase/supabase-js";
 
 export async function GET(
@@ -9,28 +13,28 @@ export async function GET(
   try {
     const { id } = params;
 
-    // Get the Authorization header from the request
-    const authHeader = request.headers.get("Authorization");
-    let token = null;
-
-    if (authHeader && authHeader.startsWith("Bearer ")) {
-      token = authHeader.substring(7);
-    }
-
+    // Get token from the request
+    const token = extractToken(request);
     if (!token) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { error: "Authentication required" },
+        { status: 401 }
+      );
     }
 
     // Create a new Supabase client with the token
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
-    const supabaseWithAuth = createClient(supabaseUrl, supabaseAnonKey, {
-      global: {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    });
+    const supabaseWithAuth = createAuthClient(token);
+
+    // Get the user with the token
+    const { data: authData, error: authError } =
+      await supabaseWithAuth.auth.getUser();
+
+    if (authError || !authData.user) {
+      return NextResponse.json(
+        { error: "Authentication required" },
+        { status: 401 }
+      );
+    }
 
     // Get user with the authenticated client
     const { data: user, error: userError } =
