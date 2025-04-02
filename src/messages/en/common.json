@@ -386,5 +386,30 @@
     "appearanceSettings": "Appearance Settings",
     "securitySettings": "Security Settings",
     "advancedSettings": "Advanced Settings"
+  },
+  "appointment": {
+    "service": "Service",
+    "selectService": "Select Service",
+    "date": "Date",
+    "time": "Time",
+    "status": "Status",
+    "client": "Client",
+    "phone": "Phone",
+    "email": "Email",
+    "clientName": "Client Name",
+    "clientNamePlaceholder": "Enter client name",
+    "clientPhone": "Client Phone",
+    "clientPhonePlaceholder": "Enter client phone number",
+    "clientEmail": "Client Email",
+    "clientEmailPlaceholder": "Enter client email address",
+    "clientAddress": "Client Address",
+    "clientAddressPlaceholder": "Enter client address",
+    "clientCity": "Client City",
+    "clientCityPlaceholder": "Enter client city",
+    "clientState": "Client State",
+    "clientStatePlaceholder": "Enter client state",
+    "clientZip": "Client Zip",
+    "clientZipPlaceholder": "Enter client zip code",
+    "notesPlaceholder": "Enter notes for the appointment"
   }
 }

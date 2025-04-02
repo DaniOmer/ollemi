@@ -3,7 +3,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import { persistStore, persistReducer } from "redux-persist";
-import storage from "redux-persist/lib/storage"; // defaults to localStorage for web
 import { combineReducers } from "redux";
 import {
   FLUSH,
@@ -14,6 +13,8 @@ import {
   REGISTER,
 } from "redux-persist";
 
+import storageEngine from "./storage";
+
 // Import reducers
 import authReducer from "./slices/authSlice";
 import appointmentsReducer from "./slices/appointmentsSlice";
@@ -23,30 +24,10 @@ import onboardingReducer from "./slices/onboardingSlice";
 import categoriesReducer from "./slices/categoriesSlice";
 import availabilityReducer from "./slices/availabilitySlice";
 
-// Create a custom storage that checks for window availability
-const customStorage = {
-  getItem: (key: string) => {
-    if (typeof window !== "undefined") {
-      return storage.getItem(key);
-    }
-    return null;
-  },
-  setItem: (key: string, value: string) => {
-    if (typeof window !== "undefined") {
-      storage.setItem(key, value);
-    }
-  },
-  removeItem: (key: string) => {
-    if (typeof window !== "undefined") {
-      storage.removeItem(key);
-    }
-  },
-};
-
 // Configure persist options
 const persistConfig = {
   key: "root",
-  storage: typeof window !== "undefined" ? storage : customStorage,
+  storage: storageEngine,
   whitelist: [
     "user",
     "onboarding",
@@ -54,7 +35,7 @@ const persistConfig = {
     "companies",
     "categories",
     "availability",
-  ], // Only persist user and onboarding state, not auth (which has tokens)
+  ], // Not persist auth (which has tokens)
 };
 
 // Combine reducers

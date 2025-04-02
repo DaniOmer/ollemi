@@ -387,5 +387,30 @@
     "appearanceSettings": "Paramètres d'apparence",
     "securitySettings": "Paramètres de sécurité",
     "advancedSettings": "Paramètres avancés"
+  },
+  "appointment": {
+    "service": "Service",
+    "selectService": "Sélectionner un service",
+    "date": "Date",
+    "time": "Heure",
+    "status": "Statut",
+    "client": "Client",
+    "phone": "Téléphone",
+    "email": "Email",
+    "clientName": "Nom du client",
+    "clientPhone": "Téléphone du client",
+    "clientEmail": "Email du client",
+    "clientAddress": "Adresse du client",
+    "clientCity": "Ville du client",
+    "clientState": "État du client",
+    "clientZip": "Code postal du client",
+    "clientNamePlaceholder": "Entrez le nom du client",
+    "clientPhonePlaceholder": "Entrez le téléphone du client",
+    "clientEmailPlaceholder": "Entrez l'email du client",
+    "clientAddressPlaceholder": "Entrez l'adresse du client",
+    "clientCityPlaceholder": "Entrez la ville du client",
+    "clientStatePlaceholder": "Entrez l'état du client",
+    "clientZipPlaceholder": "Entrez le code postal du client",
+    "notesPlaceholder": "Entrez les notes pour le rendez-vous"
   }
 }

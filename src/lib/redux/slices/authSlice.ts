@@ -213,14 +213,23 @@ const selectAuthState = (state: RootState) => (state as any).auth;
 // Memoized selectors
 export const selectAuth = createSelector([selectAuthState], (state) => state);
 
+export const selectToken = createSelector(
+  [selectAuthState],
+  (state) => state.token
+);
+
 export const selectUser = createSelector(
   [selectAuthState],
   (state) => state.user
 );
 
 export const selectIsAuthenticated = createSelector(
-  [selectUser],
-  (user) => !!user
+  [selectAuthState],
+  (state) => {
+    // Check both token and user existence for a more reliable authentication check
+    // In practice, this will also check HTTP-only cookies through the useAuth hook
+    return !!state.token && !!state.user;
+  }
 );
 
 export const selectAuthLoading = createSelector(

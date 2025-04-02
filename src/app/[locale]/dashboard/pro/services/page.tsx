@@ -20,13 +20,13 @@ import {
   selectCompaniesLoading,
   selectCompaniesError,
 } from "@/lib/redux/slices/companiesSlice";
-import { selectUser } from "@/lib/redux/slices/authSlice";
+import { selectUserProfile } from "@/lib/redux/slices/userSlice";
 import { AppDispatch } from "@/lib/redux/store";
 import { Service } from "@/types";
 
 export default function ServicesPage() {
   const dispatch = useDispatch<AppDispatch>();
-  const user = useSelector(selectUser);
+  const user = useSelector(selectUserProfile);
   const services = useSelector(selectServices);
   const loading = useSelector(selectCompaniesLoading);
   const error = useSelector(selectCompaniesError);
@@ -37,6 +37,7 @@ export default function ServicesPage() {
 
   // Fetch services on component mount
   useEffect(() => {
+    console.log("User : ", user);
     if (user?.company_id) {
       dispatch(fetchServices(user.company_id));
     }
