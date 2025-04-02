@@ -12,6 +12,12 @@ import { AppointmentForm } from "@/components/forms/AppointmentForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -162,35 +168,40 @@ export default function BookingsPage() {
       </div>
 
       {/* Appointment Form Modal */}
-      {showAppointmentForm && (
-        <Card>
-          <CardContent className="pt-6">
-            <AppointmentForm
-              services={services}
-              initialValues={
-                editingAppointment
-                  ? {
-                      client_name: editingAppointment.client_name,
-                      client_email: editingAppointment.client_email,
-                      client_phone: editingAppointment.client_phone || "",
-                      service_id: editingAppointment.service_id,
-                      date: new Date(editingAppointment.start_time),
-                      start_time: new Date(editingAppointment.start_time),
-                      notes: editingAppointment.notes || "",
-                    }
-                  : selectedTimeSlot
-                  ? {
-                      date: selectedTimeSlot.start,
-                      start_time: selectedTimeSlot.start,
-                    }
-                  : undefined
-              }
-              onSubmit={handleAppointmentSubmit}
-              isLoading={loading}
-            />
-          </CardContent>
-        </Card>
-      )}
+      <Dialog open={showAppointmentForm} onOpenChange={setShowAppointmentForm}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>
+              {editingAppointment
+                ? "Modifier le rendez-vous"
+                : "Nouveau rendez-vous"}
+            </DialogTitle>
+          </DialogHeader>
+          <AppointmentForm
+            services={services}
+            initialValues={
+              editingAppointment
+                ? {
+                    client_name: editingAppointment.client_name,
+                    client_email: editingAppointment.client_email,
+                    client_phone: editingAppointment.client_phone || "",
+                    service_id: editingAppointment.service_id,
+                    date: new Date(editingAppointment.start_time),
+                    start_time: new Date(editingAppointment.start_time),
+                    notes: editingAppointment.notes || "",
+                  }
+                : selectedTimeSlot
+                ? {
+                    date: selectedTimeSlot.start,
+                    start_time: selectedTimeSlot.start,
+                  }
+                : undefined
+            }
+            onSubmit={handleAppointmentSubmit}
+            isLoading={loading}
+          />
+        </DialogContent>
+      </Dialog>
 
       {/* Calendar View */}
       {view === "calendar" && (

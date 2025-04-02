@@ -410,6 +410,7 @@
     "clientStatePlaceholder": "Enter client state",
     "clientZip": "Client Zip",
     "clientZipPlaceholder": "Enter client zip code",
-    "notesPlaceholder": "Enter notes for the appointment"
+    "notesPlaceholder": "Enter notes for the appointment",
+    "notes": "Notes"
   }
 }

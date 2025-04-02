@@ -411,6 +411,7 @@
     "clientCityPlaceholder": "Entrez la ville du client",
     "clientStatePlaceholder": "Entrez l'état du client",
     "clientZipPlaceholder": "Entrez le code postal du client",
-    "notesPlaceholder": "Entrez les notes pour le rendez-vous"
+    "notesPlaceholder": "Entrez les notes pour le rendez-vous",
+    "notes": "Notes"
   }
 }
