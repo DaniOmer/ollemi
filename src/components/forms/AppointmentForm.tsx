@@ -6,8 +6,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale/fr";
+import { enGB } from "date-fns/locale/en-GB";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { useLocale } from "next-intl";
 import { useTranslations } from "@/hooks/useTranslations";
 import { Service } from "@/types";
 import { Button } from "@/components/ui/button";
@@ -70,11 +72,25 @@ export function AppointmentForm({
   isLoading = false,
 }: AppointmentFormProps) {
   const { t } = useTranslations();
+  const locale = useLocale();
   const [selectedService, setSelectedService] = useState<Service | undefined>(
     initialValues?.service_id
       ? services.find((s) => s.id === initialValues.service_id)
       : undefined
   );
+
+  // Get the appropriate locale for date-fns
+  const getDateFnsLocale = () => {
+    switch (locale) {
+      case "fr":
+        return fr;
+      case "en":
+      default:
+        return enGB;
+    }
+  };
+
+  const dateFnsLocale = getDateFnsLocale();
 
   // Set up the form with react-hook-form and zod validation
   const form = useForm<AppointmentFormValues>({
@@ -231,7 +247,7 @@ export function AppointmentForm({
                       selected={field.value}
                       onChange={(date: Date) => field.onChange(date)}
                       dateFormat="dd/MM/yyyy"
-                      locale={fr}
+                      locale={dateFnsLocale}
                       minDate={new Date()}
                       className="w-full pl-10 h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                     />
@@ -257,6 +273,7 @@ export function AppointmentForm({
                       timeIntervals={15}
                       timeCaption={t("appointment.time")}
                       dateFormat="HH:mm"
+                      locale={dateFnsLocale}
                       className="w-full pl-10 h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                     />
                   </div>

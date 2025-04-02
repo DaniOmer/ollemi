@@ -5,21 +5,27 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import { Appointment } from "@/types";
+import { Appointment, BusinessHours } from "@/types";
 import { useTranslations } from "@/hooks/useTranslations";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, Plus } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { useDispatch } from "react-redux";
+import { useLocale } from "next-intl";
 import {
   addAppointmentRealtime,
   updateAppointmentRealtime,
   deleteAppointmentRealtime,
 } from "@/lib/redux/slices/appointmentsSlice";
 
+// Locale imports
+import frLocale from "@fullcalendar/core/locales/fr";
+import enLocale from "@fullcalendar/core/locales/en-gb";
+
 interface AppointmentCalendarProps {
   appointments?: Appointment[];
+  businessHours?: BusinessHours[];
   onAppointmentClick?: (appointment: Appointment) => void;
   onDateSelect?: (start: Date, end: Date) => void;
   isReadOnly?: boolean;
@@ -27,16 +33,29 @@ interface AppointmentCalendarProps {
 
 export function AppointmentCalendar({
   appointments = [],
+  businessHours = [],
   onAppointmentClick,
   onDateSelect,
   isReadOnly = false,
 }: AppointmentCalendarProps) {
   const dispatch = useDispatch();
   const { t } = useTranslations();
+  const locale = useLocale();
   const calendarRef = useRef<FullCalendar | null>(null);
   const [view, setView] = useState<"timeGridWeek" | "timeGridDay">(
     "timeGridWeek"
   );
+
+  // Map to available locales for FullCalendar
+  const getFullCalendarLocale = () => {
+    switch (locale) {
+      case "fr":
+        return frLocale;
+      case "en":
+      default:
+        return enLocale;
+    }
+  };
 
   // Set up Supabase Realtime subscription
   useEffect(() => {
@@ -75,6 +94,38 @@ export function AppointmentCalendar({
     extendedProps: { appointment },
     className: `status-${appointment.status}`,
   }));
+
+  // Convert business hours to FullCalendar business hours format
+  const formattedBusinessHours =
+    businessHours.length > 0
+      ? businessHours
+          .filter((hours) => hours.open)
+          .map((hours) => {
+            // Map day of week string to number (0=Sunday, 1=Monday, etc.)
+            const daysMap: Record<string, number> = {
+              monday: 1,
+              tuesday: 2,
+              wednesday: 3,
+              thursday: 4,
+              friday: 5,
+              saturday: 6,
+              sunday: 0,
+            };
+
+            const dayNumber = daysMap[hours.day_of_week];
+
+            return {
+              daysOfWeek: [dayNumber],
+              startTime: hours.start_time,
+              endTime: hours.end_time,
+            };
+          })
+      : {
+          // Default business hours if none provided
+          daysOfWeek: [1, 2, 3, 4, 5, 6], // Monday to Saturday
+          startTime: "09:00",
+          endTime: "19:00",
+        };
 
   // Handle date selection for creating new appointments
   const handleDateSelect = (selectInfo: any) => {
@@ -156,10 +207,15 @@ export function AppointmentCalendar({
             allDaySlot={false}
             height="100%"
             slotDuration="00:15:00"
-            businessHours={{
-              daysOfWeek: [1, 2, 3, 4, 5, 6],
-              startTime: "09:00",
-              endTime: "19:00",
+            businessHours={formattedBusinessHours}
+            selectConstraint="businessHours"
+            locale={getFullCalendarLocale()}
+            firstDay={1} // 1 = Monday (0 would be Sunday)
+            buttonText={{
+              today: t("calendar.today"),
+              day: t("calendar.dayView"),
+              week: t("calendar.weekView"),
+              month: t("calendar.monthView"),
             }}
           />
         </div>

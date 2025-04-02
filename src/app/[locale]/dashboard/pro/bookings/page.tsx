@@ -33,6 +33,11 @@ import {
 import { selectServices } from "@/lib/redux/slices/companiesSlice";
 import { AppDispatch } from "@/lib/redux/store";
 import { Appointment, Service } from "@/types";
+import {
+  fetchBusinessHours,
+  selectBusinessHours,
+} from "@/lib/redux/slices/availabilitySlice";
+import { selectUserProfile } from "@/lib/redux/slices/userSlice";
 
 export default function BookingsPage() {
   const dispatch = useDispatch<AppDispatch>();
@@ -41,6 +46,8 @@ export default function BookingsPage() {
   const services = useSelector(selectServices);
   const loading = useSelector(selectAppointmentsLoading);
   const error = useSelector(selectAppointmentsError);
+  const businessHours = useSelector(selectBusinessHours);
+  const userProfile = useSelector(selectUserProfile);
 
   // UI state
   const [showAppointmentForm, setShowAppointmentForm] = useState(false);
@@ -57,6 +64,13 @@ export default function BookingsPage() {
   useEffect(() => {
     dispatch(fetchAppointments());
   }, [dispatch]);
+
+  // Fetch business hours on component mount
+  useEffect(() => {
+    if (userProfile?.company_id) {
+      dispatch(fetchBusinessHours(userProfile.company_id));
+    }
+  }, [dispatch, userProfile?.company_id]);
 
   // Handle appointment form submission
   const handleAppointmentSubmit = (formData: any) => {
@@ -184,6 +198,7 @@ export default function BookingsPage() {
           <CardContent className="pt-6">
             <AppointmentCalendar
               appointments={filteredAppointments}
+              businessHours={businessHours}
               onAppointmentClick={(appointment) => {
                 setEditingAppointment(appointment);
                 setShowAppointmentForm(true);
