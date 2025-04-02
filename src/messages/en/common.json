@@ -388,6 +388,7 @@
     "advancedSettings": "Advanced Settings"
   },
   "appointment": {
+    "appointmentDetails": "Appointment Details",
     "service": "Service",
     "selectService": "Select Service",
     "date": "Date",
@@ -397,6 +398,7 @@
     "phone": "Phone",
     "email": "Email",
     "clientName": "Client Name",
+    "clientInformation": "Client Information",
     "clientNamePlaceholder": "Enter client name",
     "clientPhone": "Client Phone",
     "clientPhonePlaceholder": "Enter client phone number",

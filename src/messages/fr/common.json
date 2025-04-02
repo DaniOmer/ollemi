@@ -389,6 +389,7 @@
     "advancedSettings": "Paramètres avancés"
   },
   "appointment": {
+    "appointmentDetails": "Détails du rendez-vous",
     "service": "Service",
     "selectService": "Sélectionner un service",
     "date": "Date",
@@ -398,6 +399,7 @@
     "phone": "Téléphone",
     "email": "Email",
     "clientName": "Nom du client",
+    "clientInformation": "Informations du client",
     "clientPhone": "Téléphone du client",
     "clientEmail": "Email du client",
     "clientAddress": "Adresse du client",

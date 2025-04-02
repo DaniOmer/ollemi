@@ -1,12 +1,12 @@
 import { useAppSelector, useAppDispatch } from "@/lib/redux/store";
 import { useEffect, useState, useCallback, useRef } from "react";
 import {
-  selectUser,
   selectAuthLoading,
   selectAuthError,
   logout,
   setUser,
 } from "@/lib/redux/slices/authSlice";
+import { selectUserProfile } from "@/lib/redux/slices/userSlice";
 import { httpClientPrivate } from "@/lib/services/api";
 import { useRouter } from "next/navigation";
 
@@ -23,12 +23,35 @@ export function useAuth(): AuthStatus & {
 } {
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const user = useAppSelector(selectUser);
+  const user = useAppSelector(selectUserProfile);
   const isLoading = useAppSelector(selectAuthLoading);
   const error = useAppSelector(selectAuthError);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(!!user);
   const [isSessionChecked, setIsSessionChecked] = useState(false);
   const refreshTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Check token expiration and refresh if needed
+  const checkAndRefreshToken = useCallback(async () => {
+    try {
+      // Call token refresh endpoint
+      const response = await httpClientPrivate.post("/auth/refresh");
+
+      if (response.status === 200 && response.data.authenticated) {
+        // Reset the timer for the next refresh
+        setupRefreshTimer();
+        return true;
+      } else {
+        // If refresh fails, force logout
+        await handleLogout();
+        return false;
+      }
+    } catch (error) {
+      console.error("Token refresh error:", error);
+      // If refresh fails, force logout
+      await handleLogout();
+      return false;
+    }
+  }, []);
 
   // Setup token refresh
   const setupRefreshTimer = useCallback(() => {
@@ -37,61 +60,51 @@ export function useAuth(): AuthStatus & {
       clearTimeout(refreshTimerRef.current);
     }
 
-    // Set a timer to refresh tokens 14 minutes after authentication (before the 15-minute expiry)
+    // Set a timer to refresh tokens 50 minutes after authentication (before the 60-minute expiry)
     refreshTimerRef.current = setTimeout(async () => {
-      try {
-        // Call token refresh endpoint
-        const response = await httpClientPrivate.post("/auth/refresh");
+      await checkAndRefreshToken();
+    }, 50 * 60 * 1000); // 50 minutes
+  }, [checkAndRefreshToken]);
 
-        if (response.status === 200 && response.data.authenticated) {
-          // Reset the timer for the next refresh
-          setupRefreshTimer();
-        } else {
-          // If refresh fails, force logout
-          await handleLogout();
-        }
-      } catch (error) {
-        console.error("Token refresh error:", error);
-        // If refresh fails, force logout
-        await handleLogout();
-      }
-    }, 14 * 60 * 1000); // 14 minutes
-  }, []);
-
-  // Check the user's session status with the server
+  // Check session status on mount and when browser tab becomes visible
   const checkSessionStatus = useCallback(async (): Promise<boolean> => {
     try {
-      // Try to hit the session endpoint which uses HTTP-only cookies
-      const response = await httpClientPrivate.get("/auth/session");
-
-      if (response.status === 200 && response.data.authenticated) {
-        // Update Redux store with user info if different
-        if (!user || user.id !== response.data.user.id) {
-          dispatch(setUser(response.data.user));
-        }
-        setIsAuthenticated(true);
-
-        // Setup refresh timer when session is valid
+      // If we already have a user in the Redux store, just setup refresh timer
+      if (user) {
         setupRefreshTimer();
+        setIsAuthenticated(true);
+        setIsSessionChecked(true);
+        return true;
+      }
 
+      // Otherwise, validate session with the server
+      const response = await httpClientPrivate.get("/auth/session");
+      if (response.status === 200 && response.data.authenticated) {
+        // Update Redux store with user data
+        dispatch(
+          setUser({
+            ...response.data.user,
+          })
+        );
+
+        // Check if we need to refresh the token and setup refresh timer
+        await checkAndRefreshToken();
+
+        setIsAuthenticated(true);
+        setIsSessionChecked(true);
         return true;
       } else {
         setIsAuthenticated(false);
-        if (user) {
-          // Clear user from Redux if server says not authenticated
-          dispatch(setUser(null));
-        }
+        setIsSessionChecked(true);
         return false;
       }
     } catch (error) {
-      console.error("Session validation error:", error);
+      console.error("Session check error:", error);
       setIsAuthenticated(false);
-      if (user) {
-        dispatch(setUser(null));
-      }
+      setIsSessionChecked(true);
       return false;
     }
-  }, [dispatch, user, setupRefreshTimer]);
+  }, [user, dispatch, setupRefreshTimer, checkAndRefreshToken]);
 
   // Handle logout
   const handleLogout = useCallback(async () => {

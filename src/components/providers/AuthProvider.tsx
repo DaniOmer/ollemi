@@ -22,9 +22,14 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   // Check authentication status on first load
   useEffect(() => {
     const initializeAuth = async () => {
-      // Validate session with the server
-      await checkSessionStatus();
-      setIsInitialized(true);
+      try {
+        // Validate session with the server
+        await checkSessionStatus();
+      } catch (error) {
+        console.error("Failed to initialize auth:", error);
+      } finally {
+        setIsInitialized(true);
+      }
     };
 
     initializeAuth();
@@ -32,19 +37,31 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     // Revalidate session after browser tab becomes visible again
     const handleVisibilityChange = async () => {
       if (document.visibilityState === "visible") {
-        await checkSessionStatus();
+        try {
+          await checkSessionStatus();
+        } catch (error) {
+          console.error("Failed to check session on visibility change:", error);
+        }
       }
     };
 
     // Add event listener for tab focus/visibility changes
     document.addEventListener("visibilitychange", handleVisibilityChange);
 
-    // Cleanup event listener on unmount
+    // Add event listener for network reconnection
+    window.addEventListener("online", handleVisibilityChange);
+
+    // Cleanup event listeners on unmount
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("online", handleVisibilityChange);
     };
   }, [checkSessionStatus]);
 
   // Render children once auth is initialized
+  if (!isInitialized) {
+    return null; // Or a loading spinner
+  }
+
   return <>{children}</>;
 }

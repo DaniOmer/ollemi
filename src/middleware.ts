@@ -150,6 +150,7 @@ export default async function middleware(req: NextRequest) {
     const hasClientPermission =
       authState.role === "admin" || authState.role === "client";
     const onboardingCompleted = authState.onboarding_completed === true;
+    console.log("onboardingCompleted", onboardingCompleted);
 
     // Redirect to onboarding for pros that haven't completed it
     if (

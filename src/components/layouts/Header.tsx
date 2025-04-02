@@ -149,7 +149,7 @@ export default function Header() {
             </Link>
 
             {/* Auth buttons or user menu */}
-            {isAuthenticated ? (
+            {profile ? (
               <div className="relative" id="user-menu">
                 <button
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
@@ -275,7 +275,7 @@ export default function Header() {
               </Link>
 
               {/* Auth links for mobile */}
-              {!isAuthenticated && (
+              {!profile && (
                 <div className="flex flex-col gap-2 pt-2">
                   <Link
                     href="/login"

@@ -1,6 +1,5 @@
 import { NextResponse, NextRequest } from "next/server";
 import { supabase } from "@/lib/supabase/client";
-import { cookies } from "next/headers";
 
 /**
  * Token refresh endpoint
@@ -59,6 +58,16 @@ export async function POST(request: NextRequest) {
       return response;
     }
 
+    const { data: userData, error: userError } = await supabase
+      .from("users")
+      .select("*")
+      .eq("id", data.user.id)
+      .single();
+
+    if (userError) {
+      return NextResponse.json({ error: userError.message }, { status: 401 });
+    }
+
     // Set new cookies with the refreshed tokens
     const response = NextResponse.json({
       authenticated: true,
@@ -66,8 +75,8 @@ export async function POST(request: NextRequest) {
         id: data.user.id,
         email: data.user.email,
         role: data.user.user_metadata?.role || "client",
-        onboarding_completed:
-          data.user.user_metadata?.onboarding_completed || false,
+        onboarding_completed: userData.onboarding_completed || false,
+        company_id: userData.company_id || null,
       },
     });
 
@@ -78,7 +87,7 @@ export async function POST(request: NextRequest) {
       httpOnly: true,
       path: "/",
       secure: process.env.NODE_ENV === "production",
-      maxAge: 60 * 15, // 15 minutes
+      maxAge: 60 * 60, // 60 minutes
       sameSite: "lax",
     });
 
