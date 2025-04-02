@@ -37,21 +37,19 @@ export async function POST(request: Request) {
       user_data: userData,
     });
 
-    console.log("data.session", data.session);
-
     if (data.session?.access_token && data.session?.refresh_token) {
-      // Cookie pour le token d'accès
+      // Cookie pour le token d'accès - Durée de vie plus courte
       response.cookies.set({
         name: "access_token",
         value: data.session.access_token,
         httpOnly: true,
         path: "/",
         secure: process.env.NODE_ENV === "production",
-        maxAge: 60 * 60 * 24 * 7, // 1 semaine
+        maxAge: 60 * 15, // 15 minutes
         sameSite: "lax",
       });
 
-      // Cookie pour le refresh token
+      // Cookie pour le refresh token - Durée de vie plus longue
       response.cookies.set({
         name: "refresh_token",
         value: data.session.refresh_token,
@@ -62,13 +60,33 @@ export async function POST(request: Request) {
         sameSite: "lax",
       });
 
+      // Stocker les données utilisateur complètes dans un cookie HTTP-only
       response.cookies.set({
         name: "user",
         value: JSON.stringify({
           ...userData,
           metadata: data.user.user_metadata,
         }),
-        httpOnly: false, // Doit être false pour que le middleware puisse y accéder
+        httpOnly: true, // Passer à true pour plus de sécurité
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 60 * 60 * 24 * 7, // 1 semaine
+        sameSite: "lax",
+      });
+
+      // Ajouter un cookie séparé pour le middleware avec des informations minimales
+      response.cookies.set({
+        name: "auth_state",
+        value: JSON.stringify({
+          authenticated: true,
+          id: userData.id,
+          role: userData.role || data.user.user_metadata?.role || "client",
+          onboarding_completed:
+            userData.onboarding_completed ||
+            data.user.user_metadata?.onboarding_completed ||
+            false,
+        }),
+        httpOnly: false, // Nécessaire pour l'accès par le middleware
         path: "/",
         secure: process.env.NODE_ENV === "production",
         maxAge: 60 * 60 * 24 * 7, // 1 semaine

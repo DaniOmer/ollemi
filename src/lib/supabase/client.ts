@@ -33,17 +33,52 @@ export type StorageResponse = {
  * These functions abstract the Supabase auth API to make future migration easier
  */
 
+/**
+ * Valide un token JWT
+ * Cette fonction vérifie la structure et l'expiration d'un token JWT
+ * @param token - Le token à valider
+ * @returns true si le token est valide, false sinon
+ */
+export function validateToken(token: string): boolean {
+  try {
+    // Vérifier la structure basique du JWT (3 parties séparées par des points)
+    const parts = token.split(".");
+    if (parts.length !== 3) {
+      return false;
+    }
+
+    // Décoder le payload (deuxième partie du token)
+    const payload = JSON.parse(atob(parts[1]));
+
+    // Vérifier que le token n'est pas expiré
+    const expiry = payload.exp * 1000; // Convertir en millisecondes
+
+    if (Date.now() >= expiry) {
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Token validation error:", error);
+    return false;
+  }
+}
+
 export function extractToken(request: Request | NextRequest): string | null {
   // Extraire le token du header Authorization
   const authHeader = request.headers.get("Authorization");
   if (authHeader?.startsWith("Bearer ")) {
-    return authHeader.substring(7);
+    const token = authHeader.substring(7);
+    // Valider le token avant de le retourner
+    if (validateToken(token)) {
+      return token;
+    }
   }
 
   // Si NextRequest, vérifier aussi les cookies
   if ("cookies" in request) {
     const token = request.cookies.get("access_token")?.value;
-    if (token) {
+    if (token && validateToken(token)) {
       return token;
     }
   }
@@ -82,6 +117,40 @@ export function extractUserFromCookie(req: NextRequest): {
     return JSON.parse(userCookie);
   } catch (error) {
     console.error("Error extracting user from cookie:", error);
+    return null;
+  }
+}
+
+/**
+ * Extract authentication state from cookie
+ * This function is used to extract the authentication state from the cookie
+ * @param req - The request to extract the authentication state from
+ * @returns The authentication state from the cookie
+ */
+export function extractAuthStateFromCookie(req: NextRequest): {
+  authenticated?: boolean;
+  id?: string;
+  role?: string;
+  onboarding_completed?: boolean;
+} | null {
+  try {
+    const authStateCookie = req.cookies.get("auth_state")?.value;
+    if (!authStateCookie) {
+      // Fallback to user cookie for backward compatibility
+      const userCookie = req.cookies.get("user")?.value;
+      if (!userCookie) return null;
+
+      const userData = JSON.parse(userCookie);
+      return {
+        authenticated: true,
+        id: userData.id,
+        role: userData.role,
+        onboarding_completed: userData.onboarding_completed,
+      };
+    }
+    return JSON.parse(authStateCookie);
+  } catch (error) {
+    console.error("Error extracting auth state from cookie:", error);
     return null;
   }
 }

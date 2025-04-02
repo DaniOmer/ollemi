@@ -1,13 +1,61 @@
 import createMiddleware from "next-intl/middleware";
 import { NextRequest, NextResponse } from "next/server";
-import { extractToken, extractUserFromCookie } from "./lib/supabase/client";
+import {
+  extractToken,
+  extractAuthStateFromCookie,
+} from "./lib/supabase/client";
 import { locales, defaultLocale } from "./i18n";
 
-const protectedRoutes = ["/dashboard"];
-const authRoutes = ["/login", "/signup"];
-const onboardingRoutes = ["/onboarding"];
-const proRoutes = ["/dashboard/pro"];
-const clientRoutes = ["/dashboard/client"];
+/**
+ * Ajoute des en-têtes de sécurité à la réponse
+ * @param response - La réponse à laquelle ajouter les en-têtes
+ */
+function addSecurityHeaders(response: NextResponse): void {
+  // Protection contre le sniffing de type MIME
+  response.headers.set("X-Content-Type-Options", "nosniff");
+
+  // Protection contre le clickjacking
+  response.headers.set("X-Frame-Options", "DENY");
+
+  // Protection XSS pour les navigateurs anciens
+  response.headers.set("X-XSS-Protection", "1; mode=block");
+
+  // Contrôle de la référence HTTP
+  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+
+  // Restrictions des fonctionnalités du navigateur
+  response.headers.set(
+    "Permissions-Policy",
+    "camera=(), microphone=(), geolocation=()"
+  );
+
+  // En production, ajouter Content-Security-Policy
+  if (process.env.NODE_ENV === "production") {
+    response.headers.set(
+      "Content-Security-Policy",
+      "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:;"
+    );
+  }
+}
+
+// Define route configurations for better organization
+const ROUTE_CONFIG = {
+  public: [
+    "/",
+    "/login",
+    "/signup",
+    "/about",
+    "/contact",
+    "/pricing",
+    "/services",
+  ],
+  auth: ["/login", "/signup", "/reset-password", "/forgot-password"],
+  protected: ["/dashboard"],
+  onboarding: ["/onboarding"],
+  proRoutes: ["/dashboard/pro"],
+  clientRoutes: ["/dashboard/client"],
+  api: ["/api"],
+};
 
 const intlMiddleware = createMiddleware({
   locales,
@@ -27,48 +75,100 @@ export default async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
   const normalizedPath = normalizePath(path);
 
-  // 1. Gestion des routes protégées
-  const isProtected = protectedRoutes.some((route) =>
-    normalizedPath.startsWith(route)
-  );
+  // Skip auth checks for public assets
+  if (
+    normalizedPath.includes("/_next") ||
+    normalizedPath.includes("/favicon.ico") ||
+    normalizedPath.includes("/images/") ||
+    normalizedPath.includes("/fonts/")
+  ) {
+    const response = intlMiddleware(req);
+    addSecurityHeaders(response);
+    return response;
+  }
 
-  const isAuthRoute = authRoutes.some((route) =>
-    normalizedPath.startsWith(route)
-  );
+  // Skip authentication for API routes except those requiring auth
+  if (normalizedPath.startsWith("/api")) {
+    // Allow public API endpoints without auth
+    if (
+      normalizedPath === "/api/auth/login" ||
+      normalizedPath === "/api/auth/signup" ||
+      normalizedPath === "/api/auth/refresh"
+    ) {
+      return NextResponse.next();
+    }
 
+    // For all other API routes, check for authentication token
+    const token = extractToken(req);
+    if (!token && !normalizedPath.startsWith("/api/public")) {
+      return NextResponse.json(
+        { error: "Authentication required" },
+        { status: 401 }
+      );
+    }
+
+    return NextResponse.next();
+  }
+
+  // 1. Extract authentication information
   const token = extractToken(req);
   const isAuthenticated = token !== null;
-  const user = extractUserFromCookie(req);
+  const authState = extractAuthStateFromCookie(req);
 
-  // Redirection vers la page de connexion si l'utilisateur n'est pas authentifié
-  if (isProtected && !isAuthenticated) {
+  // 2. Check for protected routes access
+  const isProtectedRoute = ROUTE_CONFIG.protected.some((route) =>
+    normalizedPath.startsWith(route)
+  );
+
+  const isAuthRoute = ROUTE_CONFIG.auth.some((route) =>
+    normalizedPath.startsWith(route)
+  );
+
+  const isOnboardingRoute = ROUTE_CONFIG.onboarding.some((route) =>
+    normalizedPath.startsWith(route)
+  );
+
+  // 3. Handle unauthenticated access to protected routes
+  if (isProtectedRoute && !isAuthenticated) {
     return NextResponse.redirect(new URL(`/${defaultLocale}/login`, req.url));
   }
 
-  // Vérifier si l'utilisateur est authentifié mais non autorisé pour les routes spécifiques
-  if (isAuthenticated && user) {
-    const hasProPermission = user.role === "admin" || user.role === "pro";
-    const hasClientPermission = user.role === "admin" || user.role === "client";
-    const onboardingCompleted = user.onboarding_completed === true;
+  // 4. Handle authenticated users trying to access auth routes (login/signup)
+  if (isAuthRoute && isAuthenticated && authState) {
+    const targetRoute =
+      authState.role === "pro" ? "/dashboard/pro" : "/dashboard/client";
 
-    // Redirection vers l'onboarding si l'utilisateur n'a pas complété son onboarding
-    // et essaie d'accéder au dashboard
+    return NextResponse.redirect(
+      new URL(`/${defaultLocale}${targetRoute}`, req.url)
+    );
+  }
+
+  // 5. Handle role-based authorization for authenticated users
+  if (isAuthenticated && authState) {
+    const hasProPermission =
+      authState.role === "admin" || authState.role === "pro";
+    const hasClientPermission =
+      authState.role === "admin" || authState.role === "client";
+    const onboardingCompleted = authState.onboarding_completed === true;
+
+    // Redirect to onboarding for pros that haven't completed it
     if (
       hasProPermission &&
       !onboardingCompleted &&
-      normalizedPath.startsWith("/dashboard")
+      normalizedPath.startsWith("/dashboard") &&
+      !isOnboardingRoute
     ) {
       return NextResponse.redirect(
         new URL(`/${defaultLocale}/onboarding/business-name`, req.url)
       );
     }
 
-    // Redirection si l'utilisateur n'a pas les permissions pour accéder à une route pro
+    // Prevent unauthorized access to pro routes
     if (!hasProPermission && normalizedPath.startsWith("/dashboard/pro")) {
       return NextResponse.redirect(new URL(`/${defaultLocale}`, req.url));
     }
 
-    // Redirection si l'utilisateur n'a pas les permissions pour accéder à une route client
+    // Prevent unauthorized access to client routes
     if (
       !hasClientPermission &&
       normalizedPath.startsWith("/dashboard/client")
@@ -77,27 +177,10 @@ export default async function middleware(req: NextRequest) {
     }
   }
 
-  // Redirection après connexion vers le dashboard approprié ou l'onboarding si nécessaire
-  // if (isAuthRoute && isAuthenticated && user?.role) {
-  //   if (user.role === "pro" && !user.onboarding_completed) {
-  //     return NextResponse.redirect(
-  //       new URL(`/${defaultLocale}/onboarding/business-name`, req.url)
-  //     );
-  //   } else if (user.role === "pro") {
-  //     return NextResponse.redirect(
-  //       new URL(`/${defaultLocale}/dashboard/pro`, req.url)
-  //     );
-  //   } else if (user.role === "client") {
-  //     return NextResponse.redirect(
-  //       new URL(`/${defaultLocale}/dashboard/client`, req.url)
-  //     );
-  //   } else {
-  //     return NextResponse.redirect(new URL(`/${defaultLocale}`, req.url));
-  //   }
-  // }
-
-  // 2. Gestion i18n
-  return intlMiddleware(req);
+  // 6. Handle internationalization
+  const response = intlMiddleware(req);
+  addSecurityHeaders(response);
+  return response;
 }
 
 export const config = {

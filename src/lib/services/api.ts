@@ -28,6 +28,21 @@ export const httpClientPrivate: AxiosInstance = axios.create({
   withCredentials: true,
 });
 
+// Variables pour gérer les refresh concurrents
+let isRefreshing = false;
+let refreshSubscribers: Array<(token: string) => void> = [];
+
+// Fonction pour ajouter des abonnés à la file d'attente
+function subscribeTokenRefresh(cb: (token: string) => void) {
+  refreshSubscribers.push(cb);
+}
+
+// Fonction pour notifier tous les abonnés avec le nouveau token
+function onTokenRefreshed(token: string) {
+  refreshSubscribers.forEach((cb) => cb(token));
+  refreshSubscribers = [];
+}
+
 // Response interceptor - handles token expiration
 httpClientPrivate.interceptors.response.use(
   (response) => response,
@@ -37,29 +52,69 @@ httpClientPrivate.interceptors.response.use(
     // If error is 401/403 and we haven't tried to refresh the token yet
     if (
       (error.response?.status === 401 || error.response?.status === 403) &&
-      !originalRequest._retry
+      !originalRequest._retry &&
+      // Don't try to refresh if this is already a refresh request
+      !originalRequest.url?.includes("/auth/refresh")
     ) {
-      originalRequest._retry = true;
+      if (!isRefreshing) {
+        // Marquer que nous sommes en train de rafraîchir le token
+        isRefreshing = true;
+        originalRequest._retry = true;
 
-      try {
-        // Try to refresh the token
-        await axios.post(
-          `${API_BASE_URL}/auth/refresh`,
-          {},
-          { withCredentials: true }
-        );
-        return httpClientPrivate(originalRequest);
-      } catch (refreshError) {
-        // Handle failed refresh by redirecting to login
-        if (typeof window !== "undefined") {
-          window.location.href = "/login";
+        try {
+          // Try to refresh the token
+          const refreshResponse = await axios.post(
+            `${API_BASE_URL}/auth/refresh`,
+            {},
+            { withCredentials: true }
+          );
+
+          // If refresh was successful, retry the original request and notify subscribers
+          if (refreshResponse.status === 200) {
+            isRefreshing = false;
+
+            // Notifier tous les abonnés que le token a été rafraîchi
+            onTokenRefreshed(refreshResponse.data.token || "refreshed");
+
+            return httpClientPrivate(originalRequest);
+          } else {
+            // If refresh wasn't successful but returned a response, redirect to login
+            isRefreshing = false;
+            handleAuthFailure();
+          }
+        } catch (refreshError) {
+          // Handle failed refresh by redirecting to login
+          isRefreshing = false;
+          console.error("Failed to refresh token:", refreshError);
+          handleAuthFailure();
         }
+      } else {
+        // Si un refresh est déjà en cours, ajouter cette requête à la file d'attente
+        return new Promise((resolve) => {
+          subscribeTokenRefresh(() => {
+            resolve(httpClientPrivate(originalRequest));
+          });
+        });
       }
     }
 
     return Promise.reject(error);
   }
 );
+
+// Helper function to handle authentication failures
+function handleAuthFailure() {
+  // No need to clear localStorage - tokens should only be in HTTP-only cookies
+  if (typeof window !== "undefined") {
+    // Determine the current locale for redirection
+    const pathParts = window.location.pathname.split("/");
+    const locale =
+      pathParts.length > 1 && pathParts[1].length === 2 ? pathParts[1] : "fr"; // Default to French if no locale in path
+
+    // Redirect to login with current locale
+    window.location.href = `/${locale}/login`;
+  }
+}
 
 export async function fetchApi<T>(
   endpoint: string,

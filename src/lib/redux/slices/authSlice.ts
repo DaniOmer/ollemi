@@ -23,8 +23,7 @@ interface AuthState {
 // Initial state
 const initialState: AuthState = {
   user: null,
-  token:
-    typeof window !== "undefined" ? localStorage.getItem("access_token") : null,
+  token: null,
   loading: false,
   error: null,
 };
@@ -128,6 +127,10 @@ const authSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
+    setUser: (state, action: PayloadAction<User | null>) => {
+      state.user = action.payload;
+      state.token = action.payload ? "valid-session" : null; // Just a marker, not a real token
+    },
   },
   extraReducers: (builder) => {
     // Login
@@ -202,7 +205,7 @@ const authSlice = createSlice({
 });
 
 // Export actions and reducer
-export const { clearError } = authSlice.actions;
+export const { clearError, setUser } = authSlice.actions;
 
 // Base selector
 const selectAuthState = (state: RootState) => (state as any).auth;

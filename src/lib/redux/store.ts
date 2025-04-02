@@ -47,7 +47,14 @@ const customStorage = {
 const persistConfig = {
   key: "root",
   storage: typeof window !== "undefined" ? storage : customStorage,
-  whitelist: ["auth", "user", "onboarding"], // Persist auth, user, and onboarding state
+  whitelist: [
+    "user",
+    "onboarding",
+    "appointments",
+    "companies",
+    "categories",
+    "availability",
+  ], // Only persist user and onboarding state, not auth (which has tokens)
 };
 
 // Combine reducers

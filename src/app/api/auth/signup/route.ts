@@ -64,16 +64,29 @@ export async function POST(request: Request) {
 
     // Set the access token cookie if available
     if (authData.session?.access_token) {
-      // Cookie pour le token d'accès
+      // Cookie pour le token d'accès - Durée de vie plus courte
       response.cookies.set({
         name: "access_token",
         value: authData.session.access_token,
         httpOnly: true,
         path: "/",
         secure: process.env.NODE_ENV === "production",
-        maxAge: 60 * 60 * 24 * 7, // 1 week
+        maxAge: 60 * 15, // 15 minutes
         sameSite: "lax",
       });
+
+      // Cookie pour le refresh token si disponible
+      if (authData.session?.refresh_token) {
+        response.cookies.set({
+          name: "refresh_token",
+          value: authData.session.refresh_token,
+          httpOnly: true,
+          path: "/",
+          secure: process.env.NODE_ENV === "production",
+          maxAge: 60 * 60 * 24 * 7, // 1 week
+          sameSite: "lax",
+        });
+      }
 
       // Cookie pour les informations utilisateur (pour le middleware)
       const userInfo = {
