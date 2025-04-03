@@ -24,21 +24,6 @@ export async function GET(
     );
   }
 
-  const { data: userData, error: userError } = await supabaseWithAuth
-    .from("users")
-    .select("*")
-    .eq("id", authUser.user.id)
-    .single();
-
-  if (userError) {
-    console.error("User not found", userError);
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
-  }
-
-  if (userData.company_id !== id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   const { data, error } = await supabaseWithAuth
     .from("services")
     .select("*")

@@ -14,6 +14,8 @@ import {
   deleteService,
   updateCompany,
   getCompaniesByCategory,
+  uploadPhoto,
+  deletePhoto,
 } from "@/lib/services/companies";
 
 // Define the state type
@@ -217,6 +219,42 @@ export const deleteServiceThunk = createAsyncThunk(
   }
 );
 
+export const uploadPhotoThunk = createAsyncThunk(
+  "companies/uploadPhoto",
+  async (
+    { companyId, photoUrl }: { companyId: string; photoUrl: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await uploadPhoto(companyId, photoUrl);
+      if (response.error) {
+        return rejectWithValue(response.error);
+      }
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.message || "Failed to upload photo");
+    }
+  }
+);
+
+export const deletePhotoThunk = createAsyncThunk(
+  "companies/deletePhoto",
+  async (
+    { companyId, photoId }: { companyId: string; photoId: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await deletePhoto(companyId, photoId);
+      if (response.error) {
+        return rejectWithValue(response.error);
+      }
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.message || "Failed to delete photo");
+    }
+  }
+);
+
 // Create the companies slice
 const companiesSlice = createSlice({
   name: "companies",
@@ -237,7 +275,7 @@ const companiesSlice = createSlice({
       action: PayloadAction<{ companyId: string; photos: string[] }>
     ) => {
       const { companyId, photos } = action.payload;
-      if (!state.photos[companyId]) {
+      if (!state.photos?.[companyId]) {
         state.photos[companyId] = [];
       }
       state.photos[companyId] = [...state.photos[companyId], ...photos];
@@ -436,6 +474,23 @@ const companiesSlice = createSlice({
         }
       })
       .addCase(fetchCompaniesByCategory.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      });
+
+    // Upload photo
+    builder
+      .addCase(uploadPhotoThunk.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(uploadPhotoThunk.fulfilled, (state, action) => {
+        state.loading = false;
+        if (action.payload) {
+          state.currentCompany?.photos?.push(action.payload);
+        }
+      })
+      .addCase(uploadPhotoThunk.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });

@@ -9,6 +9,8 @@ import {
   addCompanyPhotos,
   removeCompanyPhoto,
   selectCompanyPhotos,
+  uploadPhotoThunk,
+  deletePhotoThunk,
 } from "@/lib/redux/slices/companiesSlice";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -119,8 +121,16 @@ export default function SettingsPage() {
     // In a real implementation, you would call an API to delete the photo
     console.log("Remove photo:", photoId);
     if (currentCompany && currentCompany.id) {
+      // First remove from store
       dispatch(
         removeCompanyPhoto({ companyId: currentCompany.id, photoUrl: photoId })
+      );
+      // Then delete from database
+      dispatch(
+        deletePhotoThunk({
+          companyId: currentCompany.id,
+          photoId: photoId,
+        })
       );
     }
   };
@@ -170,29 +180,12 @@ export default function SettingsPage() {
         }
       }
 
-      // Combine existing photos with newly uploaded ones
-      const updatedPhotos = [
-        ...(currentCompany.photos || []),
-        ...uploadedPhotos,
-      ];
-
-      // Update company data
-      await dispatch(
-        updateCompanyThunk({
-          id: currentCompany.id,
-          company: {
-            ...formData,
-            photos: updatedPhotos,
-          },
-        })
-      );
-
-      // Add uploaded photos to companiesSlice
-      if (uploadedPhotos.length > 0) {
-        dispatch(
-          addCompanyPhotos({
+      // Insert photos into the database
+      for (const photo of uploadedPhotos) {
+        await dispatch(
+          uploadPhotoThunk({
             companyId: currentCompany.id,
-            photos: uploadedPhotos.map((photo) => photo.url),
+            photoUrl: photo.url,
           })
         );
       }

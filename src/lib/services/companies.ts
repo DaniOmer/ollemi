@@ -69,3 +69,22 @@ export async function deleteService(
     method: "DELETE",
   });
 }
+
+export async function uploadPhoto(
+  companyId: string,
+  photoUrl: string
+): Promise<ApiResponse<null>> {
+  return fetchPrivateApi<null>(`/companies/${companyId}/photos`, {
+    method: "POST",
+    data: { photoUrl },
+  });
+}
+
+export async function deletePhoto(
+  companyId: string,
+  photoId: string
+): Promise<ApiResponse<null>> {
+  return fetchPrivateApi<null>(`/companies/${companyId}/photos/${photoId}`, {
+    method: "DELETE",
+  });
+}
