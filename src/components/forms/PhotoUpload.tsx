@@ -167,7 +167,7 @@ export function PhotoUpload({
                 size="icon"
                 onClick={() => handleRemoveTempPhoto(photo.id)}
               >
-                <Trash2 className="h-4 w-4" />
+                <Trash2 className="h-4 w-4 text-white" />
               </Button>
             </div>
           </div>

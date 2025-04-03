@@ -70,7 +70,6 @@ export function extractToken(request: Request | NextRequest): string | null {
   if (authHeader?.startsWith("Bearer ")) {
     const token = authHeader.substring(7);
     // Valider le token avant de le retourner
-    console.log("token from Authorization", token);
     if (validateToken(token)) {
       return token;
     }
@@ -79,7 +78,6 @@ export function extractToken(request: Request | NextRequest): string | null {
   // Si NextRequest, vérifier aussi les cookies
   if ("cookies" in request) {
     const token = request.cookies.get("access_token")?.value;
-    console.log("token from cookies", token);
     if (token && validateToken(token)) {
       return token;
     }
@@ -138,7 +136,6 @@ export function extractAuthStateFromCookie(req: NextRequest): {
   try {
     const authStateCookie = req.cookies.get("auth_state")?.value;
     if (!authStateCookie) {
-      console.log("authStateCookie is null");
       // Fallback to user cookie for backward compatibility
       const userCookie = req.cookies.get("user")?.value;
       if (!userCookie) return null;
@@ -151,7 +148,6 @@ export function extractAuthStateFromCookie(req: NextRequest): {
         onboarding_completed: userData.onboarding_completed,
       };
     }
-    console.log("authStateCookie is not null", authStateCookie);
     return JSON.parse(authStateCookie);
   } catch (error) {
     console.error("Error extracting auth state from cookie:", error);

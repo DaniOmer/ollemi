@@ -39,20 +39,7 @@ export async function POST(req: NextRequest) {
     // Ensure the path starts with the user's ID
     // If the path already includes a folder structure, make sure the first folder is the user's ID
     const userId = userData.user.id;
-    let finalPath = path;
-
-    // Check if the path already starts with the user ID
-    if (!finalPath.startsWith(`${userId}/`)) {
-      // If path has slashes, replace the first folder with the user ID
-      if (finalPath.includes("/")) {
-        const pathParts = finalPath.split("/");
-        pathParts[0] = userId;
-        finalPath = pathParts.join("/");
-      } else {
-        // If there's no folder structure, prepend the user ID
-        finalPath = `${userId}/${finalPath}`;
-      }
-    }
+    const finalPath = `${userId}/${path}`;
 
     // Generate a signed URL for uploading
     const { data, error } = await supabaseWithAuth.storage
