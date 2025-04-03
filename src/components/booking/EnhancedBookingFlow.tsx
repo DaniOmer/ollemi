@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   format,
   addDays,
@@ -11,6 +11,8 @@ import {
 } from "date-fns";
 import { fr } from "date-fns/locale/fr";
 import { Service } from "@/types";
+import { useAuth } from "@/hooks/useAuth";
+import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -41,6 +43,9 @@ import {
   Check,
 } from "lucide-react";
 
+import { useAppSelector } from "@/lib/redux/store";
+import { selectUserProfile } from "@/lib/redux/slices/userSlice";
+
 interface EnhancedBookingFlowProps {
   companyId: string;
   services: Service[];
@@ -64,6 +69,10 @@ export function EnhancedBookingFlow({
   companyId,
   services,
 }: EnhancedBookingFlowProps) {
+  // Auth hook for user authentication
+  const router = useRouter();
+  const user = useAppSelector(selectUserProfile);
+
   // State for the booking flow
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
@@ -84,7 +93,11 @@ export function EnhancedBookingFlow({
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [successDialogOpen, setSuccessDialogOpen] = useState(false);
   const [bookingId, setBookingId] = useState<string | null>(null);
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
   const { toast } = useToast();
+
+  // Reference to track if form has been pre-filled
+  const formPrefilledRef = useRef(false);
 
   // Calendar dates
   const today = new Date();
@@ -174,8 +187,28 @@ export function EnhancedBookingFlow({
   // Handle time slot selection
   const handleTimeSlotSelect = (slot: TimeSlot) => {
     setSelectedTimeSlot(slot);
-    setCurrentStep(3); // Move to customer info
+
+    // Check if user is authenticated before proceeding to step 4
+    if (!user) {
+      setShowAuthDialog(true);
+    } else {
+      setCurrentStep(3); // Move to customer info
+    }
   };
+
+  // Pre-fill form with user data when authenticated
+  useEffect(() => {
+    if (user && !formPrefilledRef.current && currentStep === 3) {
+      setFormData({
+        firstName: user.first_name || "",
+        lastName: user.last_name || "",
+        email: user.email || "",
+        phone: user.phone || "",
+        notes: "",
+      });
+      formPrefilledRef.current = true;
+    }
+  }, [user, currentStep]);
 
   // Handle form input changes
   const handleInputChange = (
@@ -852,6 +885,47 @@ export function EnhancedBookingFlow({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      {/* Auth Dialog */}
+      <Dialog open={showAuthDialog} onOpenChange={setShowAuthDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Connexion requise</DialogTitle>
+            <DialogDescription>
+              Vous devez être connecté pour effectuer une réservation.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 my-4">
+            <p className="text-center">
+              Veuillez vous connecter ou créer un compte pour continuer votre
+              réservation.
+            </p>
+          </div>
+
+          <DialogFooter className="flex flex-col sm:flex-row gap-2">
+            <Button
+              variant="outline"
+              className="w-full sm:w-auto"
+              onClick={() => {
+                setShowAuthDialog(false);
+                router.push(`/login?redirect=/booking/${companyId}`);
+              }}
+            >
+              Se connecter
+            </Button>
+            <Button
+              className="w-full sm:w-auto"
+              onClick={() => {
+                setShowAuthDialog(false);
+                router.push(`/signup?redirect=/booking/${companyId}`);
+              }}
+            >
+              Créer un compte
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Success Dialog */}
       <Dialog open={successDialogOpen} onOpenChange={setSuccessDialogOpen}>
         <DialogContent className="sm:max-w-md">
