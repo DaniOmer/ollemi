@@ -329,7 +329,8 @@
     "noResults": "Aucun résultat trouvé",
     "noData": "Aucune donnée disponible",
     "noInternet": "Aucune connexion internet",
-    "noLocation": "Aucune localisation trouvée"
+    "noLocation": "Aucune localisation trouvée",
+    "reset": "Réinitialiser"
   },
   "notFound": {
     "title": "404",

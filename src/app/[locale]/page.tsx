@@ -123,7 +123,7 @@ export default function Home() {
             )}
           </div>
           <Link
-            href={`/professional/${professional.id}`}
+            href={`/pro/${professional.id}`}
             className="block w-full py-2 bg-primary text-white rounded-lg text-center hover:bg-primary/90 transition-colors"
           >
             {t("professional.book")}

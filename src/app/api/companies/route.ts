@@ -3,7 +3,40 @@ import { supabase } from "@/lib/supabase/client";
 
 export async function GET() {
   try {
-    const { data, error } = await supabase.from("companies").select("*");
+    const { data, error } = await supabase.from("companies").select(
+      `
+        *,
+        services (
+          id,
+          name,
+          description,
+          price,
+          duration,
+          category
+        ),
+        opening_hours (
+          id,
+          day_of_week,
+          open,
+          start_time,
+          end_time,
+          break_start_time,
+          break_end_time
+        ),
+        company_categories (
+          category:categories (
+            id,
+            name
+          )
+        ),
+        photos (
+          id,
+          url,
+          alt,
+          featured
+        )
+      `
+    );
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });

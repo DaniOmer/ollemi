@@ -128,7 +128,7 @@ export default function Footer() {
               </li> */}
               <li>
                 <Link
-                  href={`/${locale}/professional`}
+                  href={`/${locale}/pro`}
                   className="text-base text-gray-500 hover:text-gray-900"
                 >
                   {t("footer.forProfessionals")}

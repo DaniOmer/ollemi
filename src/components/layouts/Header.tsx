@@ -29,7 +29,7 @@ export default function Header() {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
-  const isProfessionalSection = pathname?.includes("/professional");
+  const isProfessionalSection = pathname?.includes("/pro");
 
   const dashboardPath = profile?.role === "pro" ? "/pro" : "/client";
 
@@ -139,7 +139,7 @@ export default function Header() {
 
             {/* Section switcher */}
             <Link
-              href={isProfessionalSection ? "/" : "/professional"}
+              href={isProfessionalSection ? "/" : "/pro"}
               className="hidden md:flex items-center gap-1 px-4 py-2 rounded-lg hover:bg-secondary/70 transition-colors text-sm font-medium"
             >
               {isProfessionalSection
@@ -264,7 +264,7 @@ export default function Header() {
 
               {/* Section switcher for mobile */}
               <Link
-                href={isProfessionalSection ? "/" : "/professional"}
+                href={isProfessionalSection ? "/" : "/pro"}
                 className="text-foreground/80 hover:text-primary transition-colors py-2"
                 onClick={() => setMobileMenuOpen(false)}
               >
