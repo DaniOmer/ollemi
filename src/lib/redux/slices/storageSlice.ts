@@ -1,17 +1,20 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import {
+  createSlice,
+  createAsyncThunk,
+  createSelector,
+} from "@reduxjs/toolkit";
 import { RootState } from "../store";
+import axios from "axios";
 
 export interface StorageState {
-  loading: boolean;
-  error: string | null;
+  status: "idle" | "loading" | "succeeded" | "failed";
   signedUrl: string | null;
   uploadUrl: string | null;
   token: string | null;
 }
 
 const initialState: StorageState = {
-  loading: false,
-  error: null,
+  status: "idle",
   signedUrl: null,
   uploadUrl: null,
   token: null,
@@ -25,20 +28,20 @@ export const getSignedUploadUrl = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await fetch("/api/storage/signed-url", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ bucket, path }),
+      const response = await axios.post("/api/storage/signed-url", {
+        bucket,
+        path,
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        return rejectWithValue(errorData.error || "Failed to get signed URL");
+      if (response.status !== 200) {
+        return rejectWithValue(
+          response.data.error || "Failed to get signed URL"
+        );
       }
 
-      return await response.json();
+      console.log("response", response.data);
+
+      return response.data;
     } catch (error) {
       return rejectWithValue(
         error instanceof Error ? error.message : "Unknown error occurred"
@@ -59,20 +62,18 @@ export const uploadToSignedUrl = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await fetch(signedUrl, {
-        method: "PUT",
+      const response = await axios.put(signedUrl, file, {
         headers: {
           "Content-Type": file.type,
           "x-upsert": "true",
         },
-        body: file,
       });
 
-      if (!response.ok) {
+      if (response.status !== 200) {
         return rejectWithValue("Failed to upload file");
       }
 
-      return { success: true };
+      return response.data;
     } catch (error) {
       return rejectWithValue(
         error instanceof Error ? error.message : "Unknown error occurred"
@@ -89,47 +90,58 @@ const storageSlice = createSlice({
       state.signedUrl = null;
       state.uploadUrl = null;
       state.token = null;
-      state.error = null;
+      state.status = "idle";
     },
   },
   extraReducers: (builder) => {
     builder
       // Get signed URL
       .addCase(getSignedUploadUrl.pending, (state) => {
-        state.loading = true;
-        state.error = null;
+        state.status = "loading";
       })
       .addCase(getSignedUploadUrl.fulfilled, (state, action) => {
-        state.loading = false;
+        state.status = "succeeded";
         state.signedUrl = action.payload.signedUrl;
         state.uploadUrl = action.payload.path;
         state.token = action.payload.token;
       })
       .addCase(getSignedUploadUrl.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
+        state.status = "failed";
       })
       // Upload to signed URL
       .addCase(uploadToSignedUrl.pending, (state) => {
-        state.loading = true;
-        state.error = null;
+        state.status = "loading";
       })
       .addCase(uploadToSignedUrl.fulfilled, (state) => {
-        state.loading = false;
+        state.status = "succeeded";
       })
       .addCase(uploadToSignedUrl.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
+        state.status = "failed";
       });
   },
 });
 
 export const { clearStorageState } = storageSlice.actions;
 
-export const selectStorageLoading = (state: RootState) => state.storage.loading;
-export const selectStorageError = (state: RootState) => state.storage.error;
-export const selectSignedUrl = (state: RootState) => state.storage.signedUrl;
-export const selectUploadUrl = (state: RootState) => state.storage.uploadUrl;
-export const selectToken = (state: RootState) => state.storage.token;
+export const selectStorageLoading = createSelector(
+  (state: RootState) => state.storage.status,
+  (status) => status === "loading"
+);
+export const selectStorageError = createSelector(
+  (state: RootState) => state.storage.status,
+  (status) => status === "failed"
+);
+export const selectSignedUrl = createSelector(
+  (state: RootState) => state.storage.signedUrl,
+  (signedUrl) => signedUrl
+);
+export const selectUploadUrl = createSelector(
+  (state: RootState) => state.storage.uploadUrl,
+  (uploadUrl) => uploadUrl
+);
+export const selectToken = createSelector(
+  (state: RootState) => state.storage.token,
+  (token) => token
+);
 
 export default storageSlice.reducer;

@@ -36,6 +36,12 @@ export async function GET(
             id,
             name
           )
+        ),
+        photos (
+          id,
+          url,
+          alt,
+          featured
         )
       `
       )
@@ -67,6 +73,7 @@ export async function GET(
     // Transform the data to match the expected format
     const transformedCompany = {
       ...company,
+      photos: company.photos || [],
       services: company.services || [],
       opening_hours:
         company.opening_hours?.reduce((acc: any, curr: any) => {

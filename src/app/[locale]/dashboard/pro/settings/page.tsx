@@ -11,6 +11,7 @@ import {
   selectCompanyPhotos,
   uploadPhotoThunk,
   deletePhotoThunk,
+  fetchCompanyById,
 } from "@/lib/redux/slices/companiesSlice";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -36,12 +37,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { uploadFileWithSignedUrl } from "@/utils/uploadUtils";
+import { selectUserProfile } from "@/lib/redux/slices/userSlice";
 
 export default function SettingsPage() {
   const { t } = useTranslations();
   const dispatch = useAppDispatch();
   const company = useAppSelector(selectCurrentCompany);
-
+  const user = useAppSelector(selectUserProfile);
   const [activeTab, setActiveTab] = useState("general");
   const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState<Partial<Company>>({});
@@ -64,6 +66,12 @@ export default function SettingsPage() {
       });
     }
   }, [company]);
+
+  useEffect(() => {
+    if (user?.company_id) {
+      dispatch(fetchCompanyById(user.company_id));
+    }
+  }, [dispatch, user?.company_id]);
 
   // Mock data for testing if no company is available
   const mockCompany: Company = {

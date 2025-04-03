@@ -392,10 +392,12 @@ export const selectServicesByCategory = createSelector(
   (services) => {
     const servicesByCategory: Record<string, Service[]> = {};
     services.forEach((service: Service) => {
-      if (!servicesByCategory[service.category]) {
+      if (service.category && !servicesByCategory[service.category]) {
         servicesByCategory[service.category] = [];
       }
-      servicesByCategory[service.category].push(service);
+      if (service.category) {
+        servicesByCategory[service.category].push(service);
+      }
     });
     return servicesByCategory;
   }

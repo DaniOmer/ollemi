@@ -1,9 +1,9 @@
 import {
   getSignedUploadUrl,
   uploadToSignedUrl,
+  selectStorageError,
 } from "@/lib/redux/slices/storageSlice";
-import { AppDispatch } from "@/lib/redux/store";
-import { v4 as uuidv4 } from "uuid";
+import { AppDispatch, useAppSelector } from "@/lib/redux/store";
 
 /**
  * Uploads a file using a signed URL approach
@@ -47,13 +47,9 @@ export const uploadFileWithSignedUrl = async (
       })
     ).unwrap();
 
-    if (!uploadResponse.success) {
-      throw new Error("File upload failed");
-    }
-
     // Return the public URL to the uploaded file
     return {
-      url: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${bucket}/${fullPath}`,
+      url: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${bucket}/${uploadResponse.Key}`,
     };
   } catch (error) {
     console.error("Error in uploadFileWithSignedUrl:", error);
