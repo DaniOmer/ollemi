@@ -48,8 +48,11 @@ export const uploadFileWithSignedUrl = async (
     ).unwrap();
 
     // Return the public URL to the uploaded file
+    // The URL format depends on whether the bucket is public or not
+    const publicUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${uploadResponse.Key}`;
+
     return {
-      url: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${bucket}/${uploadResponse.Key}`,
+      url: publicUrl,
     };
   } catch (error) {
     console.error("Error in uploadFileWithSignedUrl:", error);

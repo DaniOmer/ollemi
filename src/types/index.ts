@@ -157,3 +157,11 @@ export interface ServiceCategory {
   description?: string;
   imageUrl?: string;
 }
+
+export interface Photo {
+  id: string;
+  company_id: string;
+  url: string;
+  alt?: string;
+  featured: boolean;
+}

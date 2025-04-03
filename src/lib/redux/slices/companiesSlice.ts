@@ -494,6 +494,25 @@ const companiesSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       });
+
+    // Delete photo
+    builder
+      .addCase(deletePhotoThunk.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deletePhotoThunk.fulfilled, (state, action) => {
+        state.loading = false;
+        if (state.currentCompany?.photos && action.meta.arg.photoId) {
+          state.currentCompany.photos = state.currentCompany.photos.filter(
+            (photo) => photo.id !== action.meta.arg.photoId
+          );
+        }
+      })
+      .addCase(deletePhotoThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      });
   },
 });
 

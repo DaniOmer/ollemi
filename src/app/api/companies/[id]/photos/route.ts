@@ -64,7 +64,9 @@ export async function POST(
 
   const { data, error } = await supabaseWithAuth
     .from("photos")
-    .insert({ company_id: id, url: photoUrl });
+    .insert({ company_id: id, url: photoUrl })
+    .select("*")
+    .single();
 
   if (error) {
     console.error("Error inserting photo", error);

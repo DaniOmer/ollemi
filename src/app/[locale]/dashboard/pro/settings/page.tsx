@@ -125,21 +125,15 @@ export default function SettingsPage() {
     }));
   };
 
-  const handleRemovePhoto = (photoId: string) => {
-    // In a real implementation, you would call an API to delete the photo
-    console.log("Remove photo:", photoId);
+  const handleRemovePhoto = async (photoId: string) => {
     if (currentCompany && currentCompany.id) {
-      // First remove from store
-      dispatch(
-        removeCompanyPhoto({ companyId: currentCompany.id, photoUrl: photoId })
-      );
       // Then delete from database
-      dispatch(
+      await dispatch(
         deletePhotoThunk({
           companyId: currentCompany.id,
           photoId: photoId,
         })
-      );
+      ).unwrap();
     }
   };
 

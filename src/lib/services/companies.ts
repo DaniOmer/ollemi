@@ -1,5 +1,5 @@
 import { fetchApi, fetchPrivateApi, ApiResponse } from "./api";
-import { Company, Service, Professional } from "@/types";
+import { Company, Service, Professional, Photo } from "@/types";
 
 // Public endpoints
 export async function getCompanies(): Promise<ApiResponse<Company[]>> {
@@ -73,8 +73,8 @@ export async function deleteService(
 export async function uploadPhoto(
   companyId: string,
   photoUrl: string
-): Promise<ApiResponse<null>> {
-  return fetchPrivateApi<null>(`/companies/${companyId}/photos`, {
+): Promise<ApiResponse<Photo>> {
+  return fetchPrivateApi<Photo>(`/companies/${companyId}/photos`, {
     method: "POST",
     data: { photoUrl },
   });
