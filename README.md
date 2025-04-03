@@ -10,14 +10,18 @@ Ollemi is a Next.js 14 application with TypeScript, Tailwind CSS, and Supabase i
 - **Appointment Booking**: Schedule and manage appointments
 - **Image Storage**: Upload profile photos and gallery images
 - **Internationalization**: Multi-language support (English and French)
+- **Address Autocomplete**: Google Maps integration for address input
+- **Photo Management**: Temporary photo storage before submission
+- **Location Management**: Complete location form with all necessary fields
 
 ## Tech Stack
 
 - **Frontend**: Next.js 14, TypeScript, Tailwind CSS, shadcn/ui
 - **Backend**: Supabase (PostgreSQL, Auth, Storage)
-- **State Management**: React Hooks
+- **State Management**: Redux Toolkit, React Hooks
 - **Form Handling**: React Hook Form, Zod
 - **Internationalization**: next-intl
+- **Maps Integration**: Google Maps API
 
 ## Getting Started
 
@@ -43,8 +47,9 @@ Ollemi is a Next.js 14 application with TypeScript, Tailwind CSS, and Supabase i
 
 3. Set up environment variables:
 
-   - Copy `.env.example` to `.env.local`
-   - Fill in your Supabase credentials and other environment variables
+   - Copy `.env.local.example` to `.env.local`
+   - Fill in your Supabase credentials
+   - Add your Google Maps API key for address autocomplete
 
 4. Set up Supabase:
 

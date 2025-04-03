@@ -23,6 +23,7 @@ interface CompaniesState {
   companiesByCategory: Company[];
   services: Service[];
   currentService: Service | null;
+  photos: Record<string, string[]>; // Photos indexed by company ID
   loading: boolean;
   error: string | null;
 }
@@ -34,6 +35,7 @@ const initialState: CompaniesState = {
   companiesByCategory: [],
   services: [],
   currentService: null,
+  photos: {},
   loading: false,
   error: null,
 };
@@ -229,6 +231,32 @@ const companiesSlice = createSlice({
     setCurrentService: (state, action: PayloadAction<Service | null>) => {
       state.currentService = action.payload;
     },
+    // Add actions for photos
+    addCompanyPhotos: (
+      state,
+      action: PayloadAction<{ companyId: string; photos: string[] }>
+    ) => {
+      const { companyId, photos } = action.payload;
+      if (!state.photos[companyId]) {
+        state.photos[companyId] = [];
+      }
+      state.photos[companyId] = [...state.photos[companyId], ...photos];
+    },
+    removeCompanyPhoto: (
+      state,
+      action: PayloadAction<{ companyId: string; photoUrl: string }>
+    ) => {
+      const { companyId, photoUrl } = action.payload;
+      if (state.photos[companyId]) {
+        state.photos[companyId] = state.photos[companyId].filter(
+          (photo) => photo !== photoUrl
+        );
+      }
+    },
+    clearCompanyPhotos: (state, action: PayloadAction<string>) => {
+      const companyId = action.payload;
+      state.photos[companyId] = [];
+    },
   },
   extraReducers: (builder) => {
     // Fetch all companies
@@ -415,8 +443,14 @@ const companiesSlice = createSlice({
 });
 
 // Export actions and reducer
-export const { clearError, setCurrentCompany, setCurrentService } =
-  companiesSlice.actions;
+export const {
+  clearError,
+  setCurrentCompany,
+  setCurrentService,
+  addCompanyPhotos,
+  removeCompanyPhoto,
+  clearCompanyPhotos,
+} = companiesSlice.actions;
 
 // Selectors
 export const selectCompaniesState = (state: RootState) =>
@@ -483,5 +517,16 @@ export const selectProfessionals = selectCompanies;
 export const selectCurrentProfessional = selectCurrentCompany;
 export const selectProfessionalsLoading = selectCompaniesLoading;
 export const selectProfessionalsError = selectCompaniesError;
+
+// Additional selectors for photos
+export const selectCompanyPhotos = createSelector(
+  [selectCompaniesState, (_, companyId: string) => companyId],
+  (companiesState, companyId) => companiesState.photos[companyId] || []
+);
+
+export const selectAllPhotos = createSelector(
+  [selectCompaniesState],
+  (companiesState) => companiesState.photos
+);
 
 export default companiesSlice.reducer;

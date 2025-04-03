@@ -86,6 +86,8 @@ export interface Photo {
   url: string;
   alt?: string;
   featured: boolean;
+  isTemp?: boolean;
+  file?: File;
 }
 
 // Appointment types

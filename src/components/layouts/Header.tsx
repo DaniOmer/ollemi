@@ -4,14 +4,13 @@ import Link from "next/link";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import { useTranslations } from "@/hooks/useTranslations";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/store";
-import { selectIsAuthenticated, logout } from "@/lib/redux/slices/authSlice";
-import { selectUserProfile } from "@/lib/redux/slices/userSlice";
+import { logout } from "@/lib/redux/slices/authSlice";
+import { selectUserProfile, resetState } from "@/lib/redux/slices/userSlice";
 import { useRouter, usePathname } from "next/navigation";
 import {
   Menu,
   X,
   ChevronDown,
-  User,
   Calendar,
   Settings,
   LogOut,
@@ -21,7 +20,6 @@ import { useState, useEffect } from "react";
 
 export default function Header() {
   const { t } = useTranslations();
-  const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const profile = useAppSelector(selectUserProfile);
 
   const dispatch = useAppDispatch();
@@ -51,6 +49,7 @@ export default function Header() {
 
   const handleLogout = async () => {
     await dispatch(logout());
+    dispatch(resetState());
     router.push("/");
     setUserMenuOpen(false);
   };

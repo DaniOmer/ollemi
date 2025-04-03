@@ -23,6 +23,7 @@ import userReducer from "./slices/userSlice";
 import onboardingReducer from "./slices/onboardingSlice";
 import categoriesReducer from "./slices/categoriesSlice";
 import availabilityReducer from "./slices/availabilitySlice";
+import storageReducer from "./slices/storageSlice";
 
 // Configure persist options
 const persistConfig = {
@@ -47,6 +48,7 @@ const rootReducer = combineReducers({
   onboarding: onboardingReducer,
   categories: categoriesReducer,
   availability: availabilityReducer,
+  storage: storageReducer,
 });
 
 // Create persisted reducer

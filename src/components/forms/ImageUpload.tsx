@@ -2,8 +2,10 @@
 
 import { useState, useRef, ChangeEvent } from "react";
 import { Button } from "@/components/ui/button";
-import { uploadFile, deleteFile } from "@/lib/supabase/client";
+import { deleteFile } from "@/lib/supabase/client";
 import { Loader2, Upload, X } from "lucide-react";
+import { useAppDispatch } from "@/lib/redux/store";
+import { uploadFileWithSignedUrl } from "@/utils/uploadUtils";
 
 interface ImageUploadProps {
   bucket: string;
@@ -37,6 +39,7 @@ export function ImageUpload({
     currentImageUrl || null
   );
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const dispatch = useAppDispatch();
 
   const maxSizeBytes = maxSizeMB * 1024 * 1024; // Convert MB to bytes
 
@@ -57,16 +60,13 @@ export function ImageUpload({
     // Upload the file
     setIsUploading(true);
     try {
-      // Generate a unique filename with timestamp and random string
-      const timestamp = new Date().getTime();
-      const randomString = Math.random().toString(36).substring(2, 10);
-      const fileExtension = file.name.split(".").pop();
-      const fileName = `${timestamp}-${randomString}.${fileExtension}`;
-
-      // Full path in the bucket
-      const fullPath = `${path}/${fileName}`;
-
-      const { url, error } = await uploadFile(bucket, fullPath, file);
+      // Upload using signed URL
+      const { url, error } = await uploadFileWithSignedUrl(
+        file,
+        bucket,
+        path,
+        dispatch
+      );
 
       if (error) {
         throw new Error(error);

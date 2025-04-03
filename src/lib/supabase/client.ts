@@ -24,7 +24,7 @@ export type AuthResponse = {
 
 export type StorageResponse = {
   path?: string;
-  url?: string;
+  // url?: string; // Removed as public URL might not be suitable for RLS buckets
   error?: string;
 };
 
@@ -70,6 +70,7 @@ export function extractToken(request: Request | NextRequest): string | null {
   if (authHeader?.startsWith("Bearer ")) {
     const token = authHeader.substring(7);
     // Valider le token avant de le retourner
+    console.log("token from Authorization", token);
     if (validateToken(token)) {
       return token;
     }
@@ -78,6 +79,7 @@ export function extractToken(request: Request | NextRequest): string | null {
   // Si NextRequest, vérifier aussi les cookies
   if ("cookies" in request) {
     const token = request.cookies.get("access_token")?.value;
+    console.log("token from cookies", token);
     if (token && validateToken(token)) {
       return token;
     }
@@ -136,6 +138,7 @@ export function extractAuthStateFromCookie(req: NextRequest): {
   try {
     const authStateCookie = req.cookies.get("auth_state")?.value;
     if (!authStateCookie) {
+      console.log("authStateCookie is null");
       // Fallback to user cookie for backward compatibility
       const userCookie = req.cookies.get("user")?.value;
       if (!userCookie) return null;
@@ -148,6 +151,7 @@ export function extractAuthStateFromCookie(req: NextRequest): {
         onboarding_completed: userData.onboarding_completed,
       };
     }
+    console.log("authStateCookie is not null", authStateCookie);
     return JSON.parse(authStateCookie);
   } catch (error) {
     console.error("Error extracting auth state from cookie:", error);
@@ -345,44 +349,42 @@ export const getSession = async (): Promise<AuthResponse> => {
  */
 
 /**
- * Upload file to storage
- * This function is used to upload a file to storage
- * @param bucket - The bucket to upload the file to
- * @param path - The path to upload the file to
- * @param file - The file to upload
- * @returns The uploaded file
+ * Upload file to storage.
+ * Requires an authenticated Supabase client for buckets with RLS policies (e.g., 'ollemi').
+ * For buckets like 'ollemi' with user-specific folder policies, the 'path' must start with the user's ID (e.g., 'user-id/filename.ext').
+ * @param client - An authenticated Supabase client instance.
+ * @param bucket - The bucket to upload the file to.
+ * @param path - The path to upload the file to (ensure correct structure for RLS policies).
+ * @param file - The file to upload.
+ * @returns An object containing the path of the uploaded file or an error.
  */
 export const uploadFile = async (
   bucket: string,
   path: string,
-  file: File
-): Promise<StorageResponse> => {
+  file: File,
+  options = {}
+): Promise<{ url?: string; error?: string }> => {
   try {
     const { data, error } = await supabase.storage
       .from(bucket)
       .upload(path, file, {
-        cacheControl: "3600",
         upsert: true,
+        ...options,
       });
 
-    if (error) throw error;
+    if (error) {
+      console.error("Error uploading file:", error);
+      return { error: error.message };
+    }
 
-    // Get public URL for the uploaded file
-    const { data: urlData } = supabase.storage
-      .from(bucket)
-      .getPublicUrl(data.path);
+    // Get the public URL
+    const publicUrl = getPublicUrl(bucket, path);
 
-    return {
-      path: data.path,
-      url: urlData.publicUrl,
-    };
+    return { url: publicUrl };
   } catch (error) {
-    console.error("File upload error:", error);
+    console.error("Exception during file upload:", error);
     return {
-      error:
-        error instanceof Error
-          ? error.message
-          : "An unknown error occurred during file upload",
+      error: error instanceof Error ? error.message : "Unknown error",
     };
   }
 };
@@ -426,4 +428,46 @@ export const getFileUrl = (bucket: string, path: string): string => {
   const { data } = supabase.storage.from(bucket).getPublicUrl(path);
 
   return data.publicUrl;
+};
+
+// Function to get public URL for a file
+export const getPublicUrl = (bucket: string, path: string) => {
+  const { data } = supabase.storage.from(bucket).getPublicUrl(path);
+  return data.publicUrl;
+};
+
+// Legacy file upload function (to be deprecated)
+export const uploadFileLegacy = async (
+  bucket: string,
+  path: string,
+  file: File,
+  options = {}
+) => {
+  try {
+    const { data, error } = await supabase.storage
+      .from(bucket)
+      .upload(path, file, {
+        upsert: true,
+        ...options,
+      });
+
+    if (error) {
+      console.error("Error uploading file:", error);
+      return { error: error.message };
+    }
+
+    // Get the public URL
+    const publicUrl = getPublicUrl(bucket, path);
+
+    return {
+      data,
+      url: publicUrl,
+      error: null,
+    };
+  } catch (error) {
+    console.error("Exception during file upload:", error);
+    return {
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
 };

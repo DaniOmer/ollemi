@@ -13,6 +13,7 @@ export async function POST(request: Request) {
       response.cookies.delete("access_token");
       response.cookies.delete("refresh_token");
       response.cookies.delete("user");
+      response.cookies.delete("auth_state");
       return response;
     }
 

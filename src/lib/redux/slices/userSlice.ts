@@ -4,7 +4,7 @@ import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { createSelector } from "@reduxjs/toolkit";
 import { User } from "@/types";
 import { RootState } from "../store";
-import { ApiResponse } from "@/lib/services/api";
+
 import {
   getUserProfile,
   updateUserProfile as updateUserProfileService,
@@ -208,7 +208,7 @@ const userSlice = createSlice({
       state.preferences.language = action.payload;
     },
     resetState: (state) => {
-      state = initialState;
+      return initialState;
     },
   },
   extraReducers: (builder) => {

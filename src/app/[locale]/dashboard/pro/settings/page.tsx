@@ -1,19 +1,31 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslations } from "@/hooks/useTranslations";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/store";
-import { selectCurrentCompany } from "@/lib/redux/slices/companiesSlice";
+import {
+  selectCurrentCompany,
+  updateCompanyThunk,
+  addCompanyPhotos,
+  removeCompanyPhoto,
+  selectCompanyPhotos,
+} from "@/lib/redux/slices/companiesSlice";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
+
 import { Company, OpeningHours, TeamMember, Photo, DayHours } from "@/types";
 import Image from "next/image";
-import { Plus, Trash2, Upload, CheckCircle } from "lucide-react";
+import { Plus, Trash2, Upload, CheckCircle, Loader2 } from "lucide-react";
+import { PhotoUpload } from "@/components/forms/PhotoUpload";
+import {
+  AddressAutocomplete,
+  AddressData,
+} from "@/components/forms/AddressAutocomplete";
+import { v4 as uuidv4 } from "uuid";
 import {
   Select,
   SelectContent,
@@ -21,15 +33,37 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { uploadFileWithSignedUrl } from "@/utils/uploadUtils";
 
 export default function SettingsPage() {
   const { t } = useTranslations();
   const dispatch = useAppDispatch();
   const company = useAppSelector(selectCurrentCompany);
-  console.log("company", company);
-  const [activeTab, setActiveTab] = useState("general");
 
-  // Mock data for testing
+  const [activeTab, setActiveTab] = useState("general");
+  const [isSaving, setIsSaving] = useState(false);
+  const [formData, setFormData] = useState<Partial<Company>>({});
+  const [addressData, setAddressData] = useState<AddressData | null>(null);
+  const [tempPhotos, setTempPhotos] = useState<Photo[]>([]);
+
+  // Initialize form data from company
+  useEffect(() => {
+    if (company) {
+      setFormData({
+        name: company.name,
+        description: company.description,
+        address: company.address,
+        city: company.city,
+        zipcode: company.zipcode,
+        phone: company.phone,
+        website: company.website,
+        instagram: company.instagram,
+        facebook: company.facebook,
+      });
+    }
+  }, [company]);
+
+  // Mock data for testing if no company is available
   const mockCompany: Company = {
     id: "1",
     user_id: "1",
@@ -62,11 +96,125 @@ export default function SettingsPage() {
 
   const currentCompany = company || mockCompany;
 
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { id, value } = e.target;
+    setFormData((prev) => ({ ...prev, [id]: value }));
+  };
+
+  const handleAddressSelect = (data: AddressData) => {
+    setAddressData(data);
+    setFormData((prev) => ({
+      ...prev,
+      address: data.streetNumber
+        ? `${data.streetNumber} ${data.streetName}`
+        : data.streetName,
+      city: data.city,
+      zipcode: data.postalCode,
+    }));
+  };
+
+  const handleRemovePhoto = (photoId: string) => {
+    // In a real implementation, you would call an API to delete the photo
+    console.log("Remove photo:", photoId);
+    if (currentCompany && currentCompany.id) {
+      dispatch(
+        removeCompanyPhoto({ companyId: currentCompany.id, photoUrl: photoId })
+      );
+    }
+  };
+
+  const handleAddTempPhoto = (photo: Photo) => {
+    setTempPhotos((prev) => [...prev, photo]);
+  };
+
+  const handleRemoveTempPhoto = (photoId: string) => {
+    setTempPhotos((prev) => prev.filter((photo) => photo.id !== photoId));
+  };
+
+  const handleSaveChanges = async () => {
+    if (!currentCompany.id) return;
+
+    setIsSaving(true);
+
+    try {
+      // First, upload any temporary photos
+      const uploadedPhotos: Photo[] = [];
+
+      if (tempPhotos.length > 0) {
+        for (const photo of tempPhotos) {
+          if (photo.file) {
+            // Upload the file using signed URLs
+            const { url, error } = await uploadFileWithSignedUrl(
+              photo.file,
+              process.env.NEXT_PUBLIC_SUPABASE_BUCKET_NAME || "",
+              `companies/${currentCompany.id}/photos`,
+              dispatch
+            );
+
+            if (error) {
+              console.error("Error uploading photo:", error);
+              throw new Error(error);
+            }
+
+            if (url) {
+              uploadedPhotos.push({
+                id: uuidv4(),
+                company_id: currentCompany.id,
+                url,
+                featured: false,
+              });
+            }
+          }
+        }
+      }
+
+      // Combine existing photos with newly uploaded ones
+      const updatedPhotos = [
+        ...(currentCompany.photos || []),
+        ...uploadedPhotos,
+      ];
+
+      // Update company data
+      await dispatch(
+        updateCompanyThunk({
+          id: currentCompany.id,
+          company: {
+            ...formData,
+            photos: updatedPhotos,
+          },
+        })
+      );
+
+      // Add uploaded photos to companiesSlice
+      if (uploadedPhotos.length > 0) {
+        dispatch(
+          addCompanyPhotos({
+            companyId: currentCompany.id,
+            photos: uploadedPhotos.map((photo) => photo.url),
+          })
+        );
+      }
+
+      // Clear temporary photos
+      setTempPhotos([]);
+    } catch (error) {
+      console.error("Error saving changes:", error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <div className="container mx-auto py-8">
       <h1 className="text-3xl font-bold mb-8">{t("settings.title")}</h1>
 
-      <Tabs defaultValue="general" className="space-y-6">
+      <Tabs
+        defaultValue="general"
+        className="space-y-6"
+        onValueChange={setActiveTab}
+      >
         <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="general">{t("settings.general")}</TabsTrigger>
           <TabsTrigger value="location">{t("settings.location")}</TabsTrigger>
@@ -89,7 +237,11 @@ export default function SettingsPage() {
                 <div className="space-y-4">
                   <div>
                     <Label htmlFor="name">{t("settings.companyName")}</Label>
-                    <Input id="name" defaultValue={currentCompany.name} />
+                    <Input
+                      id="name"
+                      value={formData.name || ""}
+                      onChange={handleInputChange}
+                    />
                   </div>
                   <div>
                     <Label htmlFor="description">
@@ -97,17 +249,26 @@ export default function SettingsPage() {
                     </Label>
                     <Textarea
                       id="description"
-                      defaultValue={currentCompany.description}
+                      value={formData.description || ""}
+                      onChange={handleInputChange}
                       className="min-h-[100px]"
                     />
                   </div>
                   <div>
                     <Label htmlFor="website">{t("settings.website")}</Label>
-                    <Input id="website" defaultValue={currentCompany.website} />
+                    <Input
+                      id="website"
+                      value={formData.website || ""}
+                      onChange={handleInputChange}
+                    />
                   </div>
                   <div>
                     <Label htmlFor="phone">{t("settings.phone")}</Label>
-                    <Input id="phone" defaultValue={currentCompany.phone} />
+                    <Input
+                      id="phone"
+                      value={formData.phone || ""}
+                      onChange={handleInputChange}
+                    />
                   </div>
                 </div>
                 <div className="space-y-4">
@@ -115,14 +276,16 @@ export default function SettingsPage() {
                     <Label htmlFor="instagram">{t("settings.instagram")}</Label>
                     <Input
                       id="instagram"
-                      defaultValue={currentCompany.instagram}
+                      value={formData.instagram || ""}
+                      onChange={handleInputChange}
                     />
                   </div>
                   <div>
                     <Label htmlFor="facebook">{t("settings.facebook")}</Label>
                     <Input
                       id="facebook"
-                      defaultValue={currentCompany.facebook}
+                      value={formData.facebook || ""}
+                      onChange={handleInputChange}
                     />
                   </div>
                   <div>
@@ -164,47 +327,34 @@ export default function SettingsPage() {
 
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  {/* <Label>{t("settings.photos")}</Label> */}
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex items-center gap-2"
-                  >
-                    <Upload className="h-4 w-4" />
-                    {t("settings.addPhoto")}
-                  </Button>
+                  <Label>{t("settings.photoGallery")}</Label>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {currentCompany.photos?.map((photo: Photo) => (
-                    <div
-                      key={photo.id}
-                      className="relative group aspect-square"
-                    >
-                      <Image
-                        src={photo.url}
-                        alt={photo.alt || ""}
-                        fill
-                        className="rounded-lg object-cover"
-                      />
-                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
-                        <Button
-                          variant="secondary"
-                          size="icon"
-                          className="bg-white/20 hover:bg-white/30"
-                        >
-                          <Upload className="h-4 w-4" />
-                        </Button>
-                        <Button variant="destructive" size="icon">
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                <PhotoUpload
+                  companyId={currentCompany.id}
+                  existingPhotos={currentCompany.photos || []}
+                  tempPhotos={tempPhotos}
+                  onPhotoRemove={handleRemovePhoto}
+                  onAddTempPhoto={handleAddTempPhoto}
+                  onRemoveTempPhoto={handleRemoveTempPhoto}
+                  className="mt-2"
+                />
               </div>
 
               <div className="flex justify-end pt-4">
-                <Button className="min-w-[120px]">{t("common.save")}</Button>
+                <Button
+                  className="min-w-[120px]"
+                  onClick={handleSaveChanges}
+                  disabled={isSaving}
+                >
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      {t("common.loading")}
+                    </>
+                  ) : (
+                    t("settings.saveChanges")
+                  )}
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -216,20 +366,83 @@ export default function SettingsPage() {
             <CardHeader>
               <CardTitle>{t("settings.location")}</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-6">
               <div>
-                <Label htmlFor="address">{t("settings.address")}</Label>
-                <Input id="address" defaultValue={currentCompany.address} />
+                <Label>{t("settings.locationInfo")}</Label>
+                <AddressAutocomplete
+                  onAddressSelect={handleAddressSelect}
+                  defaultValue={currentCompany.address}
+                  label={t("settings.streetAddress")}
+                  className="mt-2"
+                />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <Label htmlFor="country">{t("settings.country")}</Label>
+                  <Input
+                    id="country"
+                    value={addressData?.country || ""}
+                    readOnly
+                    className="bg-muted/50"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="state">{t("settings.state")}</Label>
+                  <Input
+                    id="state"
+                    value={addressData?.state || ""}
+                    readOnly
+                    className="bg-muted/50"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="postalCode">{t("settings.postalCode")}</Label>
+                  <Input
+                    id="zipcode"
+                    value={formData.zipcode || ""}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="city">{t("settings.city")}</Label>
-                  <Input id="city" defaultValue={currentCompany.city} />
+                  <Input
+                    id="city"
+                    value={formData.city || ""}
+                    onChange={handleInputChange}
+                  />
                 </div>
                 <div>
-                  <Label htmlFor="zipcode">{t("settings.zipcode")}</Label>
-                  <Input id="zipcode" defaultValue={currentCompany.zipcode} />
+                  <Label htmlFor="streetNumber">
+                    {t("settings.streetNumber")}
+                  </Label>
+                  <Input
+                    id="streetNumber"
+                    value={addressData?.streetNumber || ""}
+                    readOnly
+                    className="bg-muted/50"
+                  />
                 </div>
+              </div>
+
+              <div className="flex justify-end pt-4">
+                <Button
+                  className="min-w-[120px]"
+                  onClick={handleSaveChanges}
+                  disabled={isSaving}
+                >
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      {t("common.loading")}
+                    </>
+                  ) : (
+                    t("settings.saveChanges")
+                  )}
+                </Button>
               </div>
             </CardContent>
           </Card>

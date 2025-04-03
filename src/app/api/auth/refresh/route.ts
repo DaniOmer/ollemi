@@ -110,9 +110,8 @@ export async function POST(request: NextRequest) {
       value: JSON.stringify({
         authenticated: true,
         id: data.user.id,
-        role: data.user.user_metadata?.role || "client",
-        onboarding_completed:
-          data.user.user_metadata?.onboarding_completed || false,
+        role: userData.role || "client",
+        onboarding_completed: userData.onboarding_completed || false,
       }),
       httpOnly: false,
       path: "/",
