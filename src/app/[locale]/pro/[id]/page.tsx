@@ -19,7 +19,7 @@ import {
   Photo,
   Company,
 } from "@/types";
-import BookingFlow from "@/components/booking/BookingFlow";
+import { EnhancedBookingFlow } from "@/components/booking/EnhancedBookingFlow";
 import {
   Dialog,
   DialogContent,
@@ -470,7 +470,7 @@ export default function ProfessionalPage() {
                                 {t("professional.bookFor")}
                               </DialogDescription>
                             </DialogHeader>
-                            <BookingFlow
+                            <EnhancedBookingFlow
                               companyId={professional.id}
                               services={[service]}
                             />

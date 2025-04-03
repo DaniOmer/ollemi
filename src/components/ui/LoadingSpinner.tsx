@@ -1,28 +1,30 @@
-import React from "react";
+"use client";
 
-type LoadingSpinnerProps = {
-  size?: "sm" | "md" | "lg" | "xl";
+import { cn } from "@/lib/utils";
+
+interface LoadingSpinnerProps {
+  size?: "sm" | "md" | "lg";
   className?: string;
-};
+}
 
-const LoadingSpinner = ({
+export default function LoadingSpinner({
   size = "md",
-  className = "",
-}: LoadingSpinnerProps) => {
+  className,
+}: LoadingSpinnerProps) {
   const sizeClasses = {
-    sm: "w-4 h-4 border-2",
-    md: "w-8 h-8 border-2",
-    lg: "w-12 h-12 border-3",
-    xl: "w-16 h-16 border-4",
+    sm: "w-5 h-5 border-2",
+    md: "w-8 h-8 border-3",
+    lg: "w-12 h-12 border-4",
   };
 
   return (
-    <div
-      className={`${sizeClasses[size]} rounded-full border-gray-300 border-t-primary animate-spin ${className}`}
-      role="status"
-      aria-label="Loading"
-    />
+    <div className={cn("flex items-center justify-center", className)}>
+      <div
+        className={cn(
+          "animate-spin rounded-full border-solid border-primary border-t-transparent",
+          sizeClasses[size]
+        )}
+      />
+    </div>
   );
-};
-
-export default LoadingSpinner;
+}
