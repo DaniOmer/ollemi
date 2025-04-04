@@ -33,13 +33,13 @@ import {
 } from "@/lib/redux/slices/authSlice";
 import { fetchUserProfile } from "@/lib/redux/slices/userSlice";
 import {
-  fetchAppointments,
-  selectUpcomingAppointments,
-  selectAppointmentsLoading,
-  selectAppointmentsError,
-} from "@/lib/redux/slices/appointmentsSlice";
+  fetchBookingsThunk,
+  selectUpcomingBookings,
+  selectBookingError,
+  selectBookingStatus,
+} from "@/lib/redux/slices/bookingSlice";
 import { AppDispatch } from "@/lib/redux/store";
-import { Service, Appointment } from "@/types";
+import { Service, Booking } from "@/types";
 
 export default function ProfessionalDashboard() {
   const dispatch = useDispatch<AppDispatch>();
@@ -50,15 +50,17 @@ export default function ProfessionalDashboard() {
   const user = useSelector(selectUser);
   const currentCompany = useSelector(selectCurrentCompany);
   const services = useSelector(selectServices);
-  const upcomingAppointments = useSelector(selectUpcomingAppointments);
+  const upcomingBookings = useSelector(selectUpcomingBookings);
   const companiesLoading = useSelector(selectCompaniesLoading);
-  const appointmentsLoading = useSelector(selectAppointmentsLoading);
   const companiesError = useSelector(selectCompaniesError);
-  const appointmentsError = useSelector(selectAppointmentsError);
+  const bookingStatus = useSelector(selectBookingStatus);
+  const bookingsError = useSelector(selectBookingError);
+
+  const bookingsLoading = bookingStatus === "loading";
 
   // Loading and error states
-  const loading = companiesLoading || appointmentsLoading;
-  const error = companiesError || appointmentsError;
+  const loading = companiesLoading || bookingsLoading;
+  const error = companiesError || bookingsError;
 
   // Fetch data on component mount
   useEffect(() => {
@@ -66,25 +68,25 @@ export default function ProfessionalDashboard() {
     if (user?.company_id) {
       dispatch(fetchCompanyById(user.company_id));
       dispatch(fetchServices(user.company_id));
-      dispatch(fetchAppointments());
+      dispatch(fetchBookingsThunk(user.company_id));
     }
   }, [dispatch, isAuthenticated, router, user?.company_id]);
 
   // Stats
-  const todayAppointments = upcomingAppointments.filter(
-    (a: Appointment) =>
-      new Date(a.start_time).toDateString() === new Date().toDateString()
+  const todayBookings = upcomingBookings.filter(
+    (booking: Booking) =>
+      new Date(booking.start_time).toDateString() === new Date().toDateString()
   ).length;
 
   const totalServices = services.length;
   const totalCustomers = new Set(
-    upcomingAppointments.map((a: Appointment) => a.client_email)
+    upcomingBookings.map((booking: Booking) => booking.client_email)
   ).size;
 
   const stats = [
     {
       title: "Rendez-vous aujourd'hui",
-      value: todayAppointments,
+      value: todayBookings,
       icon: Calendar,
       color: "text-blue-500",
     },
@@ -166,24 +168,24 @@ export default function ProfessionalDashboard() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {upcomingAppointments
+            {upcomingBookings
               .filter(
-                (a: Appointment) =>
-                  new Date(a.start_time).toDateString() ===
+                (booking: Booking) =>
+                  new Date(booking.start_time).toDateString() ===
                   new Date().toDateString()
               )
-              .map((appointment: Appointment) => (
+              .map((booking: Booking) => (
                 <div
-                  key={appointment.id}
+                  key={booking.id}
                   className="flex items-center justify-between p-4 bg-muted rounded-lg"
                 >
                   <div>
-                    <div className="font-medium">{appointment.client_name}</div>
+                    <div className="font-medium">{booking.client_name}</div>
                     <div className="text-sm text-muted-foreground">
-                      {format(new Date(appointment.start_time), "HH:mm")} -
+                      {format(new Date(booking.start_time), "HH:mm")} -
                       {
                         services.find(
-                          (s: Service) => s.id === appointment.service_id
+                          (s: Service) => s.id === booking.service.id
                         )?.name
                       }
                     </div>
@@ -192,16 +194,16 @@ export default function ProfessionalDashboard() {
                     variant="outline"
                     size="sm"
                     onClick={() =>
-                      router.push(`/dashboard/pro/bookings/${appointment.id}`)
+                      router.push(`/dashboard/pro/bookings/${booking.id}`)
                     }
                   >
                     Voir détails
                   </Button>
                 </div>
               ))}
-            {upcomingAppointments.filter(
-              (a: Appointment) =>
-                new Date(a.start_time).toDateString() ===
+            {upcomingBookings.filter(
+              (booking: Booking) =>
+                new Date(booking.start_time).toDateString() ===
                 new Date().toDateString()
             ).length === 0 && (
               <div className="text-center text-muted-foreground py-4">

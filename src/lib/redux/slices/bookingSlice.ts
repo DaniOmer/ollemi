@@ -159,5 +159,11 @@ export const selectBookingById = (state: RootState, bookingId: string) =>
   state.bookings?.bookings.find((booking: Booking) => booking.id === bookingId);
 export const selectBookingStatus = (state: RootState) => state.bookings?.status;
 export const selectBookingError = (state: RootState) => state.bookings?.error;
+export const selectUpcomingBookings = (state: RootState) =>
+  state.bookings?.bookings.filter((booking: Booking) => {
+    const now = new Date();
+    const bookingDate = new Date(booking.start_time);
+    return bookingDate > now;
+  });
 
 export default bookingSlice.reducer;
