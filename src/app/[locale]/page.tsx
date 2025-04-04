@@ -7,12 +7,17 @@ import { fetchCompanies } from "@/lib/redux/slices/companiesSlice";
 import { fetchCategories } from "@/lib/redux/slices/categoriesSlice";
 import { Professional, Company, Category } from "@/types";
 import { useTranslations } from "@/hooks/useTranslations";
-import { MapPin, ChevronRight, Search, Scissors } from "lucide-react";
+import { MapPin, ChevronRight, Search } from "lucide-react";
 
 import Header from "@/components/layouts/Header";
 import Footer from "@/components/layouts/Footer";
 import Carousel from "@/components/ui/Carousel";
 import CategoryCard from "@/components/categories/CategoryCard";
+import {
+  AddressAutocomplete,
+  AddressData,
+} from "@/components/forms/AddressAutocomplete";
+import { ServiceSearchAutocomplete } from "@/components/forms/ServiceSearchAutocomplete";
 import { useAppSelector, useAppDispatch } from "@/lib/redux/store";
 import {
   selectCompanies,
@@ -26,6 +31,7 @@ import {
 export default function Home() {
   const { t } = useTranslations();
   const [searchLocation, setSearchLocation] = useState("");
+  const [searchAddress, setSearchAddress] = useState<AddressData | null>(null);
   const [searchService, setSearchService] = useState("");
   const [searchDate, setSearchDate] = useState("");
 
@@ -76,6 +82,11 @@ export default function Home() {
     };
   }, []);
 
+  const handleAddressSelect = (address: AddressData) => {
+    setSearchAddress(address);
+    setSearchLocation(address.fullAddress);
+  };
+
   // Professional card component
   const ProfessionalCard = ({
     professional,
@@ -104,7 +115,7 @@ export default function Home() {
           <h3 className="text-xl font-semibold mb-2">{professional.name}</h3>
           <div className="flex items-center text-sm text-muted-foreground mb-3">
             <MapPin className="w-4 h-4 mr-1" />
-            {professional.city}
+            {professional.addresses?.formatted_address}
           </div>
           <div className="flex flex-wrap gap-2 mb-4">
             {professional.services &&
@@ -157,30 +168,28 @@ export default function Home() {
                   <label className="block text-sm font-medium mb-2">
                     {t("client.home.search.service")}
                   </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      placeholder={t("client.home.search.servicePlaceholder")}
-                      className="w-full px-4 py-3 pl-10 rounded-lg border border-input bg-background"
-                      value={searchService}
-                      onChange={(e) => setSearchService(e.target.value)}
-                    />
-                    <Scissors className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" />
-                  </div>
+                  <ServiceSearchAutocomplete
+                    onServiceSelect={setSearchService}
+                    defaultValue={searchService}
+                    categories={categories}
+                    placeholder={t("client.home.search.servicePlaceholder")}
+                    className="w-full"
+                  />
                 </div>
                 <div className="col-span-4 md:col-span-1">
                   <label className="block text-sm font-medium mb-2">
                     {t("client.home.search.location")}
                   </label>
-                  <div className="relative">
-                    <input
-                      type="text"
+                  <div className="relative h-[50px]">
+                    <AddressAutocomplete
+                      onAddressSelect={handleAddressSelect}
+                      defaultValue={searchLocation}
                       placeholder={t("client.home.search.locationPlaceholder")}
-                      className="w-full px-4 py-3 pl-10 rounded-lg border border-input bg-background"
-                      value={searchLocation}
-                      onChange={(e) => setSearchLocation(e.target.value)}
+                      className="w-full"
+                      inputClassName="w-full h-[50px] px-4 py-3 pl-10 rounded-lg border border-input bg-background"
+                      required={false}
                     />
-                    <MapPin className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" />
+                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                   </div>
                 </div>
                 <div className="col-span-4 md:col-span-1">
@@ -189,16 +198,23 @@ export default function Home() {
                   </label>
                   <input
                     type="date"
-                    className="w-full px-4 py-3 rounded-lg border border-input bg-background"
+                    className="w-full h-[50px] px-4 py-3 rounded-lg border border-input bg-background"
                     value={searchDate}
                     onChange={(e) => setSearchDate(e.target.value)}
                   />
                 </div>
                 <div className="col-span-4 md:col-span-1 flex items-end">
-                  <button className="w-full py-3.5 bg-primary rounded-lg text-white hover:bg-primary/90 transition-colors flex items-center justify-center gap-2">
+                  <Link
+                    href={`/search?service=${encodeURIComponent(
+                      searchService
+                    )}&location=${encodeURIComponent(
+                      searchLocation
+                    )}&date=${encodeURIComponent(searchDate)}`}
+                    className="w-full py-3.5 bg-primary rounded-lg text-white hover:bg-primary/90 transition-colors flex items-center justify-center gap-2"
+                  >
                     <Search className="h-4 w-4" />
                     {t("client.home.search.button")}
-                  </button>
+                  </Link>
                 </div>
               </div>
             </div>

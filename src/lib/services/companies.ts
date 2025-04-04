@@ -1,5 +1,12 @@
 import { fetchApi, fetchPrivateApi, ApiResponse } from "./api";
-import { Company, Service, Professional, Photo, Address } from "@/types";
+import {
+  Company,
+  Service,
+  Professional,
+  Photo,
+  Address,
+  SearchParams,
+} from "@/types";
 
 // Public endpoints
 export async function getCompanies(): Promise<ApiResponse<Company[]>> {
@@ -133,4 +140,25 @@ export async function deleteCompanyAddress(
       method: "DELETE",
     }
   );
+}
+
+// Search endpoints
+export async function searchCompanies(
+  searchParams: SearchParams
+): Promise<ApiResponse<Company[]>> {
+  const params = new URLSearchParams();
+
+  if (searchParams.service) {
+    params.append("service", searchParams.service);
+  }
+
+  if (searchParams.location) {
+    params.append("location", searchParams.location);
+  }
+
+  if (searchParams.date) {
+    params.append("date", searchParams.date);
+  }
+
+  return fetchApi<Company[]>(`/search?${params.toString()}`);
 }

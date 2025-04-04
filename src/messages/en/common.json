@@ -60,25 +60,6 @@
         "subtitle": "clients have already booked with us"
       }
     },
-    "search": {
-      "title": "Search Results",
-      "filters": {
-        "title": "Filters",
-        "price": "Price",
-        "rating": "Rating",
-        "availability": "Availability",
-        "services": "Services",
-        "apply": "Apply"
-      },
-      "sort": {
-        "title": "Sort by",
-        "recommended": "Recommended",
-        "priceAsc": "Price: Low to High",
-        "priceDesc": "Price: High to Low",
-        "rating": "Rating"
-      },
-      "noResults": "No results found. Try modifying your search criteria."
-    },
     "category": {
       "subheading": "Find the best professionals in this category",
       "searchPlaceholder": "Search by professional name",
@@ -428,5 +409,41 @@
     "clientZipPlaceholder": "Enter client zip code",
     "notesPlaceholder": "Enter notes for the appointment",
     "notes": "Notes"
+  },
+  "search": {
+    "title": "Search Results",
+    "filters": {
+      "title": "Filters",
+      "price": "Price",
+      "rating": "Rating",
+      "availability": "Availability",
+      "services": "Services",
+      "apply": "Apply"
+    },
+    "sort": {
+      "title": "Sort by",
+      "recommended": "Recommended",
+      "priceAsc": "Price: Low to High",
+      "priceDesc": "Price: High to Low",
+      "rating": "Rating"
+    },
+    "noResults": "No results found. Try modifying your search criteria.",
+    "backToHome": "Back to Home",
+    "searchButton": "Search",
+    "priceRange": "Price Range",
+    "rating": "Rating",
+    "andUp": "and up",
+    "categories": "Categories",
+    "searching": "Searching...",
+    "searchError": "Error searching",
+    "resultsCount": "Results",
+    "searchingFor": "Searching for",
+    "in": "in",
+    "noResultsFound": "No results found",
+    "tryAdjustingFilters": "Try adjusting your filters or search criteria",
+    "clearFilters": "Clear Filters",
+    "popularServices": "Popular Services",
+    "more": "more",
+    "bookNow": "Book Now"
   }
 }

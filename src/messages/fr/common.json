@@ -60,25 +60,6 @@
         "subtitle": "clients ont déjà réservé avec nous"
       }
     },
-    "search": {
-      "title": "Résultats de recherche",
-      "filters": {
-        "title": "Filtres",
-        "price": "Prix",
-        "rating": "Évaluation",
-        "availability": "Disponibilité",
-        "services": "Services",
-        "apply": "Appliquer"
-      },
-      "sort": {
-        "title": "Trier par",
-        "recommended": "Recommandé",
-        "priceAsc": "Prix croissant",
-        "priceDesc": "Prix décroissant",
-        "rating": "Évaluation"
-      },
-      "noResults": "Aucun résultat trouvé. Essayez de modifier vos critères de recherche."
-    },
     "category": {
       "subheading": "Trouvez les meilleurs professionnels dans cette catégorie",
       "searchPlaceholder": "Rechercher par nom de professionnel",
@@ -430,5 +411,41 @@
     "clientZipPlaceholder": "Entrez le code postal du client",
     "notesPlaceholder": "Entrez les notes pour le rendez-vous",
     "notes": "Notes"
+  },
+  "search": {
+    "title": "Résultats de recherche",
+    "filters": {
+      "title": "Filtres",
+      "price": "Prix",
+      "rating": "Évaluation",
+      "availability": "Disponibilité",
+      "services": "Services",
+      "apply": "Appliquer"
+    },
+    "sort": {
+      "title": "Trier par",
+      "recommended": "Recommandé",
+      "priceAsc": "Prix croissant",
+      "priceDesc": "Prix décroissant",
+      "rating": "Évaluation"
+    },
+    "noResults": "Aucun résultat trouvé. Essayez de modifier vos critères de recherche.",
+    "backToHome": "Retour à l'accueil",
+    "searchButton": "Rechercher",
+    "priceRange": "Fourchette de prix",
+    "rating": "Évaluation",
+    "andUp": "et plus",
+    "categories": "Catégories",
+    "searching": "Recherche en cours...",
+    "searchError": "Erreur de recherche",
+    "resultsCount": "Résultats",
+    "searchingFor": "Recherche de",
+    "in": "à",
+    "noResultsFound": "Aucun résultat trouvé",
+    "tryAdjustingFilters": "Essayez d'ajuster vos filtres ou critères de recherche",
+    "clearFilters": "Effacer les filtres",
+    "popularServices": "Services populaires",
+    "more": "de plus",
+    "bookNow": "Réserver maintenant"
   }
 }

@@ -10,6 +10,7 @@ interface AddressAutocompleteProps {
   onAddressSelect: (address: AddressData) => void;
   defaultValue?: string;
   className?: string;
+  inputClassName?: string;
   label?: string;
   placeholder?: string;
   required?: boolean;
@@ -30,6 +31,7 @@ export function AddressAutocomplete({
   onAddressSelect,
   defaultValue = "",
   className = "",
+  inputClassName = "",
   label,
   placeholder,
   required = false,
@@ -225,7 +227,7 @@ export function AddressAutocomplete({
           placeholder={placeholder || t("settings.streetAddress")}
           className={`w-full ${isLoading ? "pr-10" : ""} ${
             error ? "border-red-500" : ""
-          }`}
+          } ${inputClassName}`}
           required={required}
           disabled={disabled}
           aria-invalid={!!error}
