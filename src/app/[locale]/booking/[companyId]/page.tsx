@@ -109,10 +109,10 @@ export default function BookingPage() {
               )}
 
               <div className="space-y-3">
-                {company.address && (
+                {company.addresses?.formatted_address && (
                   <div className="flex items-start">
                     <MapPin className="w-5 h-5 text-gray-400 mt-0.5 mr-3 flex-shrink-0" />
-                    <span>{company.address}</span>
+                    <span>{company.addresses.formatted_address}</span>
                   </div>
                 )}
 

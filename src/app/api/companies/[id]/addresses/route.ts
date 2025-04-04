@@ -88,9 +88,14 @@ export async function POST(
       );
     }
 
+    const body = await request.json();
+
     const { data, error } = await supabaseWithAuth
       .from("addresses")
-      .insert(request.body)
+      .insert({
+        ...body,
+        company_id: id,
+      })
       .select("*");
 
     if (error) {
@@ -156,9 +161,11 @@ export async function PUT(
       );
     }
 
+    const body = await request.json();
+
     const { data, error } = await supabaseWithAuth
       .from("addresses")
-      .update(request.body)
+      .update(body)
       .match({ id: addressId })
       .select("*");
 

@@ -1,5 +1,5 @@
 import { fetchApi, fetchPrivateApi, ApiResponse } from "./api";
-import { Company, Service, Professional, Photo } from "@/types";
+import { Company, Service, Professional, Photo, Address } from "@/types";
 
 // Public endpoints
 export async function getCompanies(): Promise<ApiResponse<Company[]>> {
@@ -87,4 +87,50 @@ export async function deletePhoto(
   return fetchPrivateApi<null>(`/companies/${companyId}/photos/${photoId}`, {
     method: "DELETE",
   });
+}
+
+// Address endpoints
+export async function getCompanyAddress(
+  companyId: string
+): Promise<ApiResponse<Address>> {
+  return fetchApi<Address>(`/companies/${companyId}/addresses`);
+}
+
+export async function createCompanyAddress(
+  companyId: string,
+  addressData: Omit<Address, "id" | "company_id" | "created_at" | "updated_at">
+): Promise<ApiResponse<Address>> {
+  return fetchPrivateApi<Address>(`/companies/${companyId}/addresses`, {
+    method: "POST",
+    data: {
+      ...addressData,
+      company_id: companyId,
+    },
+  });
+}
+
+export async function updateCompanyAddress(
+  companyId: string,
+  addressId: string,
+  addressData: Partial<Address>
+): Promise<ApiResponse<Address>> {
+  return fetchPrivateApi<Address>(
+    `/companies/${companyId}/addresses/${addressId}`,
+    {
+      method: "PUT",
+      data: addressData,
+    }
+  );
+}
+
+export async function deleteCompanyAddress(
+  companyId: string,
+  addressId: string
+): Promise<ApiResponse<null>> {
+  return fetchPrivateApi<null>(
+    `/companies/${companyId}/addresses/${addressId}`,
+    {
+      method: "DELETE",
+    }
+  );
 }

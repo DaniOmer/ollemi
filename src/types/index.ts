@@ -13,15 +13,30 @@ export interface User {
   onboarding_completed?: boolean;
 }
 
+// Address types
+export interface Address {
+  id: string;
+  company_id: string;
+  formatted_address: string;
+  street_number?: string;
+  street_name?: string;
+  city?: string;
+  state?: string;
+  postal_code?: string;
+  country?: string;
+  place_id?: string;
+  latitude?: number;
+  longitude?: number;
+  created_at: string;
+  updated_at?: string;
+}
+
 // Company types
 export interface Company {
   id: string;
   user_id: string;
   name: string;
   description?: string;
-  address?: string;
-  city?: string;
-  zipcode?: string;
   phone?: string;
   website?: string;
   instagram?: string;
@@ -34,6 +49,7 @@ export interface Company {
   reviews?: Review[];
   rating?: number;
   reviewCount?: number;
+  addresses?: Address;
 }
 
 export interface Category {

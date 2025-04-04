@@ -12,6 +12,8 @@ import {
   uploadPhotoThunk,
   deletePhotoThunk,
   fetchCompanyById,
+  createAddressThunk,
+  updateAddressThunk,
 } from "@/lib/redux/slices/companiesSlice";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,7 +22,14 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 
-import { Company, OpeningHours, TeamMember, Photo, DayHours } from "@/types";
+import {
+  Company,
+  OpeningHours,
+  TeamMember,
+  Photo,
+  DayHours,
+  Address,
+} from "@/types";
 import Image from "next/image";
 import { Plus, Trash2, Upload, CheckCircle, Loader2 } from "lucide-react";
 import { PhotoUpload } from "@/components/forms/PhotoUpload";
@@ -48,6 +57,7 @@ export default function SettingsPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState<Partial<Company>>({});
   const [addressData, setAddressData] = useState<AddressData | null>(null);
+  const [addressFormData, setAddressFormData] = useState<Partial<Address>>({});
   const [tempPhotos, setTempPhotos] = useState<Photo[]>([]);
 
   // Initialize form data from company
@@ -56,14 +66,27 @@ export default function SettingsPage() {
       setFormData({
         name: company.name,
         description: company.description,
-        address: company.addresses.formatted_address,
-        city: company.addresses.city,
-        zipcode: company.addresses.postal_code,
         phone: company.phone,
         website: company.website,
         instagram: company.instagram,
         facebook: company.facebook,
       });
+
+      // Initialize address data if available
+      if (company.addresses) {
+        setAddressFormData({
+          formatted_address: company.addresses.formatted_address,
+          street_number: company.addresses.street_number,
+          street_name: company.addresses.street_name,
+          city: company.addresses.city,
+          state: company.addresses.state,
+          postal_code: company.addresses.postal_code,
+          country: company.addresses.country,
+          place_id: company.addresses.place_id,
+          latitude: company.addresses.latitude,
+          longitude: company.addresses.longitude,
+        });
+      }
     }
   }, [company]);
 
@@ -79,9 +102,6 @@ export default function SettingsPage() {
     user_id: "1",
     name: "Centre Anne Cali",
     description: "Description du centre...",
-    address: "7 Rue Lamennais",
-    city: "Paris",
-    zipcode: "75008",
     phone: "0123456789",
     website: "https://www.annecali.com",
     instagram: "https://www.instagram.com/annecali",
@@ -99,6 +119,17 @@ export default function SettingsPage() {
       saturday: { open: true, start: "10:00", end: "17:00" },
       sunday: { open: false, start: "", end: "" },
     },
+    addresses: {
+      id: "1",
+      company_id: "1",
+      formatted_address: "7 Rue Lamennais, 75008 Paris, France",
+      street_number: "7",
+      street_name: "Rue Lamennais",
+      city: "Paris",
+      postal_code: "75008",
+      country: "France",
+      created_at: new Date().toISOString(),
+    },
     team: [],
     reviews: [],
     photos: [],
@@ -115,14 +146,17 @@ export default function SettingsPage() {
 
   const handleAddressSelect = (data: AddressData) => {
     setAddressData(data);
-    setFormData((prev) => ({
-      ...prev,
-      address: data.streetNumber
-        ? `${data.streetNumber} ${data.streetName}`
-        : data.streetName,
+
+    // Update address form data
+    setAddressFormData({
+      formatted_address: data.fullAddress,
+      street_number: data.streetNumber,
+      street_name: data.streetName,
       city: data.city,
-      zipcode: data.postalCode,
-    }));
+      state: data.state,
+      postal_code: data.postalCode,
+      country: data.country,
+    });
   };
 
   const handleRemovePhoto = async (photoId: string) => {
@@ -151,7 +185,42 @@ export default function SettingsPage() {
     setIsSaving(true);
 
     try {
-      // First, upload any temporary photos
+      // Update company information
+      if (Object.keys(formData).length > 0) {
+        await dispatch(
+          updateCompanyThunk({
+            id: currentCompany.id,
+            company: formData,
+          })
+        ).unwrap();
+      }
+
+      // Update or create address
+      if (Object.keys(addressFormData).length > 0) {
+        if (currentCompany.addresses?.id) {
+          // Update existing address
+          await dispatch(
+            updateAddressThunk({
+              companyId: currentCompany.id,
+              addressId: currentCompany.addresses.id,
+              addressData: addressFormData,
+            })
+          ).unwrap();
+        } else {
+          // Create new address
+          await dispatch(
+            createAddressThunk({
+              companyId: currentCompany.id,
+              addressData: addressFormData as Omit<
+                Address,
+                "id" | "company_id" | "created_at" | "updated_at"
+              >,
+            })
+          ).unwrap();
+        }
+      }
+
+      // Handle photos
       const uploadedPhotos: Photo[] = [];
 
       if (tempPhotos.length > 0) {
@@ -194,6 +263,9 @@ export default function SettingsPage() {
 
       // Clear temporary photos
       setTempPhotos([]);
+
+      // Refresh company data
+      dispatch(fetchCompanyById(currentCompany.id));
     } catch (error) {
       console.error("Error saving changes:", error);
     } finally {
@@ -366,7 +438,9 @@ export default function SettingsPage() {
                 <Label>{t("settings.locationInfo")}</Label>
                 <AddressAutocomplete
                   onAddressSelect={handleAddressSelect}
-                  defaultValue={currentCompany.address}
+                  defaultValue={
+                    currentCompany.addresses?.formatted_address || ""
+                  }
                   label={t("settings.streetAddress")}
                   className="mt-2"
                 />
@@ -377,7 +451,9 @@ export default function SettingsPage() {
                   <Label htmlFor="country">{t("settings.country")}</Label>
                   <Input
                     id="country"
-                    value={addressData?.country || ""}
+                    value={
+                      addressFormData.country || addressData?.country || ""
+                    }
                     readOnly
                     className="bg-muted/50"
                   />
@@ -386,7 +462,7 @@ export default function SettingsPage() {
                   <Label htmlFor="state">{t("settings.state")}</Label>
                   <Input
                     id="state"
-                    value={addressData?.state || ""}
+                    value={addressFormData.state || addressData?.state || ""}
                     readOnly
                     className="bg-muted/50"
                   />
@@ -394,9 +470,14 @@ export default function SettingsPage() {
                 <div>
                   <Label htmlFor="postalCode">{t("settings.postalCode")}</Label>
                   <Input
-                    id="zipcode"
-                    value={formData.zipcode || ""}
-                    onChange={handleInputChange}
+                    id="postal_code"
+                    value={
+                      addressFormData.postal_code ||
+                      addressData?.postalCode ||
+                      ""
+                    }
+                    readOnly
+                    className="bg-muted/50"
                   />
                 </div>
               </div>
@@ -406,8 +487,9 @@ export default function SettingsPage() {
                   <Label htmlFor="city">{t("settings.city")}</Label>
                   <Input
                     id="city"
-                    value={formData.city || ""}
-                    onChange={handleInputChange}
+                    value={addressFormData.city || addressData?.city || ""}
+                    readOnly
+                    className="bg-muted/50"
                   />
                 </div>
                 <div>
@@ -416,7 +498,11 @@ export default function SettingsPage() {
                   </Label>
                   <Input
                     id="streetNumber"
-                    value={addressData?.streetNumber || ""}
+                    value={
+                      addressFormData.street_number ||
+                      addressData?.streetNumber ||
+                      ""
+                    }
                     readOnly
                     className="bg-muted/50"
                   />

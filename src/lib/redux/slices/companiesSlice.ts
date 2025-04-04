@@ -2,7 +2,7 @@
 
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { createSelector } from "@reduxjs/toolkit";
-import { Category, Company, Service, ServiceFormData } from "@/types";
+import { Category, Company, Service, ServiceFormData, Address } from "@/types";
 import { RootState } from "../store";
 import {
   getCompanies,
@@ -16,6 +16,9 @@ import {
   getCompaniesByCategory,
   uploadPhoto,
   deletePhoto,
+  createCompanyAddress,
+  updateCompanyAddress,
+  deleteCompanyAddress,
 } from "@/lib/services/companies";
 
 // Define the state type
@@ -251,6 +254,82 @@ export const deletePhotoThunk = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(error.message || "Failed to delete photo");
+    }
+  }
+);
+
+// Address-related thunks
+export const createAddressThunk = createAsyncThunk(
+  "companies/createAddress",
+  async (
+    {
+      companyId,
+      addressData,
+    }: {
+      companyId: string;
+      addressData: Omit<
+        Address,
+        "id" | "company_id" | "created_at" | "updated_at"
+      >;
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await createCompanyAddress(companyId, addressData);
+      if (response.error) {
+        return rejectWithValue(response.error);
+      }
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.message || "Failed to create address");
+    }
+  }
+);
+
+export const updateAddressThunk = createAsyncThunk(
+  "companies/updateAddress",
+  async (
+    {
+      companyId,
+      addressId,
+      addressData,
+    }: {
+      companyId: string;
+      addressId: string;
+      addressData: Partial<Address>;
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await updateCompanyAddress(
+        companyId,
+        addressId,
+        addressData
+      );
+      if (response.error) {
+        return rejectWithValue(response.error);
+      }
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.message || "Failed to update address");
+    }
+  }
+);
+
+export const deleteAddressThunk = createAsyncThunk(
+  "companies/deleteAddress",
+  async (
+    { companyId, addressId }: { companyId: string; addressId: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await deleteCompanyAddress(companyId, addressId);
+      if (response.error) {
+        return rejectWithValue(response.error);
+      }
+      return { companyId, addressId };
+    } catch (error: any) {
+      return rejectWithValue(error.message || "Failed to delete address");
     }
   }
 );
@@ -510,6 +589,52 @@ const companiesSlice = createSlice({
         }
       })
       .addCase(deletePhotoThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+
+      // Address-related cases
+      .addCase(createAddressThunk.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createAddressThunk.fulfilled, (state, action) => {
+        state.loading = false;
+        if (action.payload && state.currentCompany) {
+          state.currentCompany.addresses = action.payload;
+        }
+      })
+      .addCase(createAddressThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+
+      .addCase(updateAddressThunk.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateAddressThunk.fulfilled, (state, action) => {
+        state.loading = false;
+        if (action.payload && state.currentCompany) {
+          state.currentCompany.addresses = action.payload;
+        }
+      })
+      .addCase(updateAddressThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+
+      .addCase(deleteAddressThunk.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteAddressThunk.fulfilled, (state, action) => {
+        state.loading = false;
+        if (state.currentCompany) {
+          state.currentCompany.addresses = undefined;
+        }
+      })
+      .addCase(deleteAddressThunk.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });

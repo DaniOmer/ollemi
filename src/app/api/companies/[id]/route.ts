@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase/client";
+import {
+  supabase,
+  extractToken,
+  createAuthClient,
+} from "@/lib/supabase/client";
 
 export async function GET(
   request: Request,
@@ -121,63 +125,46 @@ export async function PUT(
     const { id } = await params;
     const body = await request.json();
 
+    const token = extractToken(request);
+    if (!token)
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const supabaseWithAuth = createAuthClient(token);
+
+    // Get the user with the token
+    const { data: authUser, error: authError } =
+      await supabaseWithAuth.auth.getUser();
+
+    if (authError || !authUser.user) {
+      console.error("Invalid authentication", authError);
+      return NextResponse.json(
+        { error: "Invalid authentication" },
+        { status: 401 }
+      );
+    }
+
     // First, check if the company exists
-    const { data: existingCompany, error: fetchError } = await supabase
+    const { data: existingCompany, error: fetchError } = await supabaseWithAuth
       .from("companies")
-      .select("id, user_id")
+      .select("*")
       .eq("id", id)
       .single();
 
-    // If not found by ID, try to find by user_id
-    let companyId = id;
-    let userId = existingCompany?.user_id;
-
     if (!existingCompany && !fetchError) {
-      const { data: companyByUserId, error: userIdError } = await supabase
-        .from("companies")
-        .select("id, user_id")
-        .eq("user_id", id)
-        .single();
-
-      if (companyByUserId) {
-        companyId = companyByUserId.id;
-        userId = id;
-      } else if (userIdError) {
-        // If no company exists for this user, create one
-        const { data: newCompany, error: createError } = await supabase
-          .from("companies")
-          .insert({
-            user_id: id,
-            name: body.name || "Company",
-            ...body,
-            created_at: new Date().toISOString(),
-          })
-          .select("id, user_id")
-          .single();
-
-        if (createError) {
-          return NextResponse.json(
-            { error: createError.message || "Failed to create company" },
-            { status: 500 }
-          );
-        }
-
-        return NextResponse.json(newCompany);
-      }
+      console.log("Company not found ", fetchError);
+      return NextResponse.json({ error: "Company not found" }, { status: 404 });
     }
 
     // Update the company
-    const { data, error } = await supabase
+    const { data, error } = await supabaseWithAuth
       .from("companies")
-      .update({
-        ...body,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", companyId)
-      .select()
+      .update(body)
+      .eq("id", existingCompany.id)
+      .select("*")
       .single();
 
     if (error) {
+      console.log("Error updating company ", error);
       return NextResponse.json(
         { error: error.message || "Failed to update company" },
         { status: 500 }
@@ -186,6 +173,7 @@ export async function PUT(
 
     return NextResponse.json(data);
   } catch (error: any) {
+    console.log("error ", error);
     return NextResponse.json(
       { error: error.message || "Failed to update company" },
       { status: 500 }
