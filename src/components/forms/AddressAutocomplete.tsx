@@ -44,6 +44,7 @@ export function AddressAutocomplete({
 
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const isFirstRender = useRef(true);
 
   // Fetch address predictions when address input changes
   useEffect(() => {
@@ -74,7 +75,11 @@ export function AddressAutocomplete({
     };
 
     const timer = setTimeout(() => {
-      fetchPredictions();
+      if (isFirstRender.current) {
+        isFirstRender.current = false;
+      } else {
+        fetchPredictions();
+      }
     }, 300);
 
     return () => clearTimeout(timer);
