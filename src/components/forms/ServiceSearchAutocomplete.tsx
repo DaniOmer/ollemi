@@ -4,28 +4,40 @@ import { useState, useEffect, useRef } from "react";
 import { Search } from "lucide-react";
 import { useTranslations } from "@/hooks/useTranslations";
 import { Category } from "@/types";
+import { useAppSelector, useAppDispatch } from "@/lib/redux/store";
+import {
+  selectCategories,
+  fetchCategories,
+} from "@/lib/redux/slices/categoriesSlice";
 
 interface ServiceSearchAutocompleteProps {
-  onServiceSelect: (service: string) => void;
+  onCategorySelect: (service: string) => void;
   defaultValue?: string;
-  categories: Category[];
   className?: string;
   placeholder?: string;
 }
 
 export function ServiceSearchAutocomplete({
-  onServiceSelect,
+  onCategorySelect,
   defaultValue = "",
-  categories,
   className = "",
   placeholder,
 }: ServiceSearchAutocompleteProps) {
+  const dispatch = useAppDispatch();
+  const categories = useAppSelector(selectCategories);
   const { t } = useTranslations();
   const [query, setQuery] = useState<string>(defaultValue);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Fetch categories if they're not already in the store
+  useEffect(() => {
+    if (categories.length === 0) {
+      dispatch(fetchCategories());
+    }
+  }, [dispatch, categories.length]);
 
   // Generate suggestions based on categories and query
   useEffect(() => {
@@ -35,10 +47,10 @@ export function ServiceSearchAutocomplete({
     }
 
     // Get category names
-    const categoryNames = categories.map((cat) => cat.name);
+    const categoryNames = categories.map((cat: Category) => cat.name);
 
     // Filter categories that match the query
-    const filteredSuggestions = categoryNames.filter((name) =>
+    const filteredSuggestions = categoryNames.filter((name: string) =>
       name.toLowerCase().includes(query.toLowerCase())
     );
 
@@ -50,9 +62,9 @@ export function ServiceSearchAutocomplete({
     setShowSuggestions(true);
   };
 
-  const handleSelectService = (service: string) => {
-    setQuery(service);
-    onServiceSelect(service);
+  const handleSelectCategory = (category: string) => {
+    setQuery(category);
+    onCategorySelect(category);
     setShowSuggestions(false);
   };
 
@@ -95,7 +107,7 @@ export function ServiceSearchAutocomplete({
             <li
               key={index}
               className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center"
-              onClick={() => handleSelectService(suggestion)}
+              onClick={() => handleSelectCategory(suggestion)}
             >
               <Search className="h-4 w-4 mr-2 text-muted-foreground" />
               <span>{suggestion}</span>

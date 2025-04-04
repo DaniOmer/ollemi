@@ -124,8 +124,12 @@ export interface Appointment {
 
 // Search types
 export interface SearchParams {
+  name?: string;
   location?: string;
   service?: string;
+  category?: string;
+  city?: string;
+  postalCode?: string;
   date?: string;
   price_min?: number;
   price_max?: number;

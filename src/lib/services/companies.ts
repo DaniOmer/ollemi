@@ -148,16 +148,44 @@ export async function searchCompanies(
 ): Promise<ApiResponse<Company[]>> {
   const params = new URLSearchParams();
 
+  if (searchParams.name) {
+    params.append("name", searchParams.name);
+  }
+
   if (searchParams.service) {
     params.append("service", searchParams.service);
+  }
+
+  if (searchParams.category) {
+    params.append("category", searchParams.category);
   }
 
   if (searchParams.location) {
     params.append("location", searchParams.location);
   }
 
+  if (searchParams.city) {
+    params.append("city", searchParams.city);
+  }
+
+  if (searchParams.postalCode) {
+    params.append("postalCode", searchParams.postalCode);
+  }
+
   if (searchParams.date) {
     params.append("date", searchParams.date);
+  }
+
+  if (searchParams.price_min) {
+    params.append("price_min", searchParams.price_min.toString());
+  }
+
+  if (searchParams.price_max) {
+    params.append("price_max", searchParams.price_max.toString());
+  }
+
+  if (searchParams.rating) {
+    params.append("rating", searchParams.rating.toString());
   }
 
   return fetchApi<Company[]>(`/search?${params.toString()}`);

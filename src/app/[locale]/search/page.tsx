@@ -45,8 +45,8 @@ export default function SearchResults() {
     dispatch(fetchCategories());
   }, [dispatch]);
 
-  const [searchService, setSearchService] = useState(
-    searchParams.get("service") || ""
+  const [searchCategory, setSearchCategory] = useState(
+    searchParams.get("category") || ""
   );
   const [searchLocation, setSearchLocation] = useState(
     searchParams.get("location") || ""
@@ -66,17 +66,17 @@ export default function SearchResults() {
       setError(null);
 
       try {
-        const { data, error } = await searchCompanies({
-          service: searchService,
+        const response = await searchCompanies({
+          category: searchCategory,
           location: searchLocation,
           date: searchDate,
         });
 
-        if (error) {
-          throw new Error(error);
+        if (response.error) {
+          throw new Error(response.error);
         }
 
-        setResults(data || []);
+        setResults(response.data || []);
       } catch (err: any) {
         console.error("Error fetching search results:", err);
         setError(err.message || "Failed to fetch search results");
@@ -87,7 +87,7 @@ export default function SearchResults() {
     };
 
     fetchResults();
-  }, [searchService, searchLocation, searchDate]);
+  }, [searchCategory, searchLocation, searchDate]);
 
   const handleAddressSelect = (address: AddressData) => {
     setSearchAddress(address);
@@ -97,7 +97,7 @@ export default function SearchResults() {
   const handleSearch = () => {
     // Update URL with search params
     const params = new URLSearchParams();
-    if (searchService) params.set("service", searchService);
+    if (searchCategory) params.set("category", searchCategory);
     if (searchLocation) params.set("location", searchLocation);
     if (searchDate) params.set("date", searchDate);
 
@@ -130,6 +130,7 @@ export default function SearchResults() {
   // Filter results based on selected filters
   const filteredResults = results.filter((company) => {
     // Filter by price range if company has services
+    console.log(company);
     const priceFilter =
       !company.services ||
       company.services.some(
@@ -144,6 +145,8 @@ export default function SearchResults() {
 
     // Filter by categories - simplified since we don't have company_categories in the type
     const categoryFilter = selectedCategories.length === 0;
+
+    console.log(priceFilter, ratingFilter, categoryFilter);
 
     return priceFilter && ratingFilter && categoryFilter;
   });
@@ -170,9 +173,8 @@ export default function SearchResults() {
                     {t("client.home.search.service")}
                   </label>
                   <ServiceSearchAutocomplete
-                    onServiceSelect={setSearchService}
-                    defaultValue={searchService}
-                    categories={categories}
+                    onCategorySelect={setSearchCategory}
+                    defaultValue={searchCategory}
                     placeholder={t("client.home.search.servicePlaceholder")}
                     className="w-full"
                   />
@@ -335,9 +337,9 @@ export default function SearchResults() {
                     ? t("search.noResults")
                     : `${t("search.resultsCount")} (${filteredResults.length})`}
                 </h2>
-                {searchService && searchLocation && (
+                {searchCategory && searchLocation && (
                   <p className="text-muted-foreground">
-                    {`${t("search.searchingFor")} "${searchService}" ${t(
+                    {`${t("search.searchingFor")} "${searchCategory}" ${t(
                       "search.in"
                     )} "${searchLocation}"`}
                   </p>

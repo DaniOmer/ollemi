@@ -32,7 +32,7 @@ export default function Home() {
   const { t } = useTranslations();
   const [searchLocation, setSearchLocation] = useState("");
   const [searchAddress, setSearchAddress] = useState<AddressData | null>(null);
-  const [searchService, setSearchService] = useState("");
+  const [searchCategory, setSearchCategory] = useState("");
   const [searchDate, setSearchDate] = useState("");
 
   const dispatch = useAppDispatch();
@@ -169,9 +169,8 @@ export default function Home() {
                     {t("client.home.search.service")}
                   </label>
                   <ServiceSearchAutocomplete
-                    onServiceSelect={setSearchService}
-                    defaultValue={searchService}
-                    categories={categories}
+                    onCategorySelect={setSearchCategory}
+                    defaultValue={searchCategory}
                     placeholder={t("client.home.search.servicePlaceholder")}
                     className="w-full"
                   />
@@ -205,8 +204,8 @@ export default function Home() {
                 </div>
                 <div className="col-span-4 md:col-span-1 flex items-end">
                   <Link
-                    href={`/search?service=${encodeURIComponent(
-                      searchService
+                    href={`/search?category=${encodeURIComponent(
+                      searchCategory
                     )}&location=${encodeURIComponent(
                       searchLocation
                     )}&date=${encodeURIComponent(searchDate)}`}
