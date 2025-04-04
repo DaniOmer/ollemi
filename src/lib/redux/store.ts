@@ -17,13 +17,13 @@ import storageEngine from "./storage";
 
 // Import reducers
 import authReducer from "./slices/authSlice";
-import appointmentsReducer from "./slices/appointmentsSlice";
 import companiesReducer from "./slices/companiesSlice";
 import userReducer from "./slices/userSlice";
 import onboardingReducer from "./slices/onboardingSlice";
 import categoriesReducer from "./slices/categoriesSlice";
 import availabilityReducer from "./slices/availabilitySlice";
 import storageReducer from "./slices/storageSlice";
+import bookingsReducer from "./slices/bookingSlice";
 
 // Configure persist options
 const persistConfig = {
@@ -32,23 +32,23 @@ const persistConfig = {
   whitelist: [
     "user",
     "onboarding",
-    "appointments",
     "companies",
     "categories",
     "availability",
+    "bookings",
   ], // Not persist auth (which has tokens)
 };
 
 // Combine reducers
 const rootReducer = combineReducers({
   auth: authReducer,
-  appointments: appointmentsReducer,
   companies: companiesReducer,
   user: userReducer,
   onboarding: onboardingReducer,
   categories: categoriesReducer,
   availability: availabilityReducer,
   storage: storageReducer,
+  bookings: bookingsReducer,
 });
 
 // Create persisted reducer

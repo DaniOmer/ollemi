@@ -1,16 +1,73 @@
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import {
+  extractToken,
+  createAuthClient,
+  supabase,
+} from "@/lib/supabase/client";
+
+export async function GET(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const token = extractToken(request);
+    if (!token) {
+      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+    }
+
+    const supabaseWithAuth = createAuthClient(token);
+
+    const { id: companyId } = await params;
+
+    if (!companyId) {
+      return NextResponse.json(
+        { error: "ID de l'entreprise requis" },
+        { status: 400 }
+      );
+    }
+
+    // Récupérer les réservations pour l'entreprise
+    const { data, error } = await supabaseWithAuth
+      .from("appointments")
+      .select(
+        `
+        *,
+        services (
+          name,
+          duration,
+          price
+        )
+      `
+      )
+      .eq("company_id", companyId)
+      .order("start_time", { ascending: true });
+
+    if (error) throw error;
+
+    return NextResponse.json(data);
+  } catch (error) {
+    console.error("Erreur lors de la récupération des réservations:", error);
+    return NextResponse.json(
+      { error: "Erreur lors de la récupération des réservations" },
+      { status: 500 }
+    );
+  }
+}
 
 export async function POST(request: Request) {
   try {
-    const supabase = createRouteHandlerClient({ cookies });
+    const token = extractToken(request);
+    if (!token) {
+      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+    }
+
+    const supabaseWithAuth = createAuthClient(token);
     const body = await request.json();
 
     // Vérifier si l'utilisateur est authentifié
     const {
       data: { session },
-    } = await supabase.auth.getSession();
+    } = await supabaseWithAuth.auth.getSession();
 
     if (!session) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
@@ -36,7 +93,7 @@ export async function POST(request: Request) {
       .from("opening_hours")
       .select("*")
       .eq("company_id", body.company_id)
-      .eq("day_of_week", new Date(body.start_time).toLocaleLowerCase());
+      .eq("day_of_week", new Date(body.start_time));
 
     if (!openingHours || !openingHours[0]?.open) {
       return NextResponse.json(
@@ -46,7 +103,7 @@ export async function POST(request: Request) {
     }
 
     // Créer la réservation
-    const { data, error } = await supabase.from("appointments").insert([
+    const { data, error } = await supabaseWithAuth.from("appointments").insert([
       {
         company_id: body.company_id,
         service_id: body.service_id,
@@ -63,52 +120,11 @@ export async function POST(request: Request) {
 
     if (error) throw error;
 
-    return NextResponse.json(data[0]);
+    return NextResponse.json(data?.[0]);
   } catch (error) {
     console.error("Erreur lors de la création de la réservation:", error);
     return NextResponse.json(
       { error: "Erreur lors de la création de la réservation" },
-      { status: 500 }
-    );
-  }
-}
-
-export async function GET(request: Request) {
-  try {
-    const supabase = createRouteHandlerClient({ cookies });
-    const { searchParams } = new URL(request.url);
-    const companyId = searchParams.get("companyId");
-
-    if (!companyId) {
-      return NextResponse.json(
-        { error: "ID de l'entreprise requis" },
-        { status: 400 }
-      );
-    }
-
-    // Récupérer les réservations pour l'entreprise
-    const { data, error } = await supabase
-      .from("appointments")
-      .select(
-        `
-        *,
-        services (
-          name,
-          duration,
-          price
-        )
-      `
-      )
-      .eq("company_id", companyId)
-      .order("start_time", { ascending: true });
-
-    if (error) throw error;
-
-    return NextResponse.json(data);
-  } catch (error) {
-    console.error("Erreur lors de la récupération des réservations:", error);
-    return NextResponse.json(
-      { error: "Erreur lors de la récupération des réservations" },
       { status: 500 }
     );
   }

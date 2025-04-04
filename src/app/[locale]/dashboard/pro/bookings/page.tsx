@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useTranslations } from "@/hooks/useTranslations";
-import { useAuth } from "@/hooks/useAuth";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import {
   format,
@@ -51,34 +50,28 @@ import {
   Filter,
 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-
-interface Appointment {
-  id: string;
-  client_name: string;
-  client_email: string;
-  client_phone: string;
-  start_time: string;
-  end_time: string;
-  status: "pending" | "confirmed" | "cancelled" | "completed";
-  notes?: string;
-  service: {
-    id: string;
-    name: string;
-    price: number;
-    duration: number;
-  };
-}
+import { useAppSelector, useAppDispatch } from "@/lib/redux/store";
+import { selectUserProfile } from "@/lib/redux/slices/userSlice";
+import { selectCurrentCompany } from "@/lib/redux/slices/companiesSlice";
+import {
+  selectBookings,
+  selectBookingStatus,
+  selectBookingError,
+} from "@/lib/redux/slices/bookingSlice";
+import { Booking } from "@/types";
+import {
+  updateBookingThunk,
+  fetchBookingsThunk,
+} from "@/lib/redux/slices/bookingSlice";
 
 export default function ProBookingsPage() {
   const { t } = useTranslations();
-  const { user, company } = useAuth();
   const { toast } = useToast();
 
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [loading, setLoading] = useState(true);
+  const dispatch = useAppDispatch();
+
   const [activeTab, setActiveTab] = useState("upcoming");
-  const [selectedAppointment, setSelectedAppointment] =
-    useState<Appointment | null>(null);
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [confirmAction, setConfirmAction] = useState<
@@ -86,101 +79,60 @@ export default function ProBookingsPage() {
   >(null);
   const [actionLoading, setActionLoading] = useState(false);
 
+  const user = useAppSelector(selectUserProfile);
+  const company = useAppSelector(selectCurrentCompany);
+  const bookings = useAppSelector(selectBookings);
+  const bookingStatus = useAppSelector(selectBookingStatus);
+  const bookingError = useAppSelector(selectBookingError);
+
+  const loading = bookingStatus === "loading";
+
   // Fetch appointments
   useEffect(() => {
-    const fetchAppointments = async () => {
-      if (!user || !company) return;
-
-      try {
-        setLoading(true);
-        const response = await fetch(`/api/bookings?companyId=${company.id}`);
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch appointments");
-        }
-
-        const data = await response.json();
-        setAppointments(data);
-      } catch (error) {
-        console.error("Error fetching appointments:", error);
-        toast({
-          title: "Erreur",
-          description: "Impossible de récupérer les rendez-vous.",
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchAppointments();
+    if (user && company) {
+      dispatch(fetchBookingsThunk(company.id));
+    }
   }, [user, company, toast]);
 
   // Filter appointments based on active tab
-  const filteredAppointments = appointments.filter((appointment) => {
-    const startTime = parseISO(appointment.start_time);
+  const filteredBookings = bookings.filter((booking) => {
+    const startTime = parseISO(booking.start_time);
     const now = new Date();
 
     switch (activeTab) {
       case "upcoming":
         return (
-          (appointment.status === "pending" ||
-            appointment.status === "confirmed") &&
+          (booking.status === "pending" || booking.status === "confirmed") &&
           isAfter(startTime, now)
         );
       case "today":
         return (
-          (appointment.status === "pending" ||
-            appointment.status === "confirmed") &&
+          (booking.status === "pending" || booking.status === "confirmed") &&
           isToday(startTime)
         );
       case "tomorrow":
         return (
-          (appointment.status === "pending" ||
-            appointment.status === "confirmed") &&
+          (booking.status === "pending" || booking.status === "confirmed") &&
           isTomorrow(startTime)
         );
       case "thisWeek":
         return (
-          (appointment.status === "pending" ||
-            appointment.status === "confirmed") &&
+          (booking.status === "pending" || booking.status === "confirmed") &&
           isThisWeek(startTime, { weekStartsOn: 1 })
         );
       case "completed":
-        return appointment.status === "completed";
+        return booking.status === "completed";
       case "cancelled":
-        return appointment.status === "cancelled";
+        return booking.status === "cancelled";
       default:
         return true;
     }
   });
 
   // Handle appointment status update
-  const updateAppointmentStatus = async (
-    appointmentId: string,
-    status: string
-  ) => {
+  const updateBookingStatus = async (booking: Booking, status: string) => {
     try {
-      setActionLoading(true);
-
-      const response = await fetch(`/api/appointments/${appointmentId}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ status }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to update appointment status");
-      }
-
-      // Update local state
-      setAppointments((prev) =>
-        prev.map((app) =>
-          app.id === appointmentId ? { ...app, status: status as any } : app
-        )
-      );
+      dispatch(updateBookingThunk(booking));
 
       toast({
         title: "Succès",
@@ -209,17 +161,17 @@ export default function ProBookingsPage() {
 
   // Handle confirm action
   const handleConfirmAction = () => {
-    if (!selectedAppointment || !confirmAction) return;
+    if (!selectedBooking || !confirmAction) return;
 
-    updateAppointmentStatus(selectedAppointment.id, confirmAction);
+    updateBookingStatus(selectedBooking, confirmAction);
   };
 
   // Open confirm dialog
   const openConfirmDialog = (
-    appointment: Appointment,
+    booking: Booking,
     action: "confirm" | "cancel" | "complete"
   ) => {
-    setSelectedAppointment(appointment);
+    setSelectedBooking(booking);
     setConfirmAction(action);
     setConfirmDialogOpen(true);
   };
@@ -293,10 +245,10 @@ export default function ProBookingsPage() {
           <CardContent className="pt-6">
             <div className="text-2xl font-bold">
               {
-                appointments.filter(
-                  (a) =>
-                    (a.status === "pending" || a.status === "confirmed") &&
-                    isToday(parseISO(a.start_time))
+                bookings.filter(
+                  (b) =>
+                    (b.status === "pending" || b.status === "confirmed") &&
+                    isToday(parseISO(b.start_time))
                 ).length
               }
             </div>
@@ -306,7 +258,7 @@ export default function ProBookingsPage() {
         <Card>
           <CardContent className="pt-6">
             <div className="text-2xl font-bold">
-              {appointments.filter((a) => a.status === "pending").length}
+              {bookings.filter((b) => b.status === "pending").length}
             </div>
             <p className="text-muted-foreground">En attente de confirmation</p>
           </CardContent>
@@ -315,10 +267,10 @@ export default function ProBookingsPage() {
           <CardContent className="pt-6">
             <div className="text-2xl font-bold">
               {
-                appointments.filter(
-                  (a) =>
-                    (a.status === "pending" || a.status === "confirmed") &&
-                    isThisWeek(parseISO(a.start_time), { weekStartsOn: 1 })
+                bookings.filter(
+                  (b) =>
+                    (b.status === "pending" || b.status === "confirmed") &&
+                    isThisWeek(parseISO(b.start_time), { weekStartsOn: 1 })
                 ).length
               }
             </div>
@@ -328,7 +280,7 @@ export default function ProBookingsPage() {
         <Card>
           <CardContent className="pt-6">
             <div className="text-2xl font-bold">
-              {appointments.filter((a) => a.status === "completed").length}
+              {bookings.filter((b) => b.status === "completed").length}
             </div>
             <p className="text-muted-foreground">Rendez-vous terminés</p>
           </CardContent>
@@ -360,7 +312,7 @@ export default function ProBookingsPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {filteredAppointments.length > 0 ? (
+              {filteredBookings.length > 0 ? (
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -372,29 +324,27 @@ export default function ProBookingsPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredAppointments.map((appointment) => (
-                      <TableRow key={appointment.id}>
+                    {filteredBookings.map((booking) => (
+                      <TableRow key={booking.id}>
                         <TableCell>
                           <div className="font-medium">
-                            {appointment.client_name}
+                            {booking.client_name}
                           </div>
                           <div className="text-sm text-muted-foreground">
-                            {appointment.client_email}
+                            {booking.client_email}
                           </div>
                         </TableCell>
                         <TableCell>
-                          <div>{appointment.service.name}</div>
+                          <div>{booking.service.name}</div>
                           <div className="text-sm text-muted-foreground">
-                            {appointment.service.duration} min •{" "}
-                            {appointment.service.price}€
+                            {booking.service.duration} min •{" "}
+                            {booking.service.price}€
                           </div>
                         </TableCell>
                         <TableCell>
-                          {formatAppointmentDate(appointment.start_time)}
+                          {formatAppointmentDate(booking.start_time)}
                         </TableCell>
-                        <TableCell>
-                          {getStatusBadge(appointment.status)}
-                        </TableCell>
+                        <TableCell>{getStatusBadge(booking.status)}</TableCell>
                         <TableCell className="text-right">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -406,28 +356,28 @@ export default function ProBookingsPage() {
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem
                                 onClick={() => {
-                                  setSelectedAppointment(appointment);
+                                  setSelectedBooking(booking);
                                   setDetailsDialogOpen(true);
                                 }}
                               >
                                 Voir les détails
                               </DropdownMenuItem>
 
-                              {appointment.status === "pending" && (
+                              {booking.status === "pending" && (
                                 <DropdownMenuItem
                                   onClick={() =>
-                                    openConfirmDialog(appointment, "confirm")
+                                    openConfirmDialog(booking, "confirm")
                                   }
                                 >
                                   Confirmer
                                 </DropdownMenuItem>
                               )}
 
-                              {(appointment.status === "pending" ||
-                                appointment.status === "confirmed") && (
+                              {(booking.status === "pending" ||
+                                booking.status === "confirmed") && (
                                 <DropdownMenuItem
                                   onClick={() =>
-                                    openConfirmDialog(appointment, "cancel")
+                                    openConfirmDialog(booking, "cancel")
                                   }
                                   className="text-red-600"
                                 >
@@ -435,10 +385,10 @@ export default function ProBookingsPage() {
                                 </DropdownMenuItem>
                               )}
 
-                              {appointment.status === "confirmed" && (
+                              {booking.status === "confirmed" && (
                                 <DropdownMenuItem
                                   onClick={() =>
-                                    openConfirmDialog(appointment, "complete")
+                                    openConfirmDialog(booking, "complete")
                                   }
                                 >
                                   Marquer comme terminé
@@ -468,7 +418,7 @@ export default function ProBookingsPage() {
             <DialogTitle>Détails du rendez-vous</DialogTitle>
           </DialogHeader>
 
-          {selectedAppointment && (
+          {selectedBooking && (
             <div className="space-y-4">
               <div className="space-y-2">
                 <h3 className="font-medium flex items-center">
@@ -478,14 +428,14 @@ export default function ProBookingsPage() {
                 <div className="bg-muted p-3 rounded-md">
                   <p>
                     {format(
-                      parseISO(selectedAppointment.start_time),
+                      parseISO(selectedBooking.start_time),
                       "EEEE d MMMM yyyy",
                       { locale: fr }
                     )}
                   </p>
                   <p className="text-sm">
-                    {format(parseISO(selectedAppointment.start_time), "HH:mm")}{" "}
-                    - {format(parseISO(selectedAppointment.end_time), "HH:mm")}
+                    {format(parseISO(selectedBooking.start_time), "HH:mm")} -{" "}
+                    {format(parseISO(selectedBooking.end_time), "HH:mm")}
                   </p>
                 </div>
               </div>
@@ -496,16 +446,14 @@ export default function ProBookingsPage() {
                   Client
                 </h3>
                 <div className="bg-muted p-3 rounded-md space-y-1">
-                  <p className="font-medium">
-                    {selectedAppointment.client_name}
-                  </p>
+                  <p className="font-medium">{selectedBooking.client_name}</p>
                   <p className="text-sm flex items-center">
                     <Mail className="w-3 h-3 mr-1 text-muted-foreground" />
-                    {selectedAppointment.client_email}
+                    {selectedBooking.client_email}
                   </p>
                   <p className="text-sm flex items-center">
                     <Phone className="w-3 h-3 mr-1 text-muted-foreground" />
-                    {selectedAppointment.client_phone}
+                    {selectedBooking.client_phone}
                   </p>
                 </div>
               </div>
@@ -516,26 +464,24 @@ export default function ProBookingsPage() {
                   Service
                 </h3>
                 <div className="bg-muted p-3 rounded-md">
-                  <p className="font-medium">
-                    {selectedAppointment.service.name}
-                  </p>
+                  <p className="font-medium">{selectedBooking.service.name}</p>
                   <div className="flex justify-between text-sm">
-                    <span>{selectedAppointment.service.duration} minutes</span>
+                    <span>{selectedBooking.service.duration} minutes</span>
                     <span className="font-medium">
-                      {selectedAppointment.service.price}€
+                      {selectedBooking.service.price}€
                     </span>
                   </div>
                 </div>
               </div>
 
-              {selectedAppointment.notes && (
+              {selectedBooking.notes && (
                 <div className="space-y-2">
                   <h3 className="font-medium flex items-center">
                     <MessageSquare className="w-4 h-4 mr-2 text-primary" />
                     Notes
                   </h3>
                   <div className="bg-muted p-3 rounded-md">
-                    <p className="text-sm">{selectedAppointment.notes}</p>
+                    <p className="text-sm">{selectedBooking.notes}</p>
                   </div>
                 </div>
               )}
@@ -543,38 +489,38 @@ export default function ProBookingsPage() {
               <div className="space-y-2">
                 <h3 className="font-medium">Statut</h3>
                 <div className="flex justify-between">
-                  <div>{getStatusBadge(selectedAppointment.status)}</div>
+                  <div>{getStatusBadge(selectedBooking.status)}</div>
                   <div className="space-x-2">
-                    {selectedAppointment.status === "pending" && (
+                    {selectedBooking.status === "pending" && (
                       <Button
                         size="sm"
                         onClick={() =>
-                          openConfirmDialog(selectedAppointment, "confirm")
+                          openConfirmDialog(selectedBooking, "confirm")
                         }
                       >
                         Confirmer
                       </Button>
                     )}
 
-                    {(selectedAppointment.status === "pending" ||
-                      selectedAppointment.status === "confirmed") && (
+                    {(selectedBooking.status === "pending" ||
+                      selectedBooking.status === "confirmed") && (
                       <Button
                         size="sm"
                         variant="destructive"
                         onClick={() =>
-                          openConfirmDialog(selectedAppointment, "cancel")
+                          openConfirmDialog(selectedBooking, "cancel")
                         }
                       >
                         Annuler
                       </Button>
                     )}
 
-                    {selectedAppointment.status === "confirmed" && (
+                    {selectedBooking.status === "confirmed" && (
                       <Button
                         size="sm"
                         variant="outline"
                         onClick={() =>
-                          openConfirmDialog(selectedAppointment, "complete")
+                          openConfirmDialog(selectedBooking, "complete")
                         }
                       >
                         Terminé
@@ -616,12 +562,12 @@ export default function ProBookingsPage() {
             </DialogDescription>
           </DialogHeader>
 
-          {selectedAppointment && (
+          {selectedBooking && (
             <div className="bg-muted p-3 rounded-md mb-4">
-              <p className="font-medium">{selectedAppointment.client_name}</p>
-              <p className="text-sm">{selectedAppointment.service.name}</p>
+              <p className="font-medium">{selectedBooking.client_name}</p>
+              <p className="text-sm">{selectedBooking.service.name}</p>
               <p className="text-sm">
-                {formatAppointmentDate(selectedAppointment.start_time)}
+                {formatAppointmentDate(selectedBooking.start_time)}
               </p>
             </div>
           )}

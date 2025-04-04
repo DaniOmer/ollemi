@@ -165,3 +165,20 @@ export interface Photo {
   alt?: string;
   featured: boolean;
 }
+
+export interface Booking {
+  id: string;
+  client_name: string;
+  client_email: string;
+  client_phone: string;
+  start_time: string;
+  end_time: string;
+  status: "pending" | "confirmed" | "cancelled" | "completed";
+  notes?: string;
+  service: {
+    id: string;
+    name: string;
+    price: number;
+    duration: number;
+  };
+}
