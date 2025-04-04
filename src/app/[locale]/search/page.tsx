@@ -48,6 +48,13 @@ export default function SearchResults() {
   const [searchCategory, setSearchCategory] = useState(
     searchParams.get("category") || ""
   );
+
+  // Initialize selectedCategories with the search category if it exists
+  useEffect(() => {
+    if (searchCategory) {
+      setSelectedCategories([searchCategory]);
+    }
+  }, [searchCategory]);
   const [searchLocation, setSearchLocation] = useState(
     searchParams.get("location") || ""
   );
@@ -66,10 +73,17 @@ export default function SearchResults() {
       setError(null);
 
       try {
+        // Use the first selected category for the API search
+        const categoryToSearch =
+          selectedCategories.length > 0
+            ? selectedCategories[0]
+            : searchCategory;
+
         const response = await searchCompanies({
-          category: searchCategory,
+          category: categoryToSearch,
           location: searchLocation,
           date: searchDate,
+          rating: selectedRating !== null ? selectedRating : undefined,
         });
 
         if (response.error) {
@@ -87,7 +101,13 @@ export default function SearchResults() {
     };
 
     fetchResults();
-  }, [searchCategory, searchLocation, searchDate]);
+  }, [
+    searchCategory,
+    searchLocation,
+    searchDate,
+    selectedRating,
+    selectedCategories,
+  ]);
 
   const handleAddressSelect = (address: AddressData) => {
     setSearchAddress(address);
@@ -115,7 +135,7 @@ export default function SearchResults() {
     setFiltersOpen(!filtersOpen);
   };
 
-  const toggleCategory = (category: string) => {
+  const toggleCategory = (category: string): void => {
     if (selectedCategories.includes(category)) {
       setSelectedCategories(selectedCategories.filter((c) => c !== category));
     } else {
@@ -130,7 +150,6 @@ export default function SearchResults() {
   // Filter results based on selected filters
   const filteredResults = results.filter((company) => {
     // Filter by price range if company has services
-    console.log(company);
     const priceFilter =
       !company.services ||
       company.services.some(
@@ -143,12 +162,10 @@ export default function SearchResults() {
       selectedRating === null ||
       (company.rating && company.rating >= selectedRating);
 
-    // Filter by categories - simplified since we don't have company_categories in the type
-    const categoryFilter = selectedCategories.length === 0;
+    // We don't need to filter by categories here since the API already does that
+    // and we're using the first selected category for the API search
 
-    console.log(priceFilter, ratingFilter, categoryFilter);
-
-    return priceFilter && ratingFilter && categoryFilter;
+    return priceFilter && ratingFilter;
   });
 
   return (
@@ -307,16 +324,20 @@ export default function SearchResults() {
                 <div className="mb-6">
                   <h4 className="font-medium mb-3">{t("search.categories")}</h4>
                   <div className="space-y-2">
-                    {["Haircut", "Massage", "Nails", "Skincare", "Makeup"].map(
-                      (category) => (
-                        <label key={category} className="flex items-center">
+                    {categories.map(
+                      (category: {
+                        id: string;
+                        name: string;
+                        imageUrl: string;
+                      }) => (
+                        <label key={category.id} className="flex items-center">
                           <input
                             type="checkbox"
                             className="rounded text-primary mr-2"
-                            checked={selectedCategories.includes(category)}
-                            onChange={() => toggleCategory(category)}
+                            checked={selectedCategories.includes(category.name)}
+                            onChange={() => toggleCategory(category.name)}
                           />
-                          {category}
+                          {category.name}
                         </label>
                       )
                     )}
