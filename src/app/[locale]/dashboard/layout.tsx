@@ -22,7 +22,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useTranslations } from "@/hooks/useTranslations";
 import { useAppSelector, useAppDispatch } from "@/lib/redux/store";
-import { selectUserProfile } from "@/lib/redux/slices/userSlice";
+import { selectUserProfile, resetState } from "@/lib/redux/slices/userSlice";
 import { logout } from "@/lib/redux/slices/authSlice";
 
 export default function DashboardLayout({
@@ -39,6 +39,7 @@ export default function DashboardLayout({
 
   const handleLogout = async () => {
     await dispatch(logout());
+    dispatch(resetState());
     router.push("/");
   };
 

@@ -20,7 +20,7 @@ import { useState, useEffect } from "react";
 
 export default function Header() {
   const { t } = useTranslations();
-  const profile = useAppSelector(selectUserProfile);
+  const user = useAppSelector(selectUserProfile);
 
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -31,7 +31,7 @@ export default function Header() {
 
   const isProfessionalSection = pathname?.includes("/pro");
 
-  const dashboardPath = profile?.role === "pro" ? "/pro" : "/client";
+  const dashboardPath = user?.role === "pro" ? "/pro" : "/client";
 
   // Handle scroll effect for header
   useEffect(() => {
@@ -148,15 +148,15 @@ export default function Header() {
             </Link>
 
             {/* Auth buttons or user menu */}
-            {profile ? (
+            {user ? (
               <div className="relative" id="user-menu">
                 <button
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
                   className="flex items-center gap-2 px-3 py-2 rounded-lg bg-secondary/30 hover:bg-secondary/50 transition-all"
                 >
                   <div className="w-8 h-8 bg-gradient-to-r from-primary/20 to-accent/20 rounded-full flex items-center justify-center shadow-soft">
-                    {profile?.first_name?.charAt(0)}
-                    {profile?.last_name?.charAt(0)}
+                    {user?.first_name?.charAt(0)}
+                    {user?.last_name?.charAt(0)}
                   </div>
                   <ChevronDown className="w-4 h-4 text-foreground/70" />
                 </button>
@@ -166,10 +166,10 @@ export default function Header() {
                   <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg py-2 z-50 border border-border/50 animate-fade-in">
                     <div className="px-4 py-2 border-b border-border/50">
                       <p className="text-sm font-medium">
-                        {profile?.first_name} {profile?.last_name}
+                        {user?.first_name} {user?.last_name}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {profile?.email}
+                        {user?.email}
                       </p>
                     </div>
                     <div className="py-1">
@@ -274,7 +274,7 @@ export default function Header() {
               </Link>
 
               {/* Auth links for mobile */}
-              {!profile && (
+              {!user && (
                 <div className="flex flex-col gap-2 pt-2">
                   <Link
                     href="/login"
