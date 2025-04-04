@@ -14,6 +14,18 @@ export async function GET(
       .select(
         `
         *,
+        addresses (
+          id,
+          formatted_address,
+          street_number,
+          street_name,
+          city,
+          postal_code,
+          country,
+          state,
+          latitude,
+          longitude
+        ),
         services (
           id,
           name,
@@ -49,6 +61,7 @@ export async function GET(
       .single();
 
     if (error && error.code !== "PGRST116") {
+      console.log("error ", error);
       // PGRST116 is "no rows returned"
       return NextResponse.json(
         { error: "Error fetching user company" },
@@ -75,6 +88,7 @@ export async function GET(
       ...company,
       photos: company.photos || [],
       services: company.services || [],
+      addresses: company.addresses || {},
       opening_hours:
         company.opening_hours?.reduce((acc: any, curr: any) => {
           acc[curr.day_of_week] = {

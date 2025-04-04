@@ -56,9 +56,9 @@ export default function SettingsPage() {
       setFormData({
         name: company.name,
         description: company.description,
-        address: company.address,
-        city: company.city,
-        zipcode: company.zipcode,
+        address: company.addresses.formatted_address,
+        city: company.addresses.city,
+        zipcode: company.addresses.postal_code,
         phone: company.phone,
         website: company.website,
         instagram: company.instagram,

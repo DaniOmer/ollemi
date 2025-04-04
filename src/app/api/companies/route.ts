@@ -6,6 +6,18 @@ export async function GET() {
     const { data, error } = await supabase.from("companies").select(
       `
         *,
+        addresses (
+          id,
+          formatted_address,
+          street_number,
+          street_name,
+          city,
+          postal_code,
+          country,
+          state,
+          latitude,
+          longitude
+        ),
         services (
           id,
           name,
