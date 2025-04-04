@@ -10,11 +10,23 @@ import {
   isTomorrow,
   isThisWeek,
   isAfter,
+  startOfDay,
+  endOfDay,
+  isWithinInterval,
 } from "date-fns";
 import { fr } from "date-fns/locale/fr";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Calendar } from "@/components/ui/calendar";
+import { DatePicker } from "@/components/ui/date-picker";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Dialog,
   DialogContent,
@@ -23,6 +35,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -38,7 +57,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  Calendar,
+  CalendarIcon,
   Clock,
   MoreHorizontal,
   CheckCircle,
@@ -79,6 +98,16 @@ export default function ProBookingsPage() {
   >(null);
   const [actionLoading, setActionLoading] = useState(false);
 
+  // Filter state
+  const [filterDialogOpen, setFilterDialogOpen] = useState(false);
+  const [filters, setFilters] = useState({
+    clientName: "",
+    serviceId: "all",
+    dateRange: null as Date | null,
+    status: "all",
+  });
+  const [activeFilters, setActiveFilters] = useState(false);
+
   const user = useAppSelector(selectUserProfile);
   const company = useAppSelector(selectCurrentCompany);
   const bookings = useAppSelector(selectBookings);
@@ -94,40 +123,116 @@ export default function ProBookingsPage() {
     }
   }, [user, company, toast]);
 
-  // Filter appointments based on active tab
-  const filteredBookings = bookings.filter((booking) => {
-    const startTime = parseISO(booking.start_time);
-    const now = new Date();
+  // Apply filters to bookings
+  const applyFilters = (bookings: Booking[]) => {
+    return bookings.filter((booking) => {
+      // Filter by client name
+      if (
+        filters.clientName &&
+        !booking.client_name
+          .toLowerCase()
+          .includes(filters.clientName.toLowerCase())
+      ) {
+        return false;
+      }
 
-    switch (activeTab) {
-      case "upcoming":
-        return (
-          (booking.status === "pending" || booking.status === "confirmed") &&
-          isAfter(startTime, now)
-        );
-      case "today":
-        return (
-          (booking.status === "pending" || booking.status === "confirmed") &&
-          isToday(startTime)
-        );
-      case "tomorrow":
-        return (
-          (booking.status === "pending" || booking.status === "confirmed") &&
-          isTomorrow(startTime)
-        );
-      case "thisWeek":
-        return (
-          (booking.status === "pending" || booking.status === "confirmed") &&
-          isThisWeek(startTime, { weekStartsOn: 1 })
-        );
-      case "completed":
-        return booking.status === "completed";
-      case "cancelled":
-        return booking.status === "cancelled";
-      default:
-        return true;
-    }
-  });
+      // Filter by service
+      if (
+        filters.serviceId &&
+        filters.serviceId !== "all" &&
+        booking.service.id !== filters.serviceId
+      ) {
+        return false;
+      }
+
+      // Filter by date
+      if (filters.dateRange) {
+        const bookingDate = parseISO(booking.start_time);
+        const filterDate = filters.dateRange;
+
+        if (
+          !isWithinInterval(bookingDate, {
+            start: startOfDay(filterDate),
+            end: endOfDay(filterDate),
+          })
+        ) {
+          return false;
+        }
+      }
+
+      // Filter by status
+      if (
+        filters.status &&
+        filters.status !== "all" &&
+        booking.status !== filters.status
+      ) {
+        return false;
+      }
+
+      return true;
+    });
+  };
+
+  // Filter appointments based on active tab and additional filters
+  const filteredBookings = applyFilters(
+    bookings.filter((booking) => {
+      const startTime = parseISO(booking.start_time);
+      const now = new Date();
+
+      switch (activeTab) {
+        case "upcoming":
+          return (
+            (booking.status === "pending" || booking.status === "confirmed") &&
+            isAfter(startTime, now)
+          );
+        case "today":
+          return (
+            (booking.status === "pending" || booking.status === "confirmed") &&
+            isToday(startTime)
+          );
+        case "tomorrow":
+          return (
+            (booking.status === "pending" || booking.status === "confirmed") &&
+            isTomorrow(startTime)
+          );
+        case "thisWeek":
+          return (
+            (booking.status === "pending" || booking.status === "confirmed") &&
+            isThisWeek(startTime, { weekStartsOn: 1 })
+          );
+        case "completed":
+          return booking.status === "completed";
+        case "cancelled":
+          return booking.status === "cancelled";
+        default:
+          return true;
+      }
+    })
+  );
+
+  // Reset filters
+  const resetFilters = () => {
+    setFilters({
+      clientName: "",
+      serviceId: "all",
+      dateRange: null,
+      status: "all",
+    });
+    setActiveFilters(false);
+  };
+
+  // Apply filter changes
+  const applyFilterChanges = () => {
+    // Check if any filters are active
+    const hasActiveFilters =
+      filters.clientName !== "" ||
+      filters.serviceId !== "all" ||
+      filters.dateRange !== null ||
+      filters.status !== "all";
+
+    setActiveFilters(hasActiveFilters);
+    setFilterDialogOpen(false);
+  };
 
   // Handle appointment status update
   const updateBookingStatus = async (booking: Booking, status: string) => {
@@ -233,9 +338,13 @@ export default function ProBookingsPage() {
     <div className="container mx-auto py-8 px-4">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Gestion des rendez-vous</h1>
-        <Button variant="outline" size="sm">
+        <Button
+          variant={activeFilters ? "default" : "outline"}
+          size="sm"
+          onClick={() => setFilterDialogOpen(true)}
+        >
           <Filter className="w-4 h-4 mr-2" />
-          Filtrer
+          {activeFilters ? "Filtres actifs" : "Filtrer"}
         </Button>
       </div>
 
@@ -422,7 +531,7 @@ export default function ProBookingsPage() {
             <div className="space-y-4">
               <div className="space-y-2">
                 <h3 className="font-medium flex items-center">
-                  <Calendar className="w-4 h-4 mr-2 text-primary" />
+                  <CalendarIcon className="w-4 h-4 mr-2 text-primary" />
                   Date et heure
                 </h3>
                 <div className="bg-muted p-3 rounded-md">
@@ -539,6 +648,99 @@ export default function ProBookingsPage() {
             >
               Fermer
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Filter Dialog */}
+      <Dialog open={filterDialogOpen} onOpenChange={setFilterDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Filtrer les rendez-vous</DialogTitle>
+            <DialogDescription>
+              Affinez votre liste de rendez-vous en utilisant les filtres
+              ci-dessous.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="clientName">Nom du client</Label>
+              <Input
+                id="clientName"
+                placeholder="Rechercher par nom"
+                value={filters.clientName}
+                onChange={(e) =>
+                  setFilters({ ...filters, clientName: e.target.value })
+                }
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="service">Service</Label>
+              <Select
+                value={filters.serviceId}
+                onValueChange={(value) =>
+                  setFilters({ ...filters, serviceId: value })
+                }
+              >
+                <SelectTrigger id="service">
+                  <SelectValue placeholder="Tous les services" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tous les services</SelectItem>
+                  {/* Get unique services from bookings */}
+                  {Array.from(new Set(bookings.map((b) => b.service.id))).map(
+                    (serviceId) => {
+                      const service = bookings.find(
+                        (b) => b.service.id === serviceId
+                      )?.service;
+                      return (
+                        <SelectItem key={serviceId} value={serviceId}>
+                          {service?.name}
+                        </SelectItem>
+                      );
+                    }
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Date</Label>
+              <DatePicker
+                date={filters.dateRange}
+                onSelect={(date) => setFilters({ ...filters, dateRange: date })}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="status">Statut</Label>
+              <Select
+                value={filters.status}
+                onValueChange={(value) =>
+                  setFilters({ ...filters, status: value })
+                }
+              >
+                <SelectTrigger id="status">
+                  <SelectValue placeholder="Tous les statuts" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tous les statuts</SelectItem>
+                  <SelectItem value="pending">En attente</SelectItem>
+                  <SelectItem value="confirmed">Confirmé</SelectItem>
+                  <SelectItem value="completed">Terminé</SelectItem>
+                  <SelectItem value="cancelled">Annulé</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <DialogFooter className="flex space-x-2 sm:space-x-0">
+            <Button variant="outline" onClick={resetFilters}>
+              Réinitialiser
+            </Button>
+            <Button onClick={applyFilterChanges}>Appliquer les filtres</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

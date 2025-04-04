@@ -346,7 +346,9 @@
     "monthView": "Vue mensuelle",
     "today": "Aujourd'hui",
     "yesterday": "Hier",
-    "tomorrow": "Demain"
+    "tomorrow": "Demain",
+    "previous": "Mois précédent",
+    "next": "Mois suivant"
   },
   "settings": {
     "title": "Paramètres",

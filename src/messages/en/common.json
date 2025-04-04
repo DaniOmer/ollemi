@@ -341,7 +341,9 @@
     "monthView": "Month View",
     "today": "Today",
     "yesterday": "Yesterday",
-    "tomorrow": "Tomorrow"
+    "tomorrow": "Tomorrow",
+    "previous": "Previous month",
+    "next": "Next month"
   },
   "settings": {
     "title": "Settings",

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useAppDispatch, useAppSelector } from "@/lib/redux/store";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale/fr";
 import { Search, Mail, Phone, Calendar, Eye } from "lucide-react";
@@ -23,46 +23,23 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
+import { selectUserProfile } from "@/lib/redux/slices/userSlice";
 import {
-  fetchAppointments,
-  selectAppointments,
-  selectAppointmentsLoading,
-  selectAppointmentsError,
-} from "@/lib/redux/slices/appointmentsSlice";
-import { AppDispatch } from "@/lib/redux/store";
+  fetchBookingsThunk,
+  selectBookingStatus,
+  selectBookingError,
+  selectBookings,
+} from "@/lib/redux/slices/bookingSlice";
 import { selectServices } from "@/lib/redux/slices/companiesSlice";
-import { Appointment, Service } from "@/types";
-
-interface Customer {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  appointments: AppointmentData[];
-  lastAppointment: Date | null;
-  totalAppointments: number;
-}
-
-interface AppointmentData {
-  id: string;
-  date: string;
-  status: string;
-  service: {
-    name: string;
-  };
-  client_email: string;
-  client_name: string;
-  client_phone: string;
-  start_time: string;
-  service_id: string;
-}
+import { Booking, Service, Customer } from "@/types";
 
 export default function CustomersPage() {
-  const dispatch = useDispatch<AppDispatch>();
-  const appointments = useSelector(selectAppointments);
-  const services = useSelector(selectServices);
-  const loading = useSelector(selectAppointmentsLoading);
-  const error = useSelector(selectAppointmentsError);
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(selectUserProfile);
+  const bookings = useAppSelector(selectBookings);
+  const services = useAppSelector(selectServices);
+  const loading = useAppSelector(selectBookingStatus);
+  const error = useAppSelector(selectBookingError);
 
   // UI state
   const [searchQuery, setSearchQuery] = useState("");
@@ -72,39 +49,36 @@ export default function CustomersPage() {
 
   // Fetch appointments on component mount
   useEffect(() => {
-    dispatch(fetchAppointments());
-  }, [dispatch]);
+    if (bookings.length === 0) {
+      dispatch(fetchBookingsThunk(user?.company_id));
+    }
+  }, [dispatch, user?.company_id, bookings.length]);
 
   // Process customers data
-  const customers = appointments.reduce(
-    (acc: Customer[], appointment: AppointmentData) => {
-      const existingCustomer = acc.find(
-        (c) => c.email === appointment.client_email
-      );
-      if (existingCustomer) {
-        existingCustomer.appointments.push(appointment);
-        existingCustomer.totalAppointments++;
-        if (
-          !existingCustomer.lastAppointment ||
-          new Date(appointment.start_time) > existingCustomer.lastAppointment
-        ) {
-          existingCustomer.lastAppointment = new Date(appointment.start_time);
-        }
-      } else {
-        acc.push({
-          id: appointment.client_email,
-          name: appointment.client_name,
-          email: appointment.client_email,
-          phone: appointment.client_phone,
-          appointments: [appointment],
-          lastAppointment: new Date(appointment.start_time),
-          totalAppointments: 1,
-        });
+  const customers = bookings.reduce((acc: Customer[], booking: Booking) => {
+    const existingCustomer = acc.find((c) => c.email === booking.client_email);
+    if (existingCustomer) {
+      existingCustomer.bookings.push(booking);
+      existingCustomer.totalBookings++;
+      if (
+        !existingCustomer.lastBooking ||
+        new Date(booking.start_time) > existingCustomer.lastBooking
+      ) {
+        existingCustomer.lastBooking = new Date(booking.start_time);
       }
-      return acc;
-    },
-    []
-  );
+    } else {
+      acc.push({
+        id: booking.client_email,
+        name: booking.client_name,
+        email: booking.client_email,
+        phone: booking.client_phone,
+        bookings: [booking],
+        lastBooking: new Date(booking.start_time),
+        totalBookings: 1,
+      });
+    }
+    return acc;
+  }, []);
 
   // Filter customers by search query
   const filteredCustomers = customers.filter(
@@ -171,14 +145,14 @@ export default function CustomersPage() {
                   <TableCell>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Calendar className="w-4 h-4" />
-                      {customer.lastAppointment
-                        ? format(customer.lastAppointment, "PPP", {
+                      {customer.lastBooking
+                        ? format(customer.lastBooking, "PPP", {
                             locale: fr,
                           })
                         : "Jamais"}
                     </div>
                   </TableCell>
-                  <TableCell>{customer.totalAppointments}</TableCell>
+                  <TableCell>{customer.totalBookings}</TableCell>
                   <TableCell className="text-right">
                     <Dialog>
                       <DialogTrigger asChild>
@@ -225,7 +199,7 @@ export default function CustomersPage() {
                                   Total RDV
                                 </p>
                                 <p className="font-medium">
-                                  {customer.totalAppointments}
+                                  {customer.totalBookings}
                                 </p>
                               </div>
                             </div>
@@ -235,21 +209,21 @@ export default function CustomersPage() {
                               Historique des rendez-vous
                             </h3>
                             <div className="space-y-4">
-                              {customer.appointments
+                              {customer.bookings
                                 .sort(
                                   (a, b) =>
                                     new Date(b.start_time).getTime() -
                                     new Date(a.start_time).getTime()
                                 )
-                                .map((appointment: AppointmentData) => (
+                                .map((booking: Booking) => (
                                   <div
-                                    key={appointment.id}
+                                    key={booking.id}
                                     className="flex items-center justify-between p-4 bg-muted rounded-lg"
                                   >
                                     <div>
                                       <div className="font-medium">
                                         {format(
-                                          new Date(appointment.start_time),
+                                          new Date(booking.start_time),
                                           "PPP",
                                           {
                                             locale: fr,
@@ -257,7 +231,7 @@ export default function CustomersPage() {
                                         )}{" "}
                                         à{" "}
                                         {format(
-                                          new Date(appointment.start_time),
+                                          new Date(booking.start_time),
                                           "HH:mm"
                                         )}
                                       </div>
@@ -265,27 +239,27 @@ export default function CustomersPage() {
                                         {
                                           services.find(
                                             (s: Service) =>
-                                              s.id === appointment.service_id
+                                              s.id === booking.service.id
                                           )?.name
                                         }
                                       </div>
                                     </div>
                                     <span
                                       className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                        appointment.status === "confirmed"
+                                        booking.status === "confirmed"
                                           ? "bg-green-100 text-green-800"
-                                          : appointment.status === "pending"
+                                          : booking.status === "pending"
                                           ? "bg-yellow-100 text-yellow-800"
-                                          : appointment.status === "cancelled"
+                                          : booking.status === "cancelled"
                                           ? "bg-red-100 text-red-800"
                                           : "bg-gray-100 text-gray-800"
                                       }`}
                                     >
-                                      {appointment.status === "confirmed"
+                                      {booking.status === "confirmed"
                                         ? "Confirmé"
-                                        : appointment.status === "pending"
+                                        : booking.status === "pending"
                                         ? "En attente"
-                                        : appointment.status === "cancelled"
+                                        : booking.status === "cancelled"
                                         ? "Annulé"
                                         : "Terminé"}
                                     </span>

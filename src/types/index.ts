@@ -182,3 +182,13 @@ export interface Booking {
     duration: number;
   };
 }
+
+export interface Customer {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  bookings: Booking[];
+  lastBooking: Date | null;
+  totalBookings: number;
+}
