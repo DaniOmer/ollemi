@@ -8,7 +8,11 @@ export async function getCategories(): Promise<ApiResponse<Category[]>> {
 }
 
 export async function getCategoryById(
-  id: string
+  id: string,
+  includeCompanies = false
 ): Promise<ApiResponse<Category>> {
-  return fetchApi<Category>(`/categories/${id}`);
+  const url = includeCompanies
+    ? `/categories/${id}?include=companies`
+    : `/categories/${id}`;
+  return fetchApi<Category>(url);
 }

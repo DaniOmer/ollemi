@@ -40,11 +40,14 @@ export const fetchCategories = createAsyncThunk<Category[]>(
 );
 
 // Async thunk for fetching a single category
-export const fetchCategoryById = createAsyncThunk<Category, string>(
+export const fetchCategoryById = createAsyncThunk<
+  Category,
+  { id: string; includeCompanies?: boolean }
+>(
   "categories/fetchById",
-  async (categoryId, { rejectWithValue }) => {
+  async ({ id, includeCompanies = false }, { rejectWithValue }) => {
     try {
-      const response = await getCategoryById(categoryId);
+      const response = await getCategoryById(id, includeCompanies);
       if (response.error) {
         return rejectWithValue(response.error);
       }

@@ -10,10 +10,7 @@ import { useTranslations } from "@/hooks/useTranslations";
 import { Category, Professional } from "@/types";
 
 import { useAppDispatch } from "@/lib/redux/store";
-import {
-  fetchCompaniesByCategory,
-  selectCompaniesByCategory,
-} from "@/lib/redux/slices/companiesSlice";
+import { selectCompaniesByCategory } from "@/lib/redux/slices/companiesSlice";
 import {
   fetchCategoryById,
   selectCurrentCategory,
@@ -42,8 +39,10 @@ const CategoryPage = () => {
   const [isFiltering, setIsFiltering] = useState(false);
 
   const dispatch = useAppDispatch();
-  const companiesByCategory = useSelector(selectCompaniesByCategory);
   const category = useSelector(selectCurrentCategory);
+
+  // Get companies from the category if available
+  const companiesByCategory = category?.companies || [];
 
   useEffect(() => {
     const fetchData = async () => {
@@ -51,11 +50,12 @@ const CategoryPage = () => {
       setError(null);
 
       try {
-        // Fetch category details and companies
+        // Fetch category details with companies included
         const { id } = await params;
         categoryId = id as string;
-        await dispatch(fetchCategoryById(categoryId));
-        await dispatch(fetchCompaniesByCategory(categoryId));
+        await dispatch(
+          fetchCategoryById({ id: categoryId, includeCompanies: true })
+        );
       } catch (err: any) {
         console.error("Error fetching data:", err);
         setError(err.message || "Failed to load data");
@@ -110,7 +110,7 @@ const CategoryPage = () => {
           <h3 className="text-xl font-semibold mb-2">{professional.name}</h3>
           <div className="flex items-center text-sm text-muted-foreground mb-3">
             <MapPin className="w-4 h-4 mr-1" />
-            {professional.city || t("professional.noLocation")}
+            {professional.addresses?.city || t("professional.noLocation")}
           </div>
           {professional.services && professional.services.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-4">
@@ -130,7 +130,7 @@ const CategoryPage = () => {
             </div>
           )}
           <Link
-            href={`/professional/${professional.id}`}
+            href={`/pro/${professional.id}`}
             className="block w-full py-2 bg-primary text-white rounded-lg text-center hover:bg-primary/90 transition-colors"
           >
             {t("professional.viewProfile")}

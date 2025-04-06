@@ -56,6 +56,7 @@ export interface Category {
   id: string;
   name: string;
   imageUrl: string;
+  companies?: Professional[];
 }
 
 export interface OpeningHours {
