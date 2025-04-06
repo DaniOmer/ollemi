@@ -187,13 +187,12 @@ export interface Photo {
 }
 
 export interface Booking {
-  id: string;
-  client_name: string;
-  client_email: string;
-  client_phone: string;
+  id?: string;
+  company_id: string;
+  client_id: string;
   start_time: string;
   end_time: string;
-  status: "pending" | "confirmed" | "cancelled" | "completed";
+  status?: "pending" | "confirmed" | "cancelled" | "completed";
   notes?: string;
   service: {
     id: string;

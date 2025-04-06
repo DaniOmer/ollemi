@@ -10,7 +10,7 @@ export async function getBookings(
 export async function createBooking(
   booking: Booking
 ): Promise<ApiResponse<Booking>> {
-  return fetchPrivateApi<Booking>("/bookings", {
+  return fetchPrivateApi<Booking>(`/companies/${booking.company_id}/bookings`, {
     method: "POST",
     data: booking,
   });

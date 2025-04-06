@@ -64,13 +64,33 @@ export async function POST(request: Request) {
     const supabaseWithAuth = createAuthClient(token);
     const body = await request.json();
 
-    // Vérifier si l'utilisateur est authentifié
-    const {
-      data: { session },
-    } = await supabaseWithAuth.auth.getSession();
+    const { data: user, error: authError } =
+      await supabaseWithAuth.auth.getUser();
 
-    if (!session) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+    if (!user) {
+      console.error("Unauthorized access", authError);
+      return NextResponse.json(
+        { error: "Unauthorized access" },
+        { status: 401 }
+      );
+    }
+
+    // Get all user informations
+    const { data: userData, error: userError } = await supabaseWithAuth
+      .from("users")
+      .select("*")
+      .eq("id", user.user?.id)
+      .single();
+
+    if (userError) {
+      console.error(
+        "Erreur lors de la récupération des informations de l'utilisateur:",
+        userError
+      );
+      return NextResponse.json(
+        { error: "Error while fetching user informations" },
+        { status: 500 }
+      );
     }
 
     // Vérifier la disponibilité du créneau
@@ -93,9 +113,13 @@ export async function POST(request: Request) {
       .from("opening_hours")
       .select("*")
       .eq("company_id", body.company_id)
-      .eq("day_of_week", new Date(body.start_time));
+      .eq("day_of_week", new Date(body.start_time).getDay().toLocaleString());
 
     if (!openingHours || !openingHours[0]?.open) {
+      console.log(
+        "L'établissement est fermé à cette date :",
+        new Date(body.start_time).getDay().toLocaleString()
+      );
       return NextResponse.json(
         { error: "L'établissement est fermé à cette date" },
         { status: 400 }
@@ -103,24 +127,34 @@ export async function POST(request: Request) {
     }
 
     // Créer la réservation
-    const { data, error } = await supabaseWithAuth.from("appointments").insert([
-      {
-        company_id: body.company_id,
-        service_id: body.service_id,
-        client_id: session.user.id,
-        client_name: body.client_name,
-        client_email: body.client_email,
-        client_phone: body.client_phone,
-        start_time: body.start_time,
-        end_time: body.end_time,
-        notes: body.notes,
-        status: "pending",
-      },
-    ]);
+    const { data, error } = await supabaseWithAuth
+      .from("appointments")
+      .insert([
+        {
+          company_id: body.company_id,
+          service_id: body.service.id,
+          client_id: userData.id,
+          client_name: userData.first_name + " " + userData.last_name,
+          client_email: userData.email,
+          client_phone: userData.phone,
+          start_time: body.start_time,
+          end_time: body.end_time,
+          notes: body.notes,
+          status: "pending",
+        },
+      ])
+      .select("*")
+      .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error("Erreur lors de la création de la réservation:", error);
+      return NextResponse.json(
+        { error: "Error while creating the booking" },
+        { status: 500 }
+      );
+    }
 
-    return NextResponse.json(data?.[0]);
+    return NextResponse.json(data);
   } catch (error) {
     console.error("Erreur lors de la création de la réservation:", error);
     return NextResponse.json(

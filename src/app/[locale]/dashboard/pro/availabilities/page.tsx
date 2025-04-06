@@ -52,15 +52,35 @@ import {
 import { BusinessHours } from "@/types";
 
 const DAYS_OF_WEEK = [
-  "monday",
-  "tuesday",
-  "wednesday",
-  "thursday",
-  "friday",
-  "saturday",
-  "sunday",
+  {
+    name: "monday",
+    value: "1",
+  },
+  {
+    name: "tuesday",
+    value: "2",
+  },
+  {
+    name: "wednesday",
+    value: "3",
+  },
+  {
+    name: "thursday",
+    value: "4",
+  },
+  {
+    name: "friday",
+    value: "5",
+  },
+  {
+    name: "saturday",
+    value: "6",
+  },
+  {
+    name: "sunday",
+    value: "0",
+  },
 ];
-
 const DAY_LABELS = {
   monday: "Lundi",
   tuesday: "Mardi",
@@ -71,15 +91,24 @@ const DAY_LABELS = {
   sunday: "Dimanche",
 };
 
+// Mapping from numerical day values to day names
+const DAY_VALUES_TO_NAMES = {
+  "0": "sunday",
+  "1": "monday",
+  "2": "tuesday",
+  "3": "wednesday",
+  "4": "thursday",
+  "5": "friday",
+  "6": "saturday",
+};
+
 // Preset business hours templates
 const PRESETS = {
   standard: {
     name: "Standard (9h-18h, Lun-Ven)",
     hours: DAYS_OF_WEEK.map((day) => ({
-      day_of_week: day,
-      open: ["monday", "tuesday", "wednesday", "thursday", "friday"].includes(
-        day
-      ),
+      day_of_week: day.value,
+      open: ["1", "2", "3", "4", "5"].includes(day.value),
       start_time: "09:00",
       end_time: "18:00",
       break_start_time: "12:00",
@@ -89,8 +118,8 @@ const PRESETS = {
   extended: {
     name: "Horaires étendus (8h-20h, Lun-Sam)",
     hours: DAYS_OF_WEEK.map((day) => ({
-      day_of_week: day,
-      open: day !== "sunday",
+      day_of_week: day.value,
+      open: day.value !== "0",
       start_time: "08:00",
       end_time: "20:00",
       break_start_time: "12:00",
@@ -100,7 +129,7 @@ const PRESETS = {
   weekend: {
     name: "Inclus le weekend (9h-18h, Lun-Dim)",
     hours: DAYS_OF_WEEK.map((day) => ({
-      day_of_week: day,
+      day_of_week: day.value,
       open: true,
       start_time: "09:00",
       end_time: "18:00",
@@ -111,10 +140,8 @@ const PRESETS = {
   noBreak: {
     name: "Sans pause déjeuner (9h-17h, Lun-Ven)",
     hours: DAYS_OF_WEEK.map((day) => ({
-      day_of_week: day,
-      open: ["monday", "tuesday", "wednesday", "thursday", "friday"].includes(
-        day
-      ),
+      day_of_week: day.value,
+      open: ["1", "2", "3", "4", "5"].includes(day.value),
       start_time: "09:00",
       end_time: "17:00",
       break_start_time: "",
@@ -157,8 +184,8 @@ export default function AvailabilitiesPage() {
     } else {
       // Initialize with default hours if none exist
       const defaultHours = DAYS_OF_WEEK.map((day) => ({
-        day_of_week: day,
-        open: day !== "sunday", // Open all days except Sunday by default
+        day_of_week: day.value,
+        open: day.value !== "0", // Open all days except Sunday by default
         start_time: "09:00",
         end_time: "18:00",
         break_start_time: "12:00",
@@ -222,10 +249,23 @@ export default function AvailabilitiesPage() {
 
   const handleSave = async () => {
     if (user?.company_id) {
+      // Ensure day_of_week is using numerical values before sending to backend
+      const formattedHours = hours.map((hour) => {
+        // If day_of_week is a string like "monday", find its numerical value
+        if (isNaN(Number(hour.day_of_week))) {
+          const dayObj = DAYS_OF_WEEK.find((d) => d.name === hour.day_of_week);
+          return {
+            ...hour,
+            day_of_week: dayObj ? dayObj.value : hour.day_of_week,
+          };
+        }
+        return hour;
+      });
+
       await dispatch(
         updateBusinessHours({
           companyId: user.company_id,
-          businessHours: hours,
+          businessHours: formattedHours,
         })
       );
     }
@@ -241,7 +281,7 @@ export default function AvailabilitiesPage() {
     const targets: Record<string, boolean> = {};
     DAYS_OF_WEEK.forEach((day, index) => {
       if (index !== dayIndex) {
-        targets[day] = false;
+        targets[day.value] = false;
       }
     });
     setTargetDays(targets);
@@ -382,14 +422,18 @@ export default function AvailabilitiesPage() {
                         }
                         aria-label={`Toggle ${
                           DAY_LABELS[
-                            dayHours.day_of_week as keyof typeof DAY_LABELS
+                            DAY_VALUES_TO_NAMES[
+                              dayHours.day_of_week as keyof typeof DAY_VALUES_TO_NAMES
+                            ] as keyof typeof DAY_LABELS
                           ]
                         }`}
                       />
                       <Label className="text-base font-medium">
                         {
                           DAY_LABELS[
-                            dayHours.day_of_week as keyof typeof DAY_LABELS
+                            DAY_VALUES_TO_NAMES[
+                              dayHours.day_of_week as keyof typeof DAY_VALUES_TO_NAMES
+                            ] as keyof typeof DAY_LABELS
                           ]
                         }
                       </Label>
@@ -454,9 +498,9 @@ export default function AvailabilitiesPage() {
                             <Checkbox
                               id={`break-${dayHours.day_of_week}`}
                               checked={hasBreak[dayHours.day_of_week]}
-                              onCheckedChange={() =>
-                                handleToggleBreak(dayHours.day_of_week)
-                              }
+                              onCheckedChange={() => {
+                                handleToggleBreak(dayHours.day_of_week);
+                              }}
                             />
                             <Label
                               htmlFor={`break-${dayHours.day_of_week}`}
@@ -577,8 +621,10 @@ export default function AvailabilitiesPage() {
                 <div className="text-sm">
                   {
                     DAY_LABELS[
-                      hours[sourceDayIndex]
-                        .day_of_week as keyof typeof DAY_LABELS
+                      DAY_VALUES_TO_NAMES[
+                        hours[sourceDayIndex]
+                          .day_of_week as keyof typeof DAY_VALUES_TO_NAMES
+                      ] as keyof typeof DAY_LABELS
                     ]
                   }{" "}
                   (
@@ -605,19 +651,19 @@ export default function AvailabilitiesPage() {
               {DAYS_OF_WEEK.map((day, index) => {
                 if (index === sourceDayIndex) return null;
                 return (
-                  <div key={day} className="flex items-center space-x-2">
+                  <div key={day.value} className="flex items-center space-x-2">
                     <Checkbox
-                      id={`copy-to-${day}`}
-                      checked={targetDays[day] || false}
+                      id={`copy-to-${day.value}`}
+                      checked={targetDays[day.value] || false}
                       onCheckedChange={(checked) => {
                         setTargetDays({
                           ...targetDays,
-                          [day]: !!checked,
+                          [day.value]: !!checked,
                         });
                       }}
                     />
-                    <Label htmlFor={`copy-to-${day}`}>
-                      {DAY_LABELS[day as keyof typeof DAY_LABELS]}
+                    <Label htmlFor={`copy-to-${day.value}`}>
+                      {DAY_LABELS[day.name as keyof typeof DAY_LABELS]}
                     </Label>
                   </div>
                 );

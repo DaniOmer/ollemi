@@ -53,7 +53,7 @@ export const updateBookingThunk = createAsyncThunk(
   "bookings/updateBooking",
   async (booking: Booking, { rejectWithValue }) => {
     try {
-      const response = await updateBooking(booking.id, booking);
+      const response = await updateBooking(booking.id as string, booking);
       return response.data;
     } catch (error: any) {
       console.error("Failed to update booking:", error);

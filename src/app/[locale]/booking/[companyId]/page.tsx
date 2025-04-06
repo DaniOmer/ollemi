@@ -1,55 +1,38 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useParams } from "next/navigation";
 import { useTranslations } from "@/hooks/useTranslations";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { EnhancedBookingFlow } from "@/components/booking/EnhancedBookingFlow";
-import { Service, Company } from "@/types";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import { ArrowLeft, MapPin, Phone, Globe, Clock } from "lucide-react";
 
+import { useAppSelector, useAppDispatch } from "@/lib/redux/store";
+import {
+  selectCurrentCompany,
+  fetchCompanyById,
+  selectCompaniesState,
+  selectCompaniesError,
+} from "@/lib/redux/slices/companiesSlice";
+
 export default function BookingPage() {
   const { t } = useTranslations();
+  const dispatch = useAppDispatch();
   const { companyId } = useParams();
 
-  const [company, setCompany] = useState<Company | null>(null);
-  const [services, setServices] = useState<Service[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const company = useAppSelector(selectCurrentCompany);
+  const companiesState = useAppSelector(selectCompaniesState);
+  const companiesError = useAppSelector(selectCompaniesError);
 
   useEffect(() => {
-    const fetchCompanyData = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(`/api/companies/${companyId}`);
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch company data");
-        }
-
-        const data = await response.json();
-        setCompany(data);
-
-        // Extract services from the company data
-        if (data.services && Array.isArray(data.services)) {
-          setServices(data.services);
-        }
-      } catch (error) {
-        console.error("Error fetching company data:", error);
-        setError("Impossible de récupérer les informations de l'entreprise.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     if (companyId) {
-      fetchCompanyData();
+      dispatch(fetchCompanyById(companyId as string));
     }
   }, [companyId]);
 
-  if (loading) {
+  if (companiesState === "loading") {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <LoadingSpinner size="lg" />
@@ -57,12 +40,12 @@ export default function BookingPage() {
     );
   }
 
-  if (error || !company) {
+  if (companiesError || !company) {
     return (
       <div className="container mx-auto py-8 px-4">
         <div className="text-center py-12">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">
-            {error || "Entreprise non trouvée"}
+            {companiesError || "Entreprise non trouvée"}
           </h1>
           <p className="text-gray-600 mb-6">
             Nous n'avons pas pu trouver les informations demandées.
@@ -220,7 +203,7 @@ export default function BookingPage() {
           <h1 className="text-2xl font-bold mb-6">Réserver un rendez-vous</h1>
           <EnhancedBookingFlow
             companyId={companyId as string}
-            services={services}
+            services={company.services}
           />
         </div>
       </div>

@@ -43,8 +43,9 @@ import {
   Check,
 } from "lucide-react";
 
-import { useAppSelector } from "@/lib/redux/store";
+import { useAppSelector, useAppDispatch } from "@/lib/redux/store";
 import { selectUserProfile } from "@/lib/redux/slices/userSlice";
+import { createBookingThunk } from "@/lib/redux/slices/bookingSlice";
 
 interface EnhancedBookingFlowProps {
   companyId: string;
@@ -72,7 +73,7 @@ export function EnhancedBookingFlow({
   // Auth hook for user authentication
   const router = useRouter();
   const user = useAppSelector(selectUserProfile);
-
+  const dispatch = useAppDispatch();
   // State for the booking flow
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
@@ -256,30 +257,17 @@ export function EnhancedBookingFlow({
 
     try {
       // Create booking via API
-      const response = await fetch("/api/bookings", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
+      await dispatch(
+        createBookingThunk({
+          service: selectedService,
           company_id: companyId,
-          service_id: selectedService.id,
-          client_name: `${formData.firstName} ${formData.lastName}`,
-          client_email: formData.email,
-          client_phone: formData.phone,
+          client_id: user?.id,
           start_time: selectedTimeSlot.startTime.toISOString(),
           end_time: selectedTimeSlot.endTime.toISOString(),
           notes: formData.notes,
-        }),
-      });
+        })
+      );
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Une erreur est survenue");
-      }
-
-      const data = await response.json();
-      setBookingId(data.id);
       setConfirmDialogOpen(false);
       setSuccessDialogOpen(true);
     } catch (error) {
@@ -966,12 +954,12 @@ export function EnhancedBookingFlow({
                       {format(selectedTimeSlot.startTime, "HH:mm")}
                     </span>
                   </div>
-                  <div className="flex justify-between text-sm">
+                  {/* <div className="flex justify-between text-sm">
                     <span className="text-gray-600">
                       Numéro de réservation:
                     </span>
                     <span className="font-medium">{bookingId || "N/A"}</span>
-                  </div>
+                  </div> */}
                 </div>
               </div>
 
