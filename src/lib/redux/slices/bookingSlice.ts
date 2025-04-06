@@ -6,7 +6,7 @@ import { RootState } from "../store";
 import {
   getBookings,
   createBooking,
-  updateBooking,
+  updateBookingStatus,
   deleteBooking,
   getBookingById,
 } from "@/lib/services/booking";
@@ -51,9 +51,16 @@ export const createBookingThunk = createAsyncThunk(
 
 export const updateBookingThunk = createAsyncThunk(
   "bookings/updateBooking",
-  async (booking: Booking, { rejectWithValue }) => {
+  async (
+    { booking, status }: { booking: Booking; status: string },
+    { rejectWithValue }
+  ) => {
     try {
-      const response = await updateBooking(booking.id as string, booking);
+      const response = await updateBookingStatus(
+        booking.id as string,
+        booking,
+        status
+      );
       return response.data;
     } catch (error: any) {
       console.error("Failed to update booking:", error);
@@ -64,9 +71,12 @@ export const updateBookingThunk = createAsyncThunk(
 
 export const deleteBookingThunk = createAsyncThunk(
   "bookings/deleteBooking",
-  async (bookingId: string, { rejectWithValue }) => {
+  async (
+    { bookingId, companyId }: { bookingId: string; companyId: string },
+    { rejectWithValue }
+  ) => {
     try {
-      const response = await deleteBooking(bookingId);
+      const response = await deleteBooking(bookingId, companyId);
       return response.data;
     } catch (error: any) {
       console.error("Failed to delete booking:", error);
@@ -77,9 +87,12 @@ export const deleteBookingThunk = createAsyncThunk(
 
 export const getBookingByIdThunk = createAsyncThunk(
   "bookings/getBookingById",
-  async (bookingId: string, { rejectWithValue }) => {
+  async (
+    { bookingId, companyId }: { bookingId: string; companyId: string },
+    { rejectWithValue }
+  ) => {
     try {
-      const response = await getBookingById(bookingId);
+      const response = await getBookingById(bookingId, companyId);
       return response.data;
     } catch (error: any) {
       console.error("Failed to get booking by ID:", error);
@@ -127,6 +140,7 @@ const bookingSlice = createSlice({
           const index = state.bookings.findIndex(
             (booking) => booking.id === action.payload?.id
           );
+          console.log("index", action.payload);
           if (index !== -1) {
             state.bookings[index] = action.payload;
           }
@@ -141,7 +155,7 @@ const bookingSlice = createSlice({
       })
       .addCase(deleteBookingThunk.fulfilled, (state, action) => {
         state.status = "succeeded";
-        const bookingId = action.meta.arg;
+        const bookingId = action.meta.arg.bookingId;
         state.bookings = state.bookings.filter(
           (booking) => booking.id !== bookingId
         );

@@ -299,6 +299,7 @@
     "next": "Next",
     "previous": "Previous",
     "search": "Search",
+    "reset": "Reset",
     "filter": "Filter",
     "sort": "Sort",
     "loading": "Loading...",

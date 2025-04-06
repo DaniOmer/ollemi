@@ -1,4 +1,4 @@
-import { Booking } from "@/types";
+import { Booking, BookingStatus } from "@/types";
 import { ApiResponse, fetchPrivateApi } from "./api";
 
 export async function getBookings(
@@ -16,26 +16,37 @@ export async function createBooking(
   });
 }
 
-export async function updateBooking(
+export async function updateBookingStatus(
   bookingId: string,
-  booking: Booking
+  booking: Booking,
+  status: string
 ): Promise<ApiResponse<Booking>> {
-  return fetchPrivateApi<Booking>(`/bookings/${bookingId}`, {
-    method: "PUT",
-    data: booking,
-  });
+  return fetchPrivateApi<Booking>(
+    `/companies/${booking.company_id}/bookings/${bookingId}`,
+    {
+      method: "PATCH",
+      data: { ...booking, status: status },
+    }
+  );
 }
 
 export async function deleteBooking(
-  bookingId: string
+  bookingId: string,
+  companyId: string
 ): Promise<ApiResponse<void>> {
-  return fetchPrivateApi<void>(`/bookings/${bookingId}`, {
-    method: "DELETE",
-  });
+  return fetchPrivateApi<void>(
+    `/companies/${companyId}/bookings/${bookingId}`,
+    {
+      method: "DELETE",
+    }
+  );
 }
 
 export async function getBookingById(
-  bookingId: string
+  bookingId: string,
+  companyId: string
 ): Promise<ApiResponse<Booking>> {
-  return fetchPrivateApi<Booking>(`/bookings/${bookingId}`);
+  return fetchPrivateApi<Booking>(
+    `/companies/${companyId}/bookings/${bookingId}`
+  );
 }

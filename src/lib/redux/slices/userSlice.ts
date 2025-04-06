@@ -27,7 +27,7 @@ interface UserState {
   favorites: FavoriteProfessional[];
   points: UserPoints;
   appointmentHistory: string[]; // IDs of past appointments
-  loading: boolean;
+  status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
 }
 
@@ -45,7 +45,7 @@ const initialState: UserState = {
     history: [],
   },
   appointmentHistory: [],
-  loading: false,
+  status: "idle",
   error: null,
 };
 
@@ -215,79 +215,79 @@ const userSlice = createSlice({
     // Fetch user profile
     builder
       .addCase(fetchUserProfile.pending, (state) => {
-        state.loading = true;
+        state.status = "loading";
         state.error = null;
       })
       .addCase(fetchUserProfile.fulfilled, (state, action) => {
-        state.loading = false;
+        state.status = "succeeded";
         if (action.payload) {
           state.profile = action.payload;
         }
       })
       .addCase(fetchUserProfile.rejected, (state, action) => {
-        state.loading = false;
+        state.status = "failed";
         state.error = action.payload as string;
       });
 
     // Update user profile
     builder
       .addCase(updateUserProfile.pending, (state) => {
-        state.loading = true;
+        state.status = "loading";
         state.error = null;
       })
       .addCase(updateUserProfile.fulfilled, (state, action) => {
-        state.loading = false;
+        state.status = "succeeded";
         if (action.payload) {
           state.profile = action.payload;
         }
       })
       .addCase(updateUserProfile.rejected, (state, action) => {
-        state.loading = false;
+        state.status = "failed";
         state.error = action.payload as string;
       });
 
     // Fetch user preferences
     builder
       .addCase(fetchUserPreferences.pending, (state) => {
-        state.loading = true;
+        state.status = "loading";
         state.error = null;
       })
       .addCase(fetchUserPreferences.fulfilled, (state, action) => {
-        state.loading = false;
+        state.status = "succeeded";
         if (action.payload) {
           state.preferences = action.payload;
         }
       })
       .addCase(fetchUserPreferences.rejected, (state, action) => {
-        state.loading = false;
+        state.status = "failed";
         state.error = action.payload as string;
       });
 
     // Update user preferences
     builder
       .addCase(updateUserPreferences.pending, (state) => {
-        state.loading = true;
+        state.status = "loading";
         state.error = null;
       })
       .addCase(updateUserPreferences.fulfilled, (state, action) => {
-        state.loading = false;
+        state.status = "succeeded";
         if (action.payload) {
           state.preferences = action.payload;
         }
       })
       .addCase(updateUserPreferences.rejected, (state, action) => {
-        state.loading = false;
+        state.status = "failed";
         state.error = action.payload as string;
       });
 
     // Fetch user favorites
     builder
       .addCase(fetchUserFavorites.pending, (state) => {
-        state.loading = true;
+        state.status = "loading";
         state.error = null;
       })
       .addCase(fetchUserFavorites.fulfilled, (state, action) => {
-        state.loading = false;
+        state.status = "succeeded";
         if (action.payload) {
           state.favorites = action.payload;
         } else {
@@ -295,35 +295,35 @@ const userSlice = createSlice({
         }
       })
       .addCase(fetchUserFavorites.rejected, (state, action) => {
-        state.loading = false;
+        state.status = "failed";
         state.error = action.payload as string;
       });
 
     // Add user favorite
     builder
       .addCase(addUserFavorite.pending, (state) => {
-        state.loading = true;
+        state.status = "loading";
         state.error = null;
       })
       .addCase(addUserFavorite.fulfilled, (state, action) => {
-        state.loading = false;
+        state.status = "succeeded";
         if (action.payload) {
           state.favorites.push(action.payload);
         }
       })
       .addCase(addUserFavorite.rejected, (state, action) => {
-        state.loading = false;
+        state.status = "failed";
         state.error = action.payload as string;
       });
 
     // Remove user favorite
     builder
       .addCase(removeUserFavorite.pending, (state) => {
-        state.loading = true;
+        state.status = "loading";
         state.error = null;
       })
       .addCase(removeUserFavorite.fulfilled, (state, action) => {
-        state.loading = false;
+        state.status = "succeeded";
         if (action.payload) {
           state.favorites = state.favorites.filter(
             (favorite) => favorite.id !== action.payload
@@ -331,35 +331,35 @@ const userSlice = createSlice({
         }
       })
       .addCase(removeUserFavorite.rejected, (state, action) => {
-        state.loading = false;
+        state.status = "failed";
         state.error = action.payload as string;
       });
 
     // Fetch user points
     builder
       .addCase(fetchUserPoints.pending, (state) => {
-        state.loading = true;
+        state.status = "loading";
         state.error = null;
       })
       .addCase(fetchUserPoints.fulfilled, (state, action) => {
-        state.loading = false;
+        state.status = "succeeded";
         if (action.payload) {
           state.points = action.payload;
         }
       })
       .addCase(fetchUserPoints.rejected, (state, action) => {
-        state.loading = false;
+        state.status = "failed";
         state.error = action.payload as string;
       });
 
     // Fetch user appointment history
     builder
       .addCase(fetchUserAppointmentHistory.pending, (state) => {
-        state.loading = true;
+        state.status = "loading";
         state.error = null;
       })
       .addCase(fetchUserAppointmentHistory.fulfilled, (state, action) => {
-        state.loading = false;
+        state.status = "succeeded";
         if (action.payload) {
           state.appointmentHistory = action.payload;
         } else {
@@ -367,7 +367,7 @@ const userSlice = createSlice({
         }
       })
       .addCase(fetchUserAppointmentHistory.rejected, (state, action) => {
-        state.loading = false;
+        state.status = "failed";
         state.error = action.payload as string;
       });
   },
@@ -408,7 +408,7 @@ export const selectUserAppointmentHistory = createSelector(
 
 export const selectUserLoading = createSelector(
   [selectUserState],
-  (state) => state.loading
+  (state) => state.status === "loading"
 );
 
 export const selectUserError = createSelector(

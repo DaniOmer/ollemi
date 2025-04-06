@@ -42,7 +42,7 @@ export default function ProfessionalsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedLocation, setSelectedLocation] = useState("");
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 500]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 500000]);
   const [minRating, setMinRating] = useState(0);
   const [filteredCompanies, setFilteredCompanies] = useState<Company[]>([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -159,7 +159,7 @@ export default function ProfessionalsPage() {
     setSearchTerm("");
     setSelectedCategories([]);
     setSelectedLocation("");
-    setPriceRange([0, 500]);
+    setPriceRange([0, 500000]);
     setMinRating(0);
     setSortOption("recommended");
   };
@@ -194,7 +194,7 @@ export default function ProfessionalsPage() {
           <h3 className="text-xl font-semibold mb-2">{professional.name}</h3>
           <div className="flex items-center text-sm text-muted-foreground mb-3">
             <MapPin className="w-4 h-4 mr-1" />
-            {professional.city || t("common.noLocation")}
+            {professional.addresses?.city || t("common.noLocation")}
           </div>
           <div className="flex flex-wrap gap-2 mb-4">
             {professional.services &&
@@ -215,7 +215,7 @@ export default function ProfessionalsPage() {
           {professional.services && professional.services.length > 0 && (
             <div className="text-sm mb-4">
               <span className="font-medium">
-                {`${professional.services[0].duration} min - ${professional.services[0].price}€`}
+                {`${professional.services[0].duration} min - ${professional.services[0].price} FCFA`}
               </span>
             </div>
           )}
@@ -265,7 +265,7 @@ export default function ProfessionalsPage() {
           <div className="md:container mx-auto md:max-w-6xl relative z-10">
             <div className="text-center mb-8">
               <h1 className="text-3xl md:text-5xl font-bold leading-tight gradient-text mb-4">
-                {t("client.search.title")}
+                {t("search.title")}
               </h1>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
                 {t("client.home.subtitle")}
@@ -304,7 +304,7 @@ export default function ProfessionalsPage() {
                   onClick={() => setIsFilterOpen(!isFilterOpen)}
                 >
                   <Filter className="h-4 w-4" />
-                  {t("client.search.filters.title")}
+                  {t("search.filters.title")}
                 </button>
               </div>
             </div>
@@ -323,7 +323,7 @@ export default function ProfessionalsPage() {
               >
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-xl font-semibold">
-                    {t("client.search.filters.title")}
+                    {t("search.filters.title")}
                   </h2>
                   <button
                     className="md:hidden text-muted-foreground"
@@ -376,17 +376,17 @@ export default function ProfessionalsPage() {
                 {/* Price Range Filter */}
                 <div className="mb-6">
                   <h3 className="text-lg font-medium mb-3">
-                    {t("client.search.filters.price")}
+                    {t("search.filters.price")}
                   </h3>
                   <div className="space-y-4">
                     <div className="flex justify-between text-sm">
-                      <span>{priceRange[0]}€</span>
-                      <span>{priceRange[1]}€</span>
+                      <span>{priceRange[0]} FCFA</span>
+                      <span>{priceRange[1]} FCFA</span>
                     </div>
                     <input
                       type="range"
                       min="0"
-                      max="500"
+                      max="500000"
                       step="10"
                       value={priceRange[1]}
                       onChange={(e) =>
@@ -400,7 +400,7 @@ export default function ProfessionalsPage() {
                 {/* Rating Filter */}
                 <div className="mb-6">
                   <h3 className="text-lg font-medium mb-3">
-                    {t("client.search.filters.rating")}
+                    {t("search.filters.rating")}
                   </h3>
                   <RatingStars
                     rating={minRating}
@@ -427,7 +427,7 @@ export default function ProfessionalsPage() {
                   </div>
                   <div className="flex items-center space-x-2">
                     <span className="text-sm text-muted-foreground">
-                      {t("client.search.sort.title")}:
+                      {t("search.sort.title")}:
                     </span>
                     <div className="relative">
                       <select
@@ -436,16 +436,16 @@ export default function ProfessionalsPage() {
                         onChange={(e) => setSortOption(e.target.value)}
                       >
                         <option value="recommended">
-                          {t("client.search.sort.recommended")}
+                          {t("search.sort.recommended")}
                         </option>
                         <option value="priceAsc">
-                          {t("client.search.sort.priceAsc")}
+                          {t("search.sort.priceAsc")}
                         </option>
                         <option value="priceDesc">
-                          {t("client.search.sort.priceDesc")}
+                          {t("search.sort.priceDesc")}
                         </option>
                         <option value="rating">
-                          {t("client.search.sort.rating")}
+                          {t("search.sort.rating")}
                         </option>
                       </select>
                       <ChevronDown className="absolute right-3 top-2.5 h-4 w-4 pointer-events-none text-muted-foreground" />
@@ -460,7 +460,7 @@ export default function ProfessionalsPage() {
                     onClick={() => setIsFilterOpen(!isFilterOpen)}
                   >
                     <Filter className="h-4 w-4" />
-                    {t("client.search.filters.title")}
+                    {t("search.filters.title")}
                   </button>
                 </div>
 
@@ -498,16 +498,16 @@ export default function ProfessionalsPage() {
                   <div className="text-center py-12 bg-card rounded-xl shadow-soft">
                     <div className="text-4xl mb-4">🔍</div>
                     <h3 className="text-xl font-semibold mb-2">
-                      {t("client.search.noResults")}
+                      {t("search.noResults")}
                     </h3>
                     <p className="text-muted-foreground max-w-md mx-auto">
-                      {t("client.category.tryDifferentSearch")}
+                      {t("category.tryDifferentSearch")}
                     </p>
                     <button
                       className="mt-6 px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
                       onClick={resetFilters}
                     >
-                      {t("client.category.clearSearch")}
+                      {t("category.clearSearch")}
                     </button>
                   </div>
                 )}

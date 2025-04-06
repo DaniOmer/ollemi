@@ -304,14 +304,14 @@
     "next": "Suivant",
     "previous": "Précédent",
     "search": "Rechercher",
+    "reset": "Réinitialiser",
     "filter": "Filtrer",
     "sort": "Trier",
     "loading": "Chargement...",
     "noResults": "Aucun résultat trouvé",
     "noData": "Aucune donnée disponible",
     "noInternet": "Aucune connexion internet",
-    "noLocation": "Aucune localisation trouvée",
-    "reset": "Réinitialiser"
+    "noLocation": "Aucune localisation trouvée"
   },
   "notFound": {
     "title": "404",

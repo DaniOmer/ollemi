@@ -27,11 +27,14 @@ import {
   selectCompaniesLoading,
   selectCompaniesError,
 } from "@/lib/redux/slices/companiesSlice";
+import { selectIsAuthenticated } from "@/lib/redux/slices/authSlice";
+
 import {
-  selectIsAuthenticated,
-  selectUser,
-} from "@/lib/redux/slices/authSlice";
-import { fetchUserProfile } from "@/lib/redux/slices/userSlice";
+  fetchUserProfile,
+  selectUserProfile,
+  selectUserError,
+  selectUserLoading,
+} from "@/lib/redux/slices/userSlice";
 import {
   fetchBookingsThunk,
   selectUpcomingBookings,
@@ -47,7 +50,7 @@ export default function ProfessionalDashboard() {
 
   // Redux state
   const isAuthenticated = useSelector(selectIsAuthenticated);
-  const user = useSelector(selectUser);
+  const user = useSelector(selectUserProfile);
   const currentCompany = useSelector(selectCurrentCompany);
   const services = useSelector(selectServices);
   const upcomingBookings = useSelector(selectUpcomingBookings);
@@ -55,12 +58,14 @@ export default function ProfessionalDashboard() {
   const companiesError = useSelector(selectCompaniesError);
   const bookingStatus = useSelector(selectBookingStatus);
   const bookingsError = useSelector(selectBookingError);
+  const userLoading = useSelector(selectUserLoading);
+  const userError = useSelector(selectUserError);
 
   const bookingsLoading = bookingStatus === "loading";
 
   // Loading and error states
-  const loading = companiesLoading || bookingsLoading;
-  const error = companiesError || bookingsError;
+  const loading = userLoading || companiesLoading || bookingsLoading;
+  const error = userError || companiesError || bookingsError;
 
   // Fetch data on component mount
   useEffect(() => {
@@ -80,7 +85,7 @@ export default function ProfessionalDashboard() {
 
   const totalServices = services.length;
   const totalCustomers = new Set(
-    upcomingBookings.map((booking: Booking) => booking.client_email)
+    upcomingBookings.map((booking: Booking) => booking.client_id)
   ).size;
 
   const stats = [

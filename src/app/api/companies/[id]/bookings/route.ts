@@ -32,10 +32,18 @@ export async function GET(
       .select(
         `
         *,
-        services (
+        service:services (
+          id,
           name,
           duration,
           price
+        ),
+        customer:users (
+          id,
+          first_name,
+          last_name,
+          email,
+          phone
         )
       `
       )

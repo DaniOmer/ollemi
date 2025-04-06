@@ -20,13 +20,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Calendar } from "@/components/ui/calendar";
 import { DatePicker } from "@/components/ui/date-picker";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import {
   Dialog,
   DialogContent,
@@ -77,7 +71,7 @@ import {
   selectBookingStatus,
   selectBookingError,
 } from "@/lib/redux/slices/bookingSlice";
-import { Booking } from "@/types";
+import { Booking, BookingStatus } from "@/types";
 import {
   updateBookingThunk,
   fetchBookingsThunk,
@@ -93,9 +87,9 @@ export default function ProBookingsPage() {
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
-  const [confirmAction, setConfirmAction] = useState<
-    "confirm" | "cancel" | "complete" | null
-  >(null);
+  const [confirmAction, setConfirmAction] = useState<BookingStatus | null>(
+    null
+  );
   const [actionLoading, setActionLoading] = useState(false);
 
   // Filter state
@@ -130,7 +124,7 @@ export default function ProBookingsPage() {
       if (
         filters.clientName &&
         !booking.client_name
-          .toLowerCase()
+          ?.toLowerCase()
           .includes(filters.clientName.toLowerCase())
       ) {
         return false;
@@ -182,28 +176,32 @@ export default function ProBookingsPage() {
       switch (activeTab) {
         case "upcoming":
           return (
-            (booking.status === "pending" || booking.status === "confirmed") &&
+            (booking.status === BookingStatus.PENDING ||
+              booking.status === BookingStatus.CONFIRMED) &&
             isAfter(startTime, now)
           );
         case "today":
           return (
-            (booking.status === "pending" || booking.status === "confirmed") &&
+            (booking.status === BookingStatus.PENDING ||
+              booking.status === BookingStatus.CONFIRMED) &&
             isToday(startTime)
           );
         case "tomorrow":
           return (
-            (booking.status === "pending" || booking.status === "confirmed") &&
+            (booking.status === BookingStatus.PENDING ||
+              booking.status === BookingStatus.CONFIRMED) &&
             isTomorrow(startTime)
           );
         case "thisWeek":
           return (
-            (booking.status === "pending" || booking.status === "confirmed") &&
+            (booking.status === BookingStatus.PENDING ||
+              booking.status === BookingStatus.CONFIRMED) &&
             isThisWeek(startTime, { weekStartsOn: 1 })
           );
         case "completed":
-          return booking.status === "completed";
+          return booking.status === BookingStatus.COMPLETED;
         case "cancelled":
-          return booking.status === "cancelled";
+          return booking.status === BookingStatus.CANCELLED;
         default:
           return true;
       }
@@ -235,20 +233,25 @@ export default function ProBookingsPage() {
   };
 
   // Handle appointment status update
-  const updateBookingStatus = async (booking: Booking, status: string) => {
+  const updateBookingStatus = async (
+    booking: Booking,
+    status: BookingStatus
+  ) => {
     try {
-      dispatch(updateBookingThunk(booking));
+      dispatch(updateBookingThunk({ booking, status }));
 
-      toast({
-        title: "Succès",
-        description: `Le rendez-vous a été ${
-          status === "confirmed"
-            ? "confirmé"
-            : status === "cancelled"
-            ? "annulé"
-            : "marqué comme terminé"
-        }.`,
-      });
+      if (bookingStatus === "succeeded") {
+        toast({
+          title: "Succès",
+          description: `Le rendez-vous a été ${
+            status === BookingStatus.CONFIRMED
+              ? "confirmé"
+              : status === BookingStatus.COMPLETED
+              ? "marqué comme terminé"
+              : "annulé"
+          }.`,
+        });
+      }
 
       setConfirmDialogOpen(false);
       setDetailsDialogOpen(false);
@@ -272,10 +275,7 @@ export default function ProBookingsPage() {
   };
 
   // Open confirm dialog
-  const openConfirmDialog = (
-    booking: Booking,
-    action: "confirm" | "cancel" | "complete"
-  ) => {
+  const openConfirmDialog = (booking: Booking, action: BookingStatus) => {
     setSelectedBooking(booking);
     setConfirmAction(action);
     setConfirmDialogOpen(true);
@@ -295,7 +295,7 @@ export default function ProBookingsPage() {
   };
 
   // Get status badge
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: string | undefined) => {
     switch (status) {
       case "pending":
         return (
@@ -444,10 +444,10 @@ export default function ProBookingsPage() {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <div>{booking.service.name}</div>
+                          <div>{booking.service?.name}</div>
                           <div className="text-sm text-muted-foreground">
-                            {booking.service.duration} min •{" "}
-                            {booking.service.price}€
+                            {booking.service?.duration} min •{" "}
+                            {booking.service?.price}€
                           </div>
                         </TableCell>
                         <TableCell>
@@ -475,7 +475,10 @@ export default function ProBookingsPage() {
                               {booking.status === "pending" && (
                                 <DropdownMenuItem
                                   onClick={() =>
-                                    openConfirmDialog(booking, "confirm")
+                                    openConfirmDialog(
+                                      booking,
+                                      BookingStatus.CONFIRMED
+                                    )
                                   }
                                 >
                                   Confirmer
@@ -486,7 +489,10 @@ export default function ProBookingsPage() {
                                 booking.status === "confirmed") && (
                                 <DropdownMenuItem
                                   onClick={() =>
-                                    openConfirmDialog(booking, "cancel")
+                                    openConfirmDialog(
+                                      booking,
+                                      BookingStatus.CANCELLED
+                                    )
                                   }
                                   className="text-red-600"
                                 >
@@ -497,7 +503,10 @@ export default function ProBookingsPage() {
                               {booking.status === "confirmed" && (
                                 <DropdownMenuItem
                                   onClick={() =>
-                                    openConfirmDialog(booking, "complete")
+                                    openConfirmDialog(
+                                      booking,
+                                      BookingStatus.COMPLETED
+                                    )
                                   }
                                 >
                                   Marquer comme terminé
@@ -604,7 +613,10 @@ export default function ProBookingsPage() {
                       <Button
                         size="sm"
                         onClick={() =>
-                          openConfirmDialog(selectedBooking, "confirm")
+                          openConfirmDialog(
+                            selectedBooking,
+                            BookingStatus.CONFIRMED
+                          )
                         }
                       >
                         Confirmer
@@ -617,7 +629,10 @@ export default function ProBookingsPage() {
                         size="sm"
                         variant="destructive"
                         onClick={() =>
-                          openConfirmDialog(selectedBooking, "cancel")
+                          openConfirmDialog(
+                            selectedBooking,
+                            BookingStatus.CANCELLED
+                          )
                         }
                       >
                         Annuler
@@ -629,7 +644,10 @@ export default function ProBookingsPage() {
                         size="sm"
                         variant="outline"
                         onClick={() =>
-                          openConfirmDialog(selectedBooking, "complete")
+                          openConfirmDialog(
+                            selectedBooking,
+                            BookingStatus.COMPLETED
+                          )
                         }
                       >
                         Terminé
@@ -690,10 +708,10 @@ export default function ProBookingsPage() {
                 <SelectContent>
                   <SelectItem value="all">Tous les services</SelectItem>
                   {/* Get unique services from bookings */}
-                  {Array.from(new Set(bookings.map((b) => b.service.id))).map(
+                  {Array.from(new Set(bookings.map((b) => b.service?.id))).map(
                     (serviceId) => {
                       const service = bookings.find(
-                        (b) => b.service.id === serviceId
+                        (b) => b.service?.id === serviceId
                       )?.service;
                       return (
                         <SelectItem key={serviceId} value={serviceId}>
@@ -750,16 +768,19 @@ export default function ProBookingsPage() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>
-              {confirmAction === "confirm" && "Confirmer le rendez-vous"}
-              {confirmAction === "cancel" && "Annuler le rendez-vous"}
-              {confirmAction === "complete" && "Marquer comme terminé"}
+              {confirmAction === BookingStatus.CONFIRMED &&
+                "Confirmer le rendez-vous"}
+              {confirmAction === BookingStatus.CANCELLED &&
+                "Annuler le rendez-vous"}
+              {confirmAction === BookingStatus.COMPLETED &&
+                "Marquer comme terminé"}
             </DialogTitle>
             <DialogDescription>
-              {confirmAction === "confirm" &&
+              {confirmAction === BookingStatus.CONFIRMED &&
                 "Êtes-vous sûr de vouloir confirmer ce rendez-vous ?"}
-              {confirmAction === "cancel" &&
+              {confirmAction === BookingStatus.CANCELLED &&
                 "Êtes-vous sûr de vouloir annuler ce rendez-vous ?"}
-              {confirmAction === "complete" &&
+              {confirmAction === BookingStatus.COMPLETED &&
                 "Êtes-vous sûr de vouloir marquer ce rendez-vous comme terminé ?"}
             </DialogDescription>
           </DialogHeader>
@@ -774,7 +795,7 @@ export default function ProBookingsPage() {
             </div>
           )}
 
-          <DialogFooter className="flex space-x-2 sm:space-x-0">
+          <DialogFooter className="flex space-x-2">
             <Button
               variant="outline"
               onClick={() => setConfirmDialogOpen(false)}
@@ -785,20 +806,24 @@ export default function ProBookingsPage() {
             <Button
               onClick={handleConfirmAction}
               disabled={actionLoading}
-              variant={confirmAction === "cancel" ? "destructive" : "default"}
+              variant={
+                confirmAction === BookingStatus.CANCELLED
+                  ? "destructive"
+                  : "default"
+              }
             >
               {actionLoading ? (
                 <LoadingSpinner size="sm" className="mr-2" />
-              ) : confirmAction === "confirm" ? (
+              ) : confirmAction === BookingStatus.CONFIRMED ? (
                 <CheckCircle className="w-4 h-4 mr-2" />
-              ) : confirmAction === "cancel" ? (
+              ) : confirmAction === BookingStatus.CANCELLED ? (
                 <XCircle className="w-4 h-4 mr-2" />
               ) : (
                 <CheckCircle className="w-4 h-4 mr-2" />
               )}
-              {confirmAction === "confirm" && "Confirmer"}
-              {confirmAction === "cancel" && "Annuler"}
-              {confirmAction === "complete" && "Terminer"}
+              {confirmAction === BookingStatus.CONFIRMED && "Confirmer"}
+              {confirmAction === BookingStatus.CANCELLED && "Annuler"}
+              {confirmAction === BookingStatus.COMPLETED && "Terminer"}
             </Button>
           </DialogFooter>
         </DialogContent>

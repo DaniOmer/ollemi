@@ -118,7 +118,7 @@ export interface Appointment {
   start_time: string;
   end_time: string;
   service_id: string;
-  status: "pending" | "confirmed" | "cancelled" | "completed";
+  status: BookingStatus;
   notes?: string;
   created_at: string;
 }
@@ -191,9 +191,12 @@ export interface Booking {
   id?: string;
   company_id: string;
   client_id: string;
+  client_name?: string;
+  client_email?: string;
+  client_phone?: string;
   start_time: string;
   end_time: string;
-  status?: "pending" | "confirmed" | "cancelled" | "completed";
+  status?: BookingStatus;
   notes?: string;
   service: {
     id: string;
@@ -211,4 +214,11 @@ export interface Customer {
   bookings: Booking[];
   lastBooking: Date | null;
   totalBookings: number;
+}
+
+export enum BookingStatus {
+  PENDING = "pending",
+  CONFIRMED = "confirmed",
+  CANCELLED = "cancelled",
+  COMPLETED = "completed",
 }
