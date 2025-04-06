@@ -7,6 +7,7 @@ import { useAppDispatch, useAppSelector } from "@/lib/redux/store";
 import { logout } from "@/lib/redux/slices/authSlice";
 import { selectUserProfile, resetState } from "@/lib/redux/slices/userSlice";
 import { useRouter, usePathname } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
 import {
   Menu,
   X,
@@ -20,7 +21,8 @@ import { useState, useEffect } from "react";
 
 export default function Header() {
   const { t } = useTranslations();
-  const user = useAppSelector(selectUserProfile);
+  const userFromRedux = useAppSelector(selectUserProfile);
+  const { isAuthenticated, user, checkSessionStatus } = useAuth();
 
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -29,9 +31,20 @@ export default function Header() {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
+  // Vérifier l'état de l'authentification au chargement du composant
+  useEffect(() => {
+    const verifyAuth = async () => {
+      await checkSessionStatus();
+    };
+    verifyAuth();
+  }, [checkSessionStatus]);
+
+  // Utiliser user de useAuth au lieu de userFromRedux
+  const displayUser = isAuthenticated ? user : null;
+
   const isProfessionalSection = pathname?.includes("/pro");
 
-  const dashboardPath = user?.role === "pro" ? "/pro" : "/client";
+  const dashboardPath = displayUser?.role === "pro" ? "/pro" : "/client";
 
   // Handle scroll effect for header
   useEffect(() => {
@@ -148,15 +161,15 @@ export default function Header() {
             </Link>
 
             {/* Auth buttons or user menu */}
-            {user ? (
+            {displayUser ? (
               <div className="relative" id="user-menu">
                 <button
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
                   className="flex items-center gap-2 px-3 py-2 rounded-lg bg-secondary/30 hover:bg-secondary/50 transition-all"
                 >
                   <div className="w-8 h-8 bg-gradient-to-r from-primary/20 to-accent/20 rounded-full flex items-center justify-center shadow-soft">
-                    {user?.first_name?.charAt(0)}
-                    {user?.last_name?.charAt(0)}
+                    {displayUser?.first_name?.charAt(0)}
+                    {displayUser?.last_name?.charAt(0)}
                   </div>
                   <ChevronDown className="w-4 h-4 text-foreground/70" />
                 </button>
@@ -166,10 +179,10 @@ export default function Header() {
                   <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg py-2 z-50 border border-border/50 animate-fade-in">
                     <div className="px-4 py-2 border-b border-border/50">
                       <p className="text-sm font-medium">
-                        {user?.first_name} {user?.last_name}
+                        {displayUser?.first_name} {displayUser?.last_name}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {user?.email}
+                        {displayUser?.email}
                       </p>
                     </div>
                     <div className="py-1">
@@ -274,7 +287,7 @@ export default function Header() {
               </Link>
 
               {/* Auth links for mobile */}
-              {!user && (
+              {!displayUser && (
                 <div className="flex flex-col gap-2 pt-2">
                   <Link
                     href="/login"

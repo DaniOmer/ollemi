@@ -29,6 +29,7 @@ export function useAuth(): AuthStatus & {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(!!user);
   const [isSessionChecked, setIsSessionChecked] = useState(false);
   const refreshTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const sessionCheckTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Check token expiration and refresh if needed
   const checkAndRefreshToken = useCallback(async () => {
@@ -128,18 +129,27 @@ export function useAuth(): AuthStatus & {
     }
   }, [dispatch, router]);
 
-  // Check session status on initial load
+  // Check session status on initial load and periodically
   useEffect(() => {
+    // Initial check
     if (!isSessionChecked) {
       checkSessionStatus().then(() => {
         setIsSessionChecked(true);
       });
     }
 
-    // Cleanup function to clear the refresh timer
+    // Set up periodic session check (every 5 minutes)
+    sessionCheckTimerRef.current = setInterval(() => {
+      checkSessionStatus();
+    }, 5 * 60 * 1000); // 5 minutes
+
+    // Cleanup function to clear timers
     return () => {
       if (refreshTimerRef.current) {
         clearTimeout(refreshTimerRef.current);
+      }
+      if (sessionCheckTimerRef.current) {
+        clearInterval(sessionCheckTimerRef.current);
       }
     };
   }, [isSessionChecked, checkSessionStatus]);

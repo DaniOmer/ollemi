@@ -2,6 +2,7 @@
 
 import { ReactNode, useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { usePathname } from "next/navigation";
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -14,10 +15,12 @@ interface AuthProviderProps {
  * 1. Checks for an active session on initial load
  * 2. Sets up token refresh mechanism
  * 3. Provides auth status to the app
+ * 4. Verifies authentication on route changes
  */
 export default function AuthProvider({ children }: AuthProviderProps) {
   const { checkSessionStatus } = useAuth();
   const [isInitialized, setIsInitialized] = useState(false);
+  const pathname = usePathname();
 
   // Check authentication status on first load
   useEffect(() => {
@@ -57,6 +60,26 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       window.removeEventListener("online", handleVisibilityChange);
     };
   }, [checkSessionStatus]);
+
+  // Verify authentication on route changes
+  useEffect(() => {
+    const verifyAuth = async () => {
+      try {
+        await checkSessionStatus();
+      } catch (error) {
+        console.error("Failed to check session on route change:", error);
+      }
+    };
+
+    // Only run on public pages, not on auth pages
+    if (
+      isInitialized &&
+      !pathname?.includes("/login") &&
+      !pathname?.includes("/signup")
+    ) {
+      verifyAuth();
+    }
+  }, [pathname, checkSessionStatus, isInitialized]);
 
   // Render children once auth is initialized
   if (!isInitialized) {
