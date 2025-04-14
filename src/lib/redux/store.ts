@@ -24,6 +24,7 @@ import categoriesReducer from "./slices/categoriesSlice";
 import availabilityReducer from "./slices/availabilitySlice";
 import storageReducer from "./slices/storageSlice";
 import bookingsReducer from "./slices/bookingSlice";
+import subscriptionReducer from "./slices/subscriptionSlice";
 
 // Configure persist options
 const persistConfig = {
@@ -49,6 +50,7 @@ const rootReducer = combineReducers({
   availability: availabilityReducer,
   storage: storageReducer,
   bookings: bookingsReducer,
+  subscription: subscriptionReducer,
 });
 
 // Create persisted reducer

@@ -53,6 +53,8 @@ import {
   Loader2,
   Download,
   Eye,
+  AlertCircle,
+  XCircle,
 } from "lucide-react";
 import { PhotoUpload } from "@/components/forms/PhotoUpload";
 import {
@@ -74,8 +76,12 @@ import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import {
   createCheckoutSession,
   getSubscriptionInvoices,
+  cancelSubscription,
+  resumeSubscription,
 } from "@/lib/services/subscription";
 import { useUser } from "@/hooks/use-user";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { fetchSubscriptionPlans } from "@/lib/redux/slices/subscriptionSlice";
 
 // Types for subscription plans
 type SubscriptionPlan = {
@@ -114,13 +120,21 @@ export default function SettingsPage() {
   const [tempPhotos, setTempPhotos] = useState<Photo[]>([]);
 
   // Subscription states
-  const [isLoading, setIsLoading] = useState(true);
+  const {
+    plans,
+    loading: isLoading,
+    error,
+  } = useAppSelector((state) => state.subscription);
   const [isSubscribing, setIsSubscribing] = useState(false);
-  const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [currentSubscription, setCurrentSubscription] = useState<any>(null);
   const [billingInterval, setBillingInterval] =
     useState<BillingInterval>("month");
   const [invoices, setInvoices] = useState<any[]>([]);
+
+  // New states for cancellation confirmation
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
+  const [isResuming, setIsResuming] = useState(false);
 
   // Initialize form data from company
   useEffect(() => {
@@ -345,61 +359,8 @@ export default function SettingsPage() {
 
   // Fetch subscription plans and current subscription
   useEffect(() => {
-    const fetchSubscriptionData = async () => {
-      try {
-        // Fetch plans
-        const { data: plansData, error: plansError } = await supabase
-          .from("subscription_plans")
-          .select("*")
-          .eq("is_active", true)
-          .eq("interval", billingInterval);
-
-        if (plansError) throw plansError;
-
-        // Fetch current subscription if user exists
-        if (authUser?.id) {
-          const { data: subscriptionData, error: subscriptionError } =
-            await supabase
-              .from("subscriptions")
-              .select(
-                `
-              *,
-              subscription_plans:plan_id (*)
-            `
-              )
-              .eq("user_id", authUser.id)
-              .eq("status", "active")
-              .single();
-
-          if (!subscriptionError && subscriptionData) {
-            setCurrentSubscription(subscriptionData);
-
-            // Fetch invoices for this subscription
-            const invoicesData = await getSubscriptionInvoices(
-              subscriptionData.id
-            );
-            if (invoicesData) {
-              setInvoices(invoicesData);
-            }
-          }
-        }
-
-        if (plansData) {
-          setPlans(plansData);
-        }
-      } catch (error) {
-        console.error("Error fetching subscription data:", error);
-        toast({
-          title: t("error"),
-          description: t("subscription.fetchError"),
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchSubscriptionData();
-  }, [authUser, billingInterval]);
+    dispatch(fetchSubscriptionPlans(billingInterval));
+  }, [dispatch, billingInterval]);
 
   // Handle subscription checkout
   const handleSubscribe = async (planId: string) => {
@@ -461,6 +422,66 @@ export default function SettingsPage() {
   // Check if the user is already subscribed to this plan
   const isCurrentPlan = (planId: string) => {
     return currentSubscription?.plan_id === planId;
+  };
+
+  const handleCancelSubscription = async () => {
+    if (!currentSubscription?.id) return;
+
+    setIsCancelling(true);
+
+    try {
+      await cancelSubscription(currentSubscription.id, true);
+
+      toast({
+        title: t("subscription.cancelSuccess.title"),
+        description: t("subscription.cancelSuccess.description"),
+      });
+
+      // Update subscription status
+      setCurrentSubscription({
+        ...currentSubscription,
+        cancel_at_period_end: true,
+      });
+
+      setShowCancelConfirm(false);
+    } catch (error) {
+      console.error("Error cancelling subscription:", error);
+      toast({
+        title: t("error"),
+        description: t("subscription.cancelError"),
+      });
+    } finally {
+      setIsCancelling(false);
+    }
+  };
+
+  const handleResumeSubscription = async () => {
+    if (!currentSubscription?.id) return;
+
+    setIsResuming(true);
+
+    try {
+      await resumeSubscription(currentSubscription.id);
+
+      toast({
+        title: t("subscription.resumeSuccess.title"),
+        description: t("subscription.resumeSuccess.description"),
+      });
+
+      // Update subscription status
+      setCurrentSubscription({
+        ...currentSubscription,
+        cancel_at_period_end: false,
+      });
+    } catch (error) {
+      console.error("Error resuming subscription:", error);
+      toast({
+        title: t("error"),
+        description: t("subscription.resumeError"),
+      });
+    } finally {
+      setIsResuming(false);
+    }
   };
 
   return (
@@ -884,6 +905,139 @@ export default function SettingsPage() {
                         </Card>
                       ))}
                     </div>
+                  )}
+
+                  {/* Current Subscription Details */}
+                  {currentSubscription && (
+                    <Card className="mt-8">
+                      <CardHeader>
+                        <CardTitle>{t("subscription.details")}</CardTitle>
+                        <CardDescription>
+                          {t("subscription.currentDetails")}
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <p className="text-sm text-muted-foreground">
+                              {t("subscription.plan")}
+                            </p>
+                            <p className="font-medium">
+                              {currentSubscription.subscription_plans?.name}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-muted-foreground">
+                              {t("subscription.status")}
+                            </p>
+                            <p className="font-medium capitalize">
+                              {currentSubscription.status}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-muted-foreground">
+                              {t("subscription.price")}
+                            </p>
+                            <p className="font-medium">
+                              {new Intl.NumberFormat("fr-FR", {
+                                style: "currency",
+                                currency:
+                                  currentSubscription.subscription_plans
+                                    ?.currency || "EUR",
+                              }).format(
+                                currentSubscription.subscription_plans?.price ||
+                                  0
+                              )}
+                              /
+                              {currentSubscription.subscription_plans?.interval}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-muted-foreground">
+                              {t("subscription.currentPeriodEnd")}
+                            </p>
+                            <p className="font-medium">
+                              {new Date(
+                                currentSubscription.current_period_end
+                              ).toLocaleDateString()}
+                            </p>
+                          </div>
+                        </div>
+
+                        {currentSubscription.cancel_at_period_end && (
+                          <Alert className="mt-4">
+                            <AlertCircle className="h-4 w-4" />
+                            <AlertTitle>
+                              {t("subscription.cancelScheduled.title")}
+                            </AlertTitle>
+                            <AlertDescription>
+                              {t("subscription.cancelScheduled.description")}
+                            </AlertDescription>
+                          </Alert>
+                        )}
+                      </CardContent>
+                      <CardFooter className="flex justify-end gap-4">
+                        {!currentSubscription.cancel_at_period_end ? (
+                          <Button
+                            variant="destructive"
+                            onClick={() => setShowCancelConfirm(true)}
+                          >
+                            {t("subscription.cancel")}
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="default"
+                            onClick={handleResumeSubscription}
+                            disabled={isResuming}
+                          >
+                            {isResuming && (
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            )}
+                            {t("subscription.resumeSubscription")}
+                          </Button>
+                        )}
+                      </CardFooter>
+                    </Card>
+                  )}
+
+                  {/* Cancellation Confirmation */}
+                  {showCancelConfirm && (
+                    <Card className="border-destructive">
+                      <CardHeader>
+                        <CardTitle>
+                          {t("subscription.cancelConfirm.title")}
+                        </CardTitle>
+                        <CardDescription>
+                          {t("subscription.cancelConfirm.description")}
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <p>{t("subscription.cancelConfirm.message")}</p>
+                        <ul className="list-disc pl-5 mt-2 space-y-1">
+                          <li>{t("subscription.cancelConfirm.point1")}</li>
+                          <li>{t("subscription.cancelConfirm.point2")}</li>
+                          <li>{t("subscription.cancelConfirm.point3")}</li>
+                        </ul>
+                      </CardContent>
+                      <CardFooter className="flex justify-end gap-4">
+                        <Button
+                          variant="outline"
+                          onClick={() => setShowCancelConfirm(false)}
+                        >
+                          {t("cancel")}
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          onClick={handleCancelSubscription}
+                          disabled={isCancelling}
+                        >
+                          {isCancelling && (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          )}
+                          {t("subscription.confirmCancel")}
+                        </Button>
+                      </CardFooter>
+                    </Card>
                   )}
 
                   {/* Invoices section */}
