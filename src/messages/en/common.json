@@ -446,5 +446,34 @@
     "popularServices": "Popular Services",
     "more": "more",
     "bookNow": "Book Now"
+  },
+  "subscription": {
+    "title": "Choose Your Plan",
+    "subtitle": "Select the perfect plan for your business needs",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "perMonth": "per month",
+    "perYear": "per year",
+    "unlimited": "Unlimited",
+    "yes": "Yes",
+    "no": "No",
+    "features": {
+      "appointments": "appointments",
+      "services": "services",
+      "featured": "Featured listing"
+    },
+    "subscribe": "Subscribe",
+    "currentPlan": "Current Plan",
+    "yourSubscription": "Your Subscription",
+    "currentDetails": "Here are the details of your current subscription",
+    "plan": "Plan",
+    "status": "Status",
+    "currentPeriodEnd": "Current Period Ends",
+    "cancelAtPeriodEnd": "Your subscription will be cancelled at the end of the current period",
+    "resumeSubscription": "Resume Subscription",
+    "manageSubscription": "Manage Subscription",
+    "fetchError": "Error fetching subscription data",
+    "checkoutError": "Error processing subscription",
+    "noPlans": "No subscription plans available at the moment"
   }
 }

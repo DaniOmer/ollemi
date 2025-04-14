@@ -198,7 +198,7 @@ export default function ProfessionalsPage() {
           </div>
           <div className="flex flex-wrap gap-2 mb-4">
             {professional.services &&
-              professional.services.slice(0, 3).map((service) => (
+              professional.services.slice(0, 3).map((service: Service) => (
                 <span
                   key={service.id}
                   className="text-xs px-2 py-1 bg-secondary rounded-full"

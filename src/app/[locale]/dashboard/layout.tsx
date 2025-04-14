@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Calendar,
   Users,
@@ -19,7 +19,6 @@ import {
   CreditCard,
 } from "lucide-react";
 
-import { useRouter } from "next/navigation";
 import { useTranslations } from "@/hooks/useTranslations";
 import { useAppSelector, useAppDispatch } from "@/lib/redux/store";
 import { selectUserProfile, resetState } from "@/lib/redux/slices/userSlice";
@@ -58,11 +57,6 @@ export default function DashboardLayout({
         },
         { href: "/dashboard/pro/services", label: "Services", icon: Scissors },
         { href: "/dashboard/pro/customers", label: "Clients", icon: Users },
-        {
-          href: "/dashboard/pro/documents",
-          label: "Documents",
-          icon: FileText,
-        },
         {
           href: "/dashboard/pro/settings",
           label: "Paramètres",

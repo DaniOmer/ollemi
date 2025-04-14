@@ -129,3 +129,7 @@ Le système utilise les politiques de sécurité au niveau des lignes (RLS) de S
 3. Possibilité de choisir un professionnel spécifique dans l'entreprise
 4. Système d'avis après le rendez-vous
 5. Gestion des abonnements et cartes cadeaux
+
+## Meilleure gestion du user stocké dans le store
+
+1. Lorsque user arrive sur la page login ou register --> reset le store user et auth

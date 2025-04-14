@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useTranslations } from "@/hooks/useTranslations";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/store";
+import { useRouter } from "next/navigation";
 import {
   selectCurrentCompany,
   updateCompanyThunk,
@@ -16,22 +17,43 @@ import {
   updateAddressThunk,
 } from "@/lib/redux/slices/companiesSlice";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardFooter,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 
-import {
-  Company,
-  OpeningHours,
-  TeamMember,
-  Photo,
-  DayHours,
-  Address,
-} from "@/types";
+import { Company, OpeningHours, Photo, Address } from "@/types";
+
+// Define missing types
+type TeamMember = {
+  id: string;
+  name: string;
+  imageUrl?: string;
+};
+
+type DayHours = {
+  open: boolean;
+  start: string;
+  end: string;
+};
 import Image from "next/image";
-import { Plus, Trash2, Upload, CheckCircle, Loader2 } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  Upload,
+  CheckCircle,
+  Loader2,
+  Download,
+  Eye,
+} from "lucide-react";
 import { PhotoUpload } from "@/components/forms/PhotoUpload";
 import {
   AddressAutocomplete,
@@ -47,18 +69,58 @@ import {
 } from "@/components/ui/select";
 import { uploadFileWithSignedUrl } from "@/utils/uploadUtils";
 import { selectUserProfile } from "@/lib/redux/slices/userSlice";
+import { useToast } from "@/components/ui/use-toast";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import {
+  createCheckoutSession,
+  getSubscriptionInvoices,
+} from "@/lib/services/subscription";
+import { useUser } from "@/hooks/use-user";
+
+// Types for subscription plans
+type SubscriptionPlan = {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  currency: string;
+  interval: string;
+  interval_count: number;
+  features: {
+    appointments: number;
+    services: number;
+    featured: boolean;
+    [key: string]: any;
+  };
+};
+
+type BillingInterval = "month" | "year";
 
 export default function SettingsPage() {
   const { t } = useTranslations();
+  const router = useRouter();
   const dispatch = useAppDispatch();
   const company = useAppSelector(selectCurrentCompany);
   const user = useAppSelector(selectUserProfile);
+  const { toast } = useToast();
+  const { user: authUser } = useUser();
+  const supabase = createClientComponentClient();
+
   const [activeTab, setActiveTab] = useState("general");
   const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState<Partial<Company>>({});
   const [addressData, setAddressData] = useState<AddressData | null>(null);
   const [addressFormData, setAddressFormData] = useState<Partial<Address>>({});
   const [tempPhotos, setTempPhotos] = useState<Photo[]>([]);
+
+  // Subscription states
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubscribing, setIsSubscribing] = useState(false);
+  const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
+  const [currentSubscription, setCurrentSubscription] = useState<any>(null);
+  const [billingInterval, setBillingInterval] =
+    useState<BillingInterval>("month");
+  const [invoices, setInvoices] = useState<any[]>([]);
 
   // Initialize form data from company
   useEffect(() => {
@@ -141,7 +203,7 @@ export default function SettingsPage() {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { id, value } = e.target;
-    setFormData((prev) => ({ ...prev, [id]: value }));
+    setFormData((prev: any) => ({ ...prev, [id]: value }));
   };
 
   const handleAddressSelect = (data: AddressData) => {
@@ -172,11 +234,13 @@ export default function SettingsPage() {
   };
 
   const handleAddTempPhoto = (photo: Photo) => {
-    setTempPhotos((prev) => [...prev, photo]);
+    setTempPhotos((prev: Photo[]) => [...prev, photo]);
   };
 
   const handleRemoveTempPhoto = (photoId: string) => {
-    setTempPhotos((prev) => prev.filter((photo) => photo.id !== photoId));
+    setTempPhotos((prev: Photo[]) =>
+      prev.filter((photo) => photo.id !== photoId)
+    );
   };
 
   const handleSaveChanges = async () => {
@@ -225,10 +289,11 @@ export default function SettingsPage() {
 
       if (tempPhotos.length > 0) {
         for (const photo of tempPhotos) {
-          if (photo.file) {
+          // Check if photo has a file property (custom property added for uploads)
+          if ((photo as any).file) {
             // Upload the file using signed URLs
             const { url, error } = await uploadFileWithSignedUrl(
-              photo.file,
+              (photo as any).file,
               process.env.NEXT_PUBLIC_SUPABASE_BUCKET_NAME || "",
               `companies/${currentCompany.id}/photos`,
               dispatch
@@ -240,12 +305,17 @@ export default function SettingsPage() {
             }
 
             if (url) {
-              uploadedPhotos.push({
+              // Create a photo object that matches the Photo type
+              const newPhoto: Photo = {
                 id: uuidv4(),
-                company_id: currentCompany.id,
                 url,
                 featured: false,
-              });
+                alt: null,
+                created_at: new Date().toISOString(),
+                updated_at: null,
+                pro_id: currentCompany.id,
+              };
+              uploadedPhotos.push(newPhoto);
             }
           }
         }
@@ -273,6 +343,126 @@ export default function SettingsPage() {
     }
   };
 
+  // Fetch subscription plans and current subscription
+  useEffect(() => {
+    const fetchSubscriptionData = async () => {
+      try {
+        // Fetch plans
+        const { data: plansData, error: plansError } = await supabase
+          .from("subscription_plans")
+          .select("*")
+          .eq("is_active", true)
+          .eq("interval", billingInterval);
+
+        if (plansError) throw plansError;
+
+        // Fetch current subscription if user exists
+        if (authUser?.id) {
+          const { data: subscriptionData, error: subscriptionError } =
+            await supabase
+              .from("subscriptions")
+              .select(
+                `
+              *,
+              subscription_plans:plan_id (*)
+            `
+              )
+              .eq("user_id", authUser.id)
+              .eq("status", "active")
+              .single();
+
+          if (!subscriptionError && subscriptionData) {
+            setCurrentSubscription(subscriptionData);
+
+            // Fetch invoices for this subscription
+            const invoicesData = await getSubscriptionInvoices(
+              subscriptionData.id
+            );
+            if (invoicesData) {
+              setInvoices(invoicesData);
+            }
+          }
+        }
+
+        if (plansData) {
+          setPlans(plansData);
+        }
+      } catch (error) {
+        console.error("Error fetching subscription data:", error);
+        toast({
+          title: t("error"),
+          description: t("subscription.fetchError"),
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchSubscriptionData();
+  }, [authUser, billingInterval]);
+
+  // Handle subscription checkout
+  const handleSubscribe = async (planId: string) => {
+    if (!authUser?.id) {
+      toast({
+        title: t("error"),
+        description: t("auth.notLoggedIn"),
+      });
+      return;
+    }
+
+    setIsSubscribing(true);
+
+    try {
+      const session = await createCheckoutSession(
+        authUser.id,
+        planId,
+        company?.id
+      );
+
+      if (session?.url) {
+        window.location.href = session.url;
+      } else {
+        throw new Error("Failed to create checkout session");
+      }
+    } catch (error) {
+      console.error("Error starting subscription:", error);
+      toast({
+        title: t("error"),
+        description: t("subscription.checkoutError"),
+      });
+    } finally {
+      setIsSubscribing(false);
+    }
+  };
+
+  // Format price to display currency correctly
+  const formatPrice = (price: number, currency: string) => {
+    return new Intl.NumberFormat("fr-FR", {
+      style: "currency",
+      currency: currency,
+    }).format(price);
+  };
+
+  // Helper to format features
+  const formatFeature = (feature: string, value: any) => {
+    if (feature === "appointments") {
+      return value === -1 ? t("subscription.unlimited") : value;
+    }
+    if (feature === "services") {
+      return value === -1 ? t("subscription.unlimited") : value;
+    }
+    if (feature === "featured" && typeof value === "boolean") {
+      return value ? t("yes") : t("no");
+    }
+    return value;
+  };
+
+  // Check if the user is already subscribed to this plan
+  const isCurrentPlan = (planId: string) => {
+    return currentSubscription?.plan_id === planId;
+  };
+
   return (
     <div className="container mx-auto py-8">
       <h1 className="text-3xl font-bold mb-8">{t("settings.title")}</h1>
@@ -282,7 +472,7 @@ export default function SettingsPage() {
         className="space-y-6"
         onValueChange={setActiveTab}
       >
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="general">{t("settings.general")}</TabsTrigger>
           <TabsTrigger value="location">{t("settings.location")}</TabsTrigger>
           {/* <TabsTrigger value="contact">{t("settings.contact")}</TabsTrigger> */}
@@ -291,6 +481,7 @@ export default function SettingsPage() {
           <TabsTrigger value="subscription">
             {t("settings.subscription")}
           </TabsTrigger>
+          <TabsTrigger value="security">{t("settings.security")}</TabsTrigger>
         </TabsList>
 
         {/* Informations générales */}
@@ -592,24 +783,191 @@ export default function SettingsPage() {
           </Card>
         </TabsContent>
 
-        {/* Abonnement et factures */}
+        {/* Subscription Tab */}
         <TabsContent value="subscription" className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle>{t("settings.subscription")}</CardTitle>
+              <CardDescription>{t("subscription.subtitle")}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {isLoading ? (
+                <div className="flex justify-center items-center min-h-[200px]">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : (
+                <>
+                  {/* Billing interval selector */}
+                  <div className="flex justify-end mb-6">
+                    <Tabs
+                      defaultValue="month"
+                      className="w-[200px]"
+                      onValueChange={(value) =>
+                        setBillingInterval(value as BillingInterval)
+                      }
+                    >
+                      <TabsList className="grid w-full grid-cols-2">
+                        <TabsTrigger value="month">
+                          {t("subscription.monthly")}
+                        </TabsTrigger>
+                        <TabsTrigger value="year">
+                          {t("subscription.yearly")}
+                        </TabsTrigger>
+                      </TabsList>
+                    </Tabs>
+                  </div>
+
+                  {plans.length === 0 ? (
+                    <div className="text-center p-8">
+                      <p>{t("subscription.noPlans")}</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      {plans.map((plan) => (
+                        <Card
+                          key={plan.id}
+                          className={`w-full h-full flex flex-col relative ${
+                            plan.name === "Pro"
+                              ? "border-primary shadow-lg"
+                              : ""
+                          }`}
+                        >
+                          {plan.name === "Pro" && (
+                            <div className="absolute top-2 right-2">
+                              <CheckCircle className="h-6 w-6 text-primary" />
+                            </div>
+                          )}
+                          <CardHeader>
+                            <CardTitle>{plan.name}</CardTitle>
+                            <CardDescription>
+                              {plan.description}
+                            </CardDescription>
+                          </CardHeader>
+                          <CardContent className="flex-grow">
+                            <div className="text-3xl font-bold mb-4">
+                              {formatPrice(plan.price, plan.currency)}
+                              <span className="text-sm font-normal text-muted-foreground">
+                                /{t(`subscription.${plan.interval}`)}
+                              </span>
+                            </div>
+                            <ul className="space-y-2">
+                              {Object.entries(plan.features).map(
+                                ([key, value]) => (
+                                  <li key={key} className="flex items-center">
+                                    <CheckCircle className="h-4 w-4 text-primary mr-2" />
+                                    <span>
+                                      {t(`subscription.features.${key}`)}:{" "}
+                                      {formatFeature(key, value)}
+                                    </span>
+                                  </li>
+                                )
+                              )}
+                            </ul>
+                          </CardContent>
+                          <CardFooter>
+                            <Button
+                              className="w-full"
+                              variant={
+                                isCurrentPlan(plan.id) ? "outline" : "default"
+                              }
+                              onClick={() => handleSubscribe(plan.id)}
+                              disabled={isSubscribing || isCurrentPlan(plan.id)}
+                            >
+                              {isSubscribing ? (
+                                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                              ) : null}
+                              {isCurrentPlan(plan.id)
+                                ? t("subscription.currentPlan")
+                                : t("subscription.subscribe")}
+                            </Button>
+                          </CardFooter>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Invoices section */}
+                  {invoices.length > 0 && (
+                    <div className="mt-8">
+                      <h3 className="text-lg font-semibold mb-4">
+                        {t("subscription.invoices")}
+                      </h3>
+                      <div className="space-y-4">
+                        {invoices.map((invoice) => (
+                          <Card key={invoice.id}>
+                            <CardContent className="p-4">
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <p className="font-medium">
+                                    {new Date(
+                                      invoice.created * 1000
+                                    ).toLocaleDateString()}
+                                  </p>
+                                  <p className="text-sm text-muted-foreground">
+                                    {formatPrice(
+                                      invoice.amount_paid / 100,
+                                      invoice.currency
+                                    )}
+                                  </p>
+                                </div>
+                                <div className="flex space-x-2">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() =>
+                                      window.open(invoice.hosted_invoice_url)
+                                    }
+                                  >
+                                    <Eye className="h-4 w-4 mr-2" />
+                                    {t("subscription.view")}
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() =>
+                                      window.open(invoice.invoice_pdf)
+                                    }
+                                  >
+                                    <Download className="h-4 w-4 mr-2" />
+                                    {t("subscription.download")}
+                                  </Button>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Security */}
+        <TabsContent value="security" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>{t("settings.security")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-4">
                 <div>
-                  <Label>{t("settings.currentPlan")}</Label>
-                  <p className="text-sm text-gray-500">Premium</p>
+                  <Label htmlFor="current-password">Mot de passe actuel</Label>
+                  <Input id="current-password" type="password" />
                 </div>
                 <div>
-                  <Label>{t("settings.nextBilling")}</Label>
-                  <p className="text-sm text-gray-500">1 avril 2024</p>
+                  <Label htmlFor="new-password">Nouveau mot de passe</Label>
+                  <Input id="new-password" type="password" />
                 </div>
-                <Button variant="outline">{t("settings.viewInvoices")}</Button>
-                <Button variant="outline">{t("settings.changePlan")}</Button>
+                <div>
+                  <Label htmlFor="confirm-password">
+                    Confirmer le mot de passe
+                  </Label>
+                  <Input id="confirm-password" type="password" />
+                </div>
+                <Button variant="default">Mettre à jour le mot de passe</Button>
               </div>
             </CardContent>
           </Card>

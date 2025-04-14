@@ -447,5 +447,107 @@
     "popularServices": "Services populaires",
     "more": "de plus",
     "bookNow": "Réserver maintenant"
+  },
+  "subscription": {
+    "title": "Choisissez votre plan",
+    "subtitle": "Sélectionnez le plan qui correspond le mieux à vos besoins professionnels",
+    "monthly": "Mensuel",
+    "yearly": "Annuel",
+    "perMonth": "mois",
+    "perYear": "an",
+    "subscribe": "S'abonner",
+    "currentPlan": "Plan actuel",
+    "viewPlans": "Voir les plans",
+    "unlimited": "Illimité",
+    "details": "Détails de l'abonnement",
+    "currentDetails": "Informations sur votre abonnement actuel",
+    "plan": "Plan",
+    "status": "Statut",
+    "price": "Prix",
+    "currentPeriodEnd": "Fin de la période",
+    "yourSubscription": "Votre abonnement",
+    "manageSubscription": "Gérer l'abonnement",
+    "changePlan": "Changer de plan",
+    "cancel": "Annuler l'abonnement",
+    "cancelAtPeriodEnd": "Votre abonnement sera annulé à la fin de la période de facturation actuelle",
+    "noPlans": "Aucun plan disponible pour le moment",
+    "resumeSubscription": "Reprendre l'abonnement",
+    "viewSubscription": "Voir l'abonnement",
+    "manage": {
+      "title": "Gérer votre abonnement",
+      "description": "Gérez votre abonnement et vos méthodes de paiement.",
+      "paymentMethods": "Méthodes de paiement",
+      "paymentHistory": "Historique des paiements",
+      "support": "Support",
+      "terms": "Conditions d'utilisation",
+      "privacy": "Politique de confidentialité"
+    },
+    "cancelConfirm": {
+      "title": "Confirmer l'annulation",
+      "description": "Êtes-vous sûr de vouloir annuler votre abonnement ?",
+      "message": "En annulant votre abonnement :",
+      "point1": "Vous aurez toujours accès à votre abonnement jusqu'à la fin de la période de facturation",
+      "point2": "Aucun remboursement ne sera effectué pour la période en cours",
+      "point3": "Votre abonnement expirera le {date}",
+      "confirm": "Confirmer l'annulation"
+    },
+    "confirmCancel": "Confirmer l'annulation",
+    "cancelSuccess": {
+      "title": "Abonnement annulé",
+      "description": "Votre abonnement sera désactivé à la fin de la période de facturation"
+    },
+    "cancelError": "Une erreur est survenue lors de l'annulation de l'abonnement",
+    "cancelScheduled": {
+      "title": "Annulation programmée",
+      "description": "Votre abonnement sera désactivé le {date}",
+      "confirm": "Confirmer l'annulation"
+    },
+    "resume": {
+      "title": "Reprendre votre abonnement",
+      "description": "Vous pouvez reprendre votre abonnement avant sa date d'expiration",
+      "resumeInfo": {
+        "title": "Information",
+        "description": "En reprenant votre abonnement, vous continuerez d'être facturé à la fin de la période actuelle"
+      },
+      "resumeSuccess": {
+        "title": "Abonnement repris",
+        "description": "Votre abonnement a été repris avec succès",
+        "message": "Merci de votre confiance, votre abonnement est maintenant actif et se renouvellera automatiquement"
+      },
+      "resumeError": "Une erreur est survenue lors de la reprise de l'abonnement"
+    },
+    "noSubscription": {
+      "title": "Aucun abonnement",
+      "description": "Vous n'avez pas d'abonnement actif"
+    },
+    "noCancel": {
+      "title": "Aucun abonnement à reprendre",
+      "description": "Vous n'avez pas d'abonnement annulé à reprendre"
+    },
+    "fetchError": "Erreur lors de la récupération des données d'abonnement",
+    "checkoutError": "Erreur lors de la création de la session de paiement",
+    "success": {
+      "title": "Abonnement réussi",
+      "description": "Votre abonnement a été activé avec succès",
+      "message": "Merci pour votre abonnement. Vous avez maintenant accès à toutes les fonctionnalités de votre plan"
+    },
+    "cancelled": {
+      "title": "Abonnement annulé",
+      "description": "Votre processus d'abonnement a été annulé",
+      "message": "Vous pouvez reprendre le processus d'abonnement à tout moment"
+    },
+    "features": {
+      "appointments": "Rendez-vous par mois",
+      "services": "Services",
+      "featured": "Mise en avant"
+    },
+    "invoices": {
+      "title": "Factures",
+      "description": "Historique de vos factures",
+      "date": "Date",
+      "amount": "Montant",
+      "status": "Statut",
+      "view": "Voir"
+    }
   }
 }

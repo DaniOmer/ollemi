@@ -1,224 +1,127 @@
-// User types
-export interface User {
-  id: string;
-  email: string;
-  role: "pro" | "client";
-  first_name: string;
-  last_name: string;
-  phone?: string;
-  accept_terms: boolean;
-  created_at: string;
-  updated_at?: string;
-  company_id?: string;
-  onboarding_completed?: boolean;
-}
+import { Database } from "./supabase";
 
-// Address types
-export interface Address {
-  id: string;
-  company_id: string;
-  formatted_address: string;
-  street_number?: string;
-  street_name?: string;
-  city?: string;
-  state?: string;
-  postal_code?: string;
-  country?: string;
-  place_id?: string;
-  latitude?: number;
-  longitude?: number;
-  created_at: string;
-  updated_at?: string;
-}
+// Existing types
+export type User = Database["public"]["Tables"]["users"]["Row"];
+export type Company = Database["public"]["Tables"]["companies"]["Row"];
+export type Service = Database["public"]["Tables"]["services"]["Row"];
+export type Category = Database["public"]["Tables"]["categories"]["Row"];
+export type CompanyCategory =
+  Database["public"]["Tables"]["company_categories"]["Row"];
+export type Appointment = Database["public"]["Tables"]["appointments"]["Row"];
+export type OpeningHours = Database["public"]["Tables"]["opening_hours"]["Row"];
+export type Address = Database["public"]["Tables"]["addresses"]["Row"];
+export type Photo = Database["public"]["Tables"]["photos"]["Row"];
 
-// Company types
-export interface Company {
-  id: string;
-  user_id: string;
-  name: string;
-  description?: string;
-  phone?: string;
-  website?: string;
-  instagram?: string;
-  facebook?: string;
-  imageUrl?: string;
-  opening_hours?: OpeningHours;
-  services?: Service[];
-  photos?: Photo[];
-  team?: TeamMember[];
-  reviews?: Review[];
-  rating?: number;
-  reviewCount?: number;
-  addresses?: Address;
-}
-
-export interface Category {
-  id: string;
-  name: string;
-  imageUrl: string;
-  companies?: Professional[];
-}
-
-export interface OpeningHours {
-  monday: DayHours;
-  tuesday: DayHours;
-  wednesday: DayHours;
-  thursday: DayHours;
-  friday: DayHours;
-  saturday: DayHours;
-  sunday: DayHours;
-}
-
-export interface DayHours {
-  open: boolean;
-  start: string; // Format: "HH:MM"
-  end: string; // Format: "HH:MM"
-  break_start?: string; // Format: "HH:MM"
-  break_end?: string; // Format: "HH:MM"
-}
-
-export interface Service {
-  id: string;
-  company_id: string;
-  name: string;
-  description?: string;
-  price: number;
-  duration: number; // in minutes
-  category?: string;
-  imageUrl?: string;
-}
-
-// Service form data (without id and company_id)
-export interface ServiceFormData {
-  name: string;
-  description?: string;
-  price: number;
-  duration: number;
-  category?: string;
-}
-
-export interface Photo {
-  id: string;
-  company_id: string;
-  url: string;
-  alt?: string;
-  featured: boolean;
-  isTemp?: boolean;
-  file?: File;
-}
-
-// Appointment types
-export interface Appointment {
-  id: string;
-  company_id: string;
-  client_id?: string;
-  client_email: string;
-  client_name: string;
-  client_phone: string;
-  start_time: string;
-  end_time: string;
-  service_id: string;
-  status: BookingStatus;
-  notes?: string;
-  created_at: string;
-}
-
-// Search types
-export interface SearchParams {
-  name?: string;
-  location?: string;
-  service?: string;
-  category?: string;
-  city?: string;
-  postalCode?: string;
-  date?: string;
-  price_min?: number;
-  price_max?: number;
-  rating?: number;
-}
-
-// For backward compatibility
-export interface Professional extends Company {
-  name: string;
-  user_id: string;
-}
-
-export interface BusinessHours {
-  day_of_week: string;
-  open: boolean;
-  start_time: string;
-  end_time: string;
-  break_start_time?: string;
-  break_end_time?: string;
-}
-
-export interface AvailabilityState {
-  businessHours: BusinessHours[];
-  status: "idle" | "loading" | "succeeded" | "failed";
-  error: string | null;
-}
-
-export interface TeamMember {
-  id: string;
-  name: string;
-  role: string;
-  imageUrl?: string;
-}
-
-export interface Review {
-  id: string;
-  rating: number;
-  comment: string;
-  date: string;
-}
-
-export interface ServiceCategory {
-  id: string;
-  name: string;
-  description?: string;
-  imageUrl?: string;
-}
-
-export interface Photo {
-  id: string;
-  company_id: string;
-  url: string;
-  alt?: string;
-  featured: boolean;
-}
-
-export interface Booking {
-  id?: string;
-  company_id: string;
-  client_id: string;
-  client_name?: string;
-  client_email?: string;
-  client_phone?: string;
-  start_time: string;
-  end_time: string;
-  status?: BookingStatus;
-  notes?: string;
-  service: {
-    id: string;
-    name: string;
-    price: number;
-    duration: number;
-  };
-}
-
-export interface Customer {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  bookings: Booking[];
-  lastBooking: Date | null;
-  totalBookings: number;
-}
-
+// Legacy types (to be removed once migration is complete)
+export type Professional = Company;
 export enum BookingStatus {
   PENDING = "pending",
   CONFIRMED = "confirmed",
-  CANCELLED = "cancelled",
   COMPLETED = "completed",
+  CANCELLED = "cancelled",
 }
+
+export type Booking = {
+  id: string;
+  client_id: string | null;
+  client_name: string;
+  client_email: string;
+  client_phone: string;
+  pro_id: string;
+  service_id: string;
+  start_time: string;
+  end_time: string;
+  status: BookingStatus;
+  notes: string | null;
+  created_at: string;
+  updated_at: string | null;
+};
+
+// Subscription types
+export type SubscriptionPlan = {
+  id: string;
+  name: string;
+  description: string | null;
+  price: number;
+  currency: string;
+  interval: "day" | "week" | "month" | "year";
+  interval_count: number;
+  trial_period_days: number | null;
+  is_active: boolean;
+  features: string[] | null;
+  stripe_price_id: string | null;
+  created_at: string;
+  updated_at: string | null;
+};
+
+export type SubscriptionStatus =
+  | "incomplete"
+  | "incomplete_expired"
+  | "trialing"
+  | "active"
+  | "past_due"
+  | "canceled"
+  | "unpaid";
+
+export type Subscription = {
+  id: string;
+  user_id: string;
+  company_id: string | null;
+  plan_id: string;
+  payment_method_id: string | null;
+  provider_id: string;
+  provider_subscription_id: string;
+  status: SubscriptionStatus;
+  current_period_start: string;
+  current_period_end: string;
+  cancel_at_period_end: boolean;
+  canceled_at: string | null;
+  trial_start: string | null;
+  trial_end: string | null;
+  created_at: string;
+  updated_at: string | null;
+};
+
+export type InvoiceStatus =
+  | "draft"
+  | "open"
+  | "paid"
+  | "uncollectible"
+  | "void";
+
+export type SubscriptionInvoice = {
+  id: string;
+  subscription_id: string;
+  provider_invoice_id: string;
+  amount: number;
+  currency: string;
+  status: InvoiceStatus;
+  invoice_url: string | null;
+  invoice_pdf: string | null;
+  billing_reason: string | null;
+  created_at: string;
+  updated_at: string | null;
+};
+
+export type PaymentMethod = {
+  id: string;
+  user_id: string;
+  provider_id: string;
+  provider_payment_method_id: string;
+  is_default: boolean;
+  type: string;
+  last_four: string | null;
+  expiry_month: number | null;
+  expiry_year: number | null;
+  billing_details: any;
+  created_at: string;
+  updated_at: string | null;
+};
+
+export type PaymentProvider = {
+  id: string;
+  name: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string | null;
+};
