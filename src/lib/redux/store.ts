@@ -38,6 +38,8 @@ const persistConfig = {
     "categories",
     "availability",
     "bookings",
+    "subscription",
+    "storage",
   ], // Not persist auth (which has tokens)
 };
 

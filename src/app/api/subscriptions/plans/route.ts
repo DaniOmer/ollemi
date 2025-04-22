@@ -68,7 +68,7 @@ export async function POST(request: Request) {
       const stripePrice = await stripe.prices.create({
         product: stripeProduct.id,
         unit_amount: plan.price,
-        currency: "eur",
+        currency: "xof",
         metadata: {
           subscription_plan_id: plan.id,
           subscription_plan_name: plan.name,

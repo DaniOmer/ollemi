@@ -80,7 +80,10 @@ import {
 } from "@/lib/services/subscriptions";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { fetchSubscriptionPlans } from "@/lib/redux/slices/subscriptionSlice";
+import {
+  createCheckoutSessionThunk,
+  fetchSubscriptionPlansThunk,
+} from "@/lib/redux/slices/subscriptionSlice";
 
 // Types for subscription plans
 type SubscriptionPlan = {
@@ -116,11 +119,9 @@ export default function SettingsPage() {
   const [tempPhotos, setTempPhotos] = useState<Photo[]>([]);
 
   // Subscription states
-  const {
-    plans,
-    loading: isLoading,
-    error,
-  } = useAppSelector((state) => state.subscription);
+  const { plans, checkoutSession, status, error } = useAppSelector(
+    (state) => state.subscription
+  );
   const [isSubscribing, setIsSubscribing] = useState(false);
   const [currentSubscription, setCurrentSubscription] = useState<any>(null);
   const [billingInterval, setBillingInterval] =
@@ -360,32 +361,27 @@ export default function SettingsPage() {
 
   // Fetch subscription plans and current subscription
   useEffect(() => {
-    dispatch(fetchSubscriptionPlans(billingInterval));
+    dispatch(fetchSubscriptionPlansThunk(billingInterval));
   }, [dispatch, billingInterval]);
 
   // Handle subscription checkout
   const handleSubscribe = async (planId: string) => {
-    console.log("Starting subscription process for plan:", planId);
-    console.log("User ID:", user?.id);
-    console.log("Company ID:", company?.id);
-
-    if (!user?.id) {
-      toast({
-        title: t("error"),
-        description: t("auth.notLoggedIn"),
-      });
-      return;
-    }
-
     setIsSubscribing(true);
 
     try {
-      const session = await createCheckoutSession(user.id, planId, company?.id);
+      const result = await dispatch(
+        createCheckoutSessionThunk({
+          planId,
+          successUrl: `${window.location.origin}/dashboard/pro/settings`,
+          cancelUrl: `${window.location.origin}/dashboard/pro/settings`,
+        })
+      ).unwrap();
 
-      if (session?.url) {
-        window.location.href = session.url;
+      // Use the URL directly from the result
+      if (result?.url) {
+        window.location.href = result.url;
       } else {
-        throw new Error("Failed to create checkout session");
+        throw new Error(`Failed to create checkout session`);
       }
     } catch (error) {
       console.error("Error starting subscription:", error);
@@ -838,7 +834,7 @@ export default function SettingsPage() {
               <CardDescription>{t("subscription.subtitle")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              {isLoading ? (
+              {status === "loading" ? (
                 <div className="flex justify-center items-center min-h-[200px]">
                   <Loader2 className="h-8 w-8 animate-spin text-primary" />
                 </div>

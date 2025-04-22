@@ -22,7 +22,6 @@ import {
  * Create a Stripe checkout session via API
  */
 export const createCheckoutSession = async (
-  userId: string,
   planId: string,
   successUrl?: string,
   cancelUrl?: string
@@ -33,7 +32,6 @@ export const createCheckoutSession = async (
     {
       method: "POST",
       data: {
-        userId,
         planId,
         successUrl,
         cancelUrl,

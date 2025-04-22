@@ -2,8 +2,8 @@ export const subscriptionPlans = [
   {
     name: "Basic",
     description: "Plan de démarrage pour prendre en main la plateforme",
-    price: 10,
-    currency: "EUR",
+    price: 10000,
+    currency: "XOF",
     interval: "month",
     interval_count: 1,
     trial_period_days: 7,
@@ -57,8 +57,8 @@ export const subscriptionPlans = [
   {
     name: "Pro",
     description: "Fonctionnalités avancées pour développer votre activité",
-    price: 20,
-    currency: "EUR",
+    price: 15000,
+    currency: "XOF",
     interval: "month",
     interval_count: 1,
     trial_period_days: 7,
@@ -113,8 +113,8 @@ export const subscriptionPlans = [
     name: "Enterprise",
     description:
       "Solution complète et personnalisable pour les grands salons et chaînes",
-    price: 30,
-    currency: "EUR",
+    price: 25000,
+    currency: "XOF",
     interval: "month",
     interval_count: 1,
     trial_period_days: 7,
