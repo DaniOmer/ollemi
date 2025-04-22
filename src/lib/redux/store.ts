@@ -24,7 +24,8 @@ import categoriesReducer from "./slices/categoriesSlice";
 import availabilityReducer from "./slices/availabilitySlice";
 import storageReducer from "./slices/storageSlice";
 import bookingsReducer from "./slices/bookingSlice";
-import subscriptionReducer from "./slices/subscriptionSlice";
+import subscriptionSlice from "./slices/subscriptionSlice";
+import stripeSlice from "./slices/stripeSlice";
 
 // Configure persist options
 const persistConfig = {
@@ -50,7 +51,8 @@ const rootReducer = combineReducers({
   availability: availabilityReducer,
   storage: storageReducer,
   bookings: bookingsReducer,
-  subscription: subscriptionReducer,
+  subscription: subscriptionSlice,
+  stripe: stripeSlice,
 });
 
 // Create persisted reducer

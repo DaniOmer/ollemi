@@ -125,3 +125,13 @@ export type PaymentProvider = {
   created_at: string;
   updated_at: string | null;
 };
+
+export type BusinessHours = {
+  id: string;
+  company_id: string;
+  day: number;
+  start_time: string;
+  end_time: string;
+  created_at: string;
+  updated_at: string | null;
+};

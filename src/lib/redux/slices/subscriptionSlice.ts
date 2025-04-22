@@ -1,5 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { SubscriptionPlan } from "@/types";
+import { fetchApi } from "@/lib/services/api";
+import { getSubscriptionPlans } from "@/lib/services/subscriptions";
 
 interface SubscriptionState {
   plans: SubscriptionPlan[];
@@ -14,21 +16,18 @@ const initialState: SubscriptionState = {
 };
 
 export const fetchSubscriptionPlans = createAsyncThunk(
-  "subscription/fetchPlans",
+  "subscriptions/fetchPlans",
   async (interval: string) => {
-    const response = await fetch(
-      `/api/subscription/plans?interval=${interval}`
-    );
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.error || "Failed to fetch subscription plans");
+    const data = await getSubscriptionPlans(interval);
+    if (!data || !data.data) {
+      throw new Error("Invalid response format for subscription plans");
     }
-    return data.plans;
+    return data.data;
   }
 );
 
 const subscriptionSlice = createSlice({
-  name: "subscription",
+  name: "subscriptions",
   initialState,
   reducers: {},
   extraReducers: (builder) => {

@@ -1,7 +1,6 @@
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { ServiceCategory } from "@/types";
 
 export async function GET() {
   try {
@@ -16,7 +15,7 @@ export async function GET() {
     }
 
     const { data: companyUser } = await supabase
-      .from("company_users")
+      .from("companies")
       .select("company_id")
       .eq("user_id", user.id)
       .single();
@@ -55,7 +54,7 @@ export async function POST(request: Request) {
     }
 
     const { data: companyUser } = await supabase
-      .from("company_users")
+      .from("companies")
       .select("company_id")
       .eq("user_id", user.id)
       .single();

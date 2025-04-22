@@ -72,14 +72,13 @@ import {
 import { uploadFileWithSignedUrl } from "@/utils/uploadUtils";
 import { selectUserProfile } from "@/lib/redux/slices/userSlice";
 import { useToast } from "@/components/ui/use-toast";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import {
   createCheckoutSession,
   getSubscriptionInvoices,
   cancelSubscription,
   resumeSubscription,
-} from "@/lib/services/subscription";
-import { useUser } from "@/hooks/use-user";
+} from "@/lib/services/subscriptions";
+
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { fetchSubscriptionPlans } from "@/lib/redux/slices/subscriptionSlice";
 
@@ -104,13 +103,10 @@ type BillingInterval = "month" | "year";
 
 export default function SettingsPage() {
   const { t } = useTranslations();
-  const router = useRouter();
   const dispatch = useAppDispatch();
   const company = useAppSelector(selectCurrentCompany);
   const user = useAppSelector(selectUserProfile);
   const { toast } = useToast();
-  const { user: authUser } = useUser();
-  const supabase = createClientComponentClient();
 
   const [activeTab, setActiveTab] = useState("general");
   const [isSaving, setIsSaving] = useState(false);
@@ -173,7 +169,7 @@ export default function SettingsPage() {
   }, [dispatch, user?.company_id]);
 
   // Mock data for testing if no company is available
-  const mockCompany: Company = {
+  const mockCompany = {
     id: "1",
     user_id: "1",
     name: "Centre Anne Cali",
@@ -182,6 +178,11 @@ export default function SettingsPage() {
     website: "https://www.annecali.com",
     instagram: "https://www.instagram.com/annecali",
     facebook: "https://www.facebook.com/annecali",
+    team_size: 10,
+    industry: "Santé",
+    created_at: new Date().toISOString(),
+    updated_at: null,
+    stripe_customer_id: "1234567890",
     imageUrl: "https://example.com/image.jpg",
     rating: 4.9,
     reviewCount: 193,
@@ -364,7 +365,11 @@ export default function SettingsPage() {
 
   // Handle subscription checkout
   const handleSubscribe = async (planId: string) => {
-    if (!authUser?.id) {
+    console.log("Starting subscription process for plan:", planId);
+    console.log("User ID:", user?.id);
+    console.log("Company ID:", company?.id);
+
+    if (!user?.id) {
       toast({
         title: t("error"),
         description: t("auth.notLoggedIn"),
@@ -375,11 +380,7 @@ export default function SettingsPage() {
     setIsSubscribing(true);
 
     try {
-      const session = await createCheckoutSession(
-        authUser.id,
-        planId,
-        company?.id
-      );
+      const session = await createCheckoutSession(user.id, planId, company?.id);
 
       if (session?.url) {
         window.location.href = session.url;
@@ -406,17 +407,42 @@ export default function SettingsPage() {
   };
 
   // Helper to format features
-  const formatFeature = (feature: string, value: any) => {
-    if (feature === "appointments") {
-      return value === -1 ? t("subscription.unlimited") : value;
+  const formatFeature = (key: string, value: any, parentKey?: string) => {
+    const translationKeyBase = parentKey ? `${parentKey}.${key}` : key;
+    const translationKey = `subscription.features.${translationKeyBase}`;
+
+    // Try translating the feature key itself first
+    let featureName = t(translationKey);
+    if (featureName === translationKey) {
+      featureName = key
+        .replace(/([A-Z])/g, " $1")
+        .replace(/^./, (str) => str.toUpperCase());
     }
-    if (feature === "services") {
-      return value === -1 ? t("subscription.unlimited") : value;
+
+    if (typeof value === "boolean") {
+      return `${featureName}: ${value ? t("yes") : t("no")}`;
     }
-    if (feature === "featured" && typeof value === "boolean") {
-      return value ? t("yes") : t("no");
+    if (
+      (key === "appointments" || key === "services") &&
+      typeof value === "number"
+    ) {
+      const displayValue =
+        value === -1 || value > 999 ? t("subscription.unlimited") : value;
+      return `${featureName}: ${displayValue}`;
     }
-    return value;
+    if (key === "freePerMonth" && typeof value === "number") {
+      return `${featureName}: ${value} ${t("subscription.freePerMonthSuffix")}`;
+    }
+    if (typeof value === "number") {
+      return `${featureName}: ${value}`;
+    }
+    // If it's an object, we don't display a value directly here, handled in the loop
+    if (typeof value === "object" && value !== null) {
+      return null; // Don't render a line item for the object itself
+    }
+
+    // Handle potential null or undefined values gracefully for other types
+    return `${featureName}: ${value ? String(value) : "-"}`;
   };
 
   // Check if the user is already subscribed to this plan
@@ -872,16 +898,75 @@ export default function SettingsPage() {
                               </span>
                             </div>
                             <ul className="space-y-2">
-                              {Object.entries(plan.features).map(
-                                ([key, value]) => (
-                                  <li key={key} className="flex items-center">
-                                    <CheckCircle className="h-4 w-4 text-primary mr-2" />
-                                    <span>
-                                      {t(`subscription.features.${key}`)}:{" "}
-                                      {formatFeature(key, value)}
-                                    </span>
-                                  </li>
-                                )
+                              {Object.entries(plan.features || {}).map(
+                                ([key, value]) => {
+                                  if (
+                                    typeof value === "object" &&
+                                    value !== null
+                                  ) {
+                                    // Render nested features
+                                    return (
+                                      <li key={key} className="ml-4 pt-2">
+                                        <span className="font-medium text-sm text-muted-foreground">
+                                          {(() => {
+                                            const titleKey = `subscription.features.${key}.title`;
+                                            const fallbackKey = `subscription.features.${key}`;
+                                            let title = t(titleKey);
+                                            if (title === titleKey) {
+                                              title = t(fallbackKey);
+                                              if (title === fallbackKey) {
+                                                title = key
+                                                  .replace(/([A-Z])/g, " $1")
+                                                  .replace(/^./, (str) =>
+                                                    str.toUpperCase()
+                                                  );
+                                              }
+                                            }
+                                            return `${title}:`;
+                                          })()}
+                                        </span>
+                                        <ul className="list-none pl-4 space-y-1 mt-1">
+                                          {Object.entries(value).map(
+                                            ([subKey, subValue]) => {
+                                              const formattedSubFeature =
+                                                formatFeature(
+                                                  subKey,
+                                                  subValue,
+                                                  key // Pass parent key for translation
+                                                );
+                                              return formattedSubFeature ? (
+                                                <li
+                                                  key={subKey}
+                                                  className="flex items-center text-sm"
+                                                >
+                                                  <CheckCircle className="h-3 w-3 text-primary mr-2 flex-shrink-0" />
+                                                  <span>
+                                                    {formattedSubFeature}
+                                                  </span>
+                                                </li>
+                                              ) : null;
+                                            }
+                                          )}
+                                        </ul>
+                                      </li>
+                                    );
+                                  } else {
+                                    // Render simple features
+                                    const formattedFeature = formatFeature(
+                                      key,
+                                      value
+                                    );
+                                    return formattedFeature ? (
+                                      <li
+                                        key={key}
+                                        className="flex items-center"
+                                      >
+                                        <CheckCircle className="h-4 w-4 text-primary mr-2 flex-shrink-0" />
+                                        <span>{formattedFeature}</span>
+                                      </li>
+                                    ) : null;
+                                  }
+                                }
                               )}
                             </ul>
                           </CardContent>
@@ -949,7 +1034,12 @@ export default function SettingsPage() {
                                   0
                               )}
                               /
-                              {currentSubscription.subscription_plans?.interval}
+                              {t(
+                                `subscription.${
+                                  currentSubscription.subscription_plans
+                                    ?.interval || "month"
+                                }`
+                              )}
                             </p>
                           </div>
                           <div>
