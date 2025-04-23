@@ -71,9 +71,9 @@ export default function DashboardLayout({
           icon: Calendar,
         },
         {
-          href: "/dashboard/client/documents",
-          label: "Documents",
-          icon: FileText,
+          href: "/dashboard/client/settings",
+          label: "Paramètres",
+          icon: Settings,
         },
       ];
 
