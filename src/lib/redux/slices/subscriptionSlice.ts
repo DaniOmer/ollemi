@@ -3,16 +3,19 @@ import {
   createAsyncThunk,
   createSelector,
 } from "@reduxjs/toolkit";
-import { SubscriptionPlan } from "@/types";
+import { SubscriptionPlan, Subscription } from "@/types";
 import {
   getSubscriptionPlans,
   createCheckoutSession,
+  getActiveSubscription,
 } from "@/lib/services/subscriptions";
 import { StripeCheckoutSession } from "@/lib/services/stripe";
 import { RootState } from "../store";
 
 interface SubscriptionState {
   plans: SubscriptionPlan[];
+  subscriptions: Subscription[];
+  activeSubscription: Subscription | null;
   checkoutSession: StripeCheckoutSession | null;
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
@@ -20,6 +23,8 @@ interface SubscriptionState {
 
 const initialState: SubscriptionState = {
   plans: [],
+  subscriptions: [],
+  activeSubscription: null,
   status: "idle",
   error: null,
   checkoutSession: null,
@@ -55,6 +60,16 @@ export const createCheckoutSessionThunk = createAsyncThunk(
   }
 );
 
+export const fetchActiveSubscriptionThunk = createAsyncThunk(
+  "subscriptions/fetchActiveSubscription",
+  async () => {
+    const data = await getActiveSubscription();
+    if (!data || !data.data) {
+      throw new Error("Invalid response format for user subscriptions");
+    }
+    return data.data;
+  }
+);
 const subscriptionSlice = createSlice({
   name: "subscriptions",
   initialState,
@@ -86,6 +101,19 @@ const subscriptionSlice = createSlice({
         state.status = "failed";
         state.error =
           action.error.message || "Failed to create checkout session";
+      })
+      .addCase(fetchActiveSubscriptionThunk.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(fetchActiveSubscriptionThunk.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.activeSubscription = action.payload;
+      })
+      .addCase(fetchActiveSubscriptionThunk.rejected, (state, action) => {
+        state.status = "failed";
+        state.error =
+          action.error.message || "Failed to fetch active subscription";
       });
   },
 });

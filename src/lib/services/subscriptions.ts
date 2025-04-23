@@ -128,23 +128,10 @@ export const changeSubscriptionPlan = async (
 /**
  * Get user subscriptions via API
  */
-export const getUserSubscriptions = async (
-  userId: string
-): Promise<ApiResponse<Subscription[]>> => {
-  return await fetchPrivateApi<Subscription[]>(
-    `/subscriptions?userId=${userId}`
-  );
-};
-
-/**
- * Get company subscription via API
- */
-export const getCompanySubscription = async (
-  companyId: string
-): Promise<ApiResponse<Subscription>> => {
-  return await fetchPrivateApi<Subscription>(
-    `/subscriptions?companyId=${companyId}`
-  );
+export const getActiveSubscription = async (): Promise<
+  ApiResponse<Subscription>
+> => {
+  return await fetchPrivateApi<Subscription>(`/subscriptions?status=active`);
 };
 
 /**

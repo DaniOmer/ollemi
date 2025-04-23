@@ -56,6 +56,8 @@ import {
   AlertCircle,
   XCircle,
 } from "lucide-react";
+
+import Badge from "@/components/ui/badge";
 import { PhotoUpload } from "@/components/forms/PhotoUpload";
 import {
   AddressAutocomplete,
@@ -83,6 +85,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   createCheckoutSessionThunk,
   fetchSubscriptionPlansThunk,
+  fetchActiveSubscriptionThunk,
 } from "@/lib/redux/slices/subscriptionSlice";
 
 // Types for subscription plans
@@ -119,9 +122,8 @@ export default function SettingsPage() {
   const [tempPhotos, setTempPhotos] = useState<Photo[]>([]);
 
   // Subscription states
-  const { plans, checkoutSession, status, error } = useAppSelector(
-    (state) => state.subscription
-  );
+  const { plans, activeSubscription, checkoutSession, status, error } =
+    useAppSelector((state) => state.subscription);
   const [isSubscribing, setIsSubscribing] = useState(false);
   const [currentSubscription, setCurrentSubscription] = useState<any>(null);
   const [billingInterval, setBillingInterval] =
@@ -362,6 +364,7 @@ export default function SettingsPage() {
   // Fetch subscription plans and current subscription
   useEffect(() => {
     dispatch(fetchSubscriptionPlansThunk(billingInterval));
+    dispatch(fetchActiveSubscriptionThunk());
   }, [dispatch, billingInterval]);
 
   // Handle subscription checkout
@@ -875,6 +878,11 @@ export default function SettingsPage() {
                               : ""
                           }`}
                         >
+                          {activeSubscription?.plan_id === plan.id && (
+                            <Badge className="absolute top-2 right-2">
+                              {t("subscription.currentPlan")}
+                            </Badge>
+                          )}
                           <CardHeader>
                             <CardTitle>{plan.name}</CardTitle>
                             <CardDescription>
