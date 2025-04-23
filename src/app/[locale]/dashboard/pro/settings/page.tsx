@@ -875,11 +875,6 @@ export default function SettingsPage() {
                               : ""
                           }`}
                         >
-                          {plan.name === "Pro" && (
-                            <div className="absolute top-2 right-2">
-                              <CheckCircle className="h-6 w-6 text-primary" />
-                            </div>
-                          )}
                           <CardHeader>
                             <CardTitle>{plan.name}</CardTitle>
                             <CardDescription>

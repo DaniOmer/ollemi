@@ -48,7 +48,6 @@ export const createCheckoutSessionThunk = createAsyncThunk(
   ) => {
     try {
       const data = await createCheckoutSession(planId, successUrl, cancelUrl);
-      console.log("checkout data ", data);
       return data.data;
     } catch (error) {
       return rejectWithValue(error);

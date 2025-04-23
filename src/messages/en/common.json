@@ -452,6 +452,8 @@
     "subtitle": "Select the perfect plan for your business needs",
     "monthly": "Monthly",
     "yearly": "Yearly",
+    "month": "month",
+    "year": "year",
     "perMonth": "per month",
     "perYear": "per year",
     "unlimited": "Unlimited",

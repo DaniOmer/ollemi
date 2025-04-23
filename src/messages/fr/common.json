@@ -453,6 +453,8 @@
     "subtitle": "Sélectionnez le plan qui correspond le mieux à vos besoins professionnels",
     "monthly": "Mensuel",
     "yearly": "Annuel",
+    "month": "mois",
+    "year": "an",
     "perMonth": "mois",
     "perYear": "an",
     "subscribe": "S'abonner",

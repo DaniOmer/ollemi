@@ -55,7 +55,7 @@ export async function POST(request: Request) {
   // Get the subscription plan
   const { data: plan, error: planError } = await supabaseWithAuth
     .from("subscription_plans")
-    .select("id, stripe_price_id")
+    .select("id, stripe_price_id, interval, interval_count")
     .eq("id", planId)
     .single();
 
@@ -79,6 +79,9 @@ export async function POST(request: Request) {
     metadata: {
       userId: user.id,
       companyId: company?.id,
+      planId: plan?.id,
+      interval: plan?.interval,
+      interval_count: plan?.interval_count,
     },
   });
   return NextResponse.json({
