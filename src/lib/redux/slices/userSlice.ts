@@ -53,7 +53,7 @@ const initialState: UserState = {
 
 // Async thunks for user actions
 export const fetchUserProfile = createAsyncThunk(
-  "user/fetchProfile",
+  "users/fetchProfile",
   async (_, { rejectWithValue }) => {
     try {
       const response = await getUserProfile();
@@ -68,7 +68,7 @@ export const fetchUserProfile = createAsyncThunk(
 );
 
 export const updateUserProfile = createAsyncThunk(
-  "user/updateProfile",
+  "users/updateProfile",
   async (profile: Partial<User>, { rejectWithValue }) => {
     try {
       const response = await updateUserProfileService(profile);
@@ -83,7 +83,7 @@ export const updateUserProfile = createAsyncThunk(
 );
 
 export const fetchUserPreferences = createAsyncThunk(
-  "user/fetchPreferences",
+  "users/fetchPreferences",
   async (_, { rejectWithValue }) => {
     try {
       const response = await getUserPreferences();
@@ -100,7 +100,7 @@ export const fetchUserPreferences = createAsyncThunk(
 );
 
 export const updateUserPreferences = createAsyncThunk(
-  "user/updatePreferences",
+  "users/updatePreferences",
   async (preferences: Partial<UserPreferences>, { rejectWithValue }) => {
     try {
       const response = await updateUserPreferencesService(preferences);
@@ -117,7 +117,7 @@ export const updateUserPreferences = createAsyncThunk(
 );
 
 export const fetchUserFavorites = createAsyncThunk(
-  "user/fetchFavorites",
+  "users/fetchFavorites",
   async (_, { rejectWithValue }) => {
     try {
       const response = await getUserFavorites();
@@ -132,7 +132,7 @@ export const fetchUserFavorites = createAsyncThunk(
 );
 
 export const addUserFavorite = createAsyncThunk(
-  "user/addFavorite",
+  "users/addFavorite",
   async (professionalId: string, { rejectWithValue }) => {
     try {
       const response = await addUserFavoriteService(professionalId);
@@ -147,7 +147,7 @@ export const addUserFavorite = createAsyncThunk(
 );
 
 export const removeUserFavorite = createAsyncThunk(
-  "user/removeFavorite",
+  "users/removeFavorite",
   async (professionalId: string, { rejectWithValue }) => {
     try {
       const response = await removeUserFavoriteService(professionalId);
@@ -162,7 +162,7 @@ export const removeUserFavorite = createAsyncThunk(
 );
 
 export const fetchUserPoints = createAsyncThunk(
-  "user/fetchPoints",
+  "users/fetchPoints",
   async (_, { rejectWithValue }) => {
     try {
       const response = await getUserPoints();
@@ -177,7 +177,7 @@ export const fetchUserPoints = createAsyncThunk(
 );
 
 export const fetchUserAppointmentHistory = createAsyncThunk(
-  "user/fetchAppointmentHistory",
+  "users/fetchAppointmentHistory",
   async (_, { rejectWithValue }) => {
     try {
       const response = await getUserAppointmentHistory();
@@ -195,7 +195,7 @@ export const fetchUserAppointmentHistory = createAsyncThunk(
 
 // Create the user slice
 const userSlice = createSlice({
-  name: "user",
+  name: "users",
   initialState,
   reducers: {
     clearError: (state) => {
@@ -408,7 +408,7 @@ export const selectUserAppointmentHistory = createSelector(
 
 export const selectUserLoading = createSelector(
   [selectUserState],
-  (state) => state.status === "loading"
+  (state) => state.status == "loading"
 );
 
 export const selectUserError = createSelector(

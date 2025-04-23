@@ -3,13 +3,13 @@ import { User } from "@/types";
 
 // User profile endpoints
 export async function getUserProfile(): Promise<ApiResponse<User>> {
-  return fetchPrivateApi<User>("/user/profile");
+  return fetchPrivateApi<User>("/users/profile");
 }
 
 export async function updateUserProfile(
   profileData: Partial<User>
 ): Promise<ApiResponse<User>> {
-  return fetchPrivateApi<User>("/user/profile", {
+  return fetchPrivateApi<User>("/users/profile", {
     method: "PUT",
     data: profileData,
   });
@@ -25,13 +25,13 @@ export interface UserPreferences {
 export async function getUserPreferences(): Promise<
   ApiResponse<UserPreferences>
 > {
-  return fetchPrivateApi<UserPreferences>("/user/preferences");
+  return fetchPrivateApi<UserPreferences>("/users/preferences");
 }
 
 export async function createUserPreferences(
   preferences: UserPreferences
 ): Promise<ApiResponse<UserPreferences>> {
-  return fetchPrivateApi<UserPreferences>("/user/preferences", {
+  return fetchPrivateApi<UserPreferences>("/users/preferences", {
     method: "POST",
     data: preferences,
   });
@@ -40,7 +40,7 @@ export async function createUserPreferences(
 export async function updateUserPreferences(
   preferences: Partial<UserPreferences>
 ): Promise<ApiResponse<UserPreferences>> {
-  return fetchPrivateApi<UserPreferences>("/user/preferences", {
+  return fetchPrivateApi<UserPreferences>("/users/preferences", {
     method: "PUT",
     data: preferences,
   });
@@ -57,13 +57,13 @@ export interface FavoriteProfessional {
 export async function getUserFavorites(): Promise<
   ApiResponse<FavoriteProfessional[]>
 > {
-  return fetchPrivateApi<FavoriteProfessional[]>("/user/favorites");
+  return fetchPrivateApi<FavoriteProfessional[]>("/users/favorites");
 }
 
 export async function addUserFavorite(
   professionalId: string
 ): Promise<ApiResponse<FavoriteProfessional>> {
-  return fetchPrivateApi<FavoriteProfessional>("/user/favorites", {
+  return fetchPrivateApi<FavoriteProfessional>("/users/favorites", {
     method: "POST",
     data: { professionalId },
   });
@@ -72,7 +72,7 @@ export async function addUserFavorite(
 export async function removeUserFavorite(
   professionalId: string
 ): Promise<ApiResponse<null>> {
-  return fetchPrivateApi<null>(`/user/favorites/${professionalId}`, {
+  return fetchPrivateApi<null>(`/users/favorites/${professionalId}`, {
     method: "DELETE",
   });
 }
@@ -89,12 +89,12 @@ export interface UserPoints {
 }
 
 export async function getUserPoints(): Promise<ApiResponse<UserPoints>> {
-  return fetchPrivateApi<UserPoints>("/user/points");
+  return fetchPrivateApi<UserPoints>("/users/points");
 }
 
 // User appointment history endpoint
 export async function getUserAppointmentHistory(): Promise<
   ApiResponse<string[]>
 > {
-  return fetchPrivateApi<string[]>("/user/appointments/history");
+  return fetchPrivateApi<string[]>("/users/appointments/history");
 }

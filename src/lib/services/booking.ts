@@ -50,3 +50,7 @@ export async function getBookingById(
     `/companies/${companyId}/bookings/${bookingId}`
   );
 }
+
+export async function getBookingByUserId(): Promise<ApiResponse<Booking[]>> {
+  return fetchPrivateApi<Booking[]>(`/users/bookings`);
+}

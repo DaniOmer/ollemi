@@ -23,11 +23,12 @@ export enum BookingStatus {
 
 export type Booking = {
   id: string;
-  client_id: string | null;
-  client_name: string;
-  client_email: string;
-  client_phone: string;
-  pro_id: string;
+  user_id: string | null;
+  user_first_name: string;
+  user_last_name: string;
+  user_email: string;
+  user_phone: string;
+  company_id: string;
   service_id: string;
   start_time: string;
   end_time: string;

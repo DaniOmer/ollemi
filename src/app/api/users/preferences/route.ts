@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { extractToken, createAuthClient } from "@/lib/supabase/client";
 
-// GET retrieve user preferences /api/user/preferences
+// GET retrieve user preferences /api/users/preferences
 export async function GET(request: Request) {
   try {
     // Get token from the request
@@ -51,7 +51,7 @@ export async function GET(request: Request) {
   }
 }
 
-// POST /api/user/preferences
+// POST /api/users/preferences
 export async function POST(request: Request) {
   try {
     const token = extractToken(request);
@@ -118,7 +118,7 @@ export async function POST(request: Request) {
     );
   }
 }
-// PUT /api/user/preferences
+// PUT /api/users/preferences
 export async function PUT(request: Request) {
   try {
     const token = extractToken(request);

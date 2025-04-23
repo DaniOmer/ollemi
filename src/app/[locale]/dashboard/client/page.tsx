@@ -20,17 +20,16 @@ import {
   updateUserProfile,
 } from "@/lib/redux/slices/userSlice";
 import { FavoriteProfessional } from "@/lib/services/user";
+import { selectIsAuthenticated } from "@/lib/redux/slices/authSlice";
+
 import {
-  selectIsAuthenticated,
-  selectUser,
-} from "@/lib/redux/slices/authSlice";
-import {
-  fetchAppointments,
-  selectPastAppointments,
-  selectAppointmentsLoading,
-} from "@/lib/redux/slices/appointmentsSlice";
-import { AppDispatch } from "@/lib/redux/store";
-import { Appointment } from "@/types";
+  fetchBookingByUserIdThunk,
+  selectBookingByUserId,
+  selectBookingLoading,
+} from "@/lib/redux/slices/bookingSlice";
+
+import { AppDispatch, RootState } from "@/lib/redux/store";
+import { Booking } from "@/types";
 import React, { ChangeEvent, FormEvent } from "react";
 
 // Icons
@@ -51,15 +50,17 @@ export default function UserDashboard() {
 
   // Redux state
   const isAuthenticated = useSelector(selectIsAuthenticated);
-  const user = useSelector(selectUser);
+  const user = useSelector(selectUserProfile);
   const profile = useSelector(selectUserProfile);
   const preferences = useSelector(selectUserPreferences);
   const favorites = useSelector(selectUserFavorites);
-  const appointmentHistory = useSelector(selectPastAppointments);
+  const bookingHistory = useSelector((state: RootState) =>
+    selectBookingByUserId(state, user?.id)
+  );
   const userLoading = useSelector(selectUserLoading);
-  const appointmentsLoading = useSelector(selectAppointmentsLoading);
+  const bookingLoading = useSelector(selectBookingLoading);
   const error = useSelector(selectUserError);
-  const loading = userLoading || appointmentsLoading;
+  const loading = userLoading || bookingLoading;
 
   // Local state
   const [activeTab, setActiveTab] = useState("profile");
@@ -82,7 +83,7 @@ export default function UserDashboard() {
     dispatch(fetchUserProfile());
     dispatch(fetchUserPreferences());
     dispatch(fetchUserFavorites());
-    dispatch(fetchAppointments());
+    dispatch(fetchBookingByUserIdThunk(user?.id));
   }, [dispatch, isAuthenticated]);
 
   useEffect(() => {
@@ -139,6 +140,7 @@ export default function UserDashboard() {
     dispatch(updateUserPreferences(typedPreferences));
     setEditingPreferences(false);
   };
+  console.log("bookingHistory", loading);
 
   if (loading) {
     return (
@@ -568,7 +570,7 @@ export default function UserDashboard() {
                 My Appointments
               </h2>
 
-              {appointmentHistory && appointmentHistory.length > 0 ? (
+              {bookingHistory && bookingHistory.length > 0 ? (
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
@@ -606,55 +608,56 @@ export default function UserDashboard() {
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {appointmentHistory.map((appointment: Appointment) => (
-                        <tr key={appointment.id}>
+                      {bookingHistory.map((booking: Booking) => (
+                        <tr key={booking.id}>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="text-sm font-medium text-gray-900">
                               {new Date(
-                                appointment.start_time
+                                booking.start_time
                               ).toLocaleDateString()}
                             </div>
                             <div className="text-sm text-gray-500">
-                              {new Date(
-                                appointment.start_time
-                              ).toLocaleTimeString([], {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })}
+                              {new Date(booking.start_time).toLocaleTimeString(
+                                [],
+                                {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                }
+                              )}
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="text-sm text-gray-900">
-                              {appointment.client_name}
+                              {booking.user_first_name} {booking.user_last_name}
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="text-sm text-gray-900">
-                              Service ID: {appointment.service_id}
+                              Service ID: {booking.service_id}
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span
                               className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full
                                 ${
-                                  appointment.status === "completed"
+                                  booking.status === "completed"
                                     ? "bg-green-100 text-green-800"
-                                    : appointment.status === "cancelled"
+                                    : booking.status === "cancelled"
                                     ? "bg-red-100 text-red-800"
                                     : "bg-blue-100 text-blue-800"
                                 }
                               `}
                             >
-                              {appointment.status.charAt(0).toUpperCase() +
-                                appointment.status.slice(1)}
+                              {booking.status.charAt(0).toUpperCase() +
+                                booking.status.slice(1)}
                             </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             <button className="text-blue-600 hover:text-blue-900 mr-3">
                               Details
                             </button>
-                            {appointment.status !== "completed" &&
-                              appointment.status !== "cancelled" && (
+                            {booking.status !== "completed" &&
+                              booking.status !== "cancelled" && (
                                 <button className="text-red-600 hover:text-red-900">
                                   Cancel
                                 </button>

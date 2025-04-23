@@ -9,16 +9,19 @@ import {
   updateBookingStatus,
   deleteBooking,
   getBookingById,
+  getBookingByUserId,
 } from "@/lib/services/booking";
 
 interface BookingState {
   bookings: Booking[];
+  currentUserBookings: Booking[];
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
 }
 
 const initialState: BookingState = {
   bookings: [],
+  currentUserBookings: [],
   status: "idle",
   error: null,
 };
@@ -101,6 +104,21 @@ export const getBookingByIdThunk = createAsyncThunk(
   }
 );
 
+export const fetchBookingByUserIdThunk = createAsyncThunk(
+  "bookings/fetchBookingByUserId",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await getBookingByUserId();
+      return response.data;
+    } catch (error: any) {
+      console.error("Failed to fetch booking by user ID:", error);
+      return rejectWithValue(
+        error.message || "Failed to fetch booking by user ID"
+      );
+    }
+  }
+);
+
 const bookingSlice = createSlice({
   name: "bookings",
   initialState,
@@ -163,6 +181,18 @@ const bookingSlice = createSlice({
       .addCase(deleteBookingThunk.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message || "Failed to delete booking";
+      })
+      .addCase(fetchBookingByUserIdThunk.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchBookingByUserIdThunk.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.currentUserBookings = action.payload || [];
+      })
+      .addCase(fetchBookingByUserIdThunk.rejected, (state, action) => {
+        state.status = "failed";
+        state.error =
+          action.error.message || "Failed to fetch booking by user ID";
       });
   },
 });
@@ -172,6 +202,8 @@ export const selectBookings = (state: RootState) =>
 export const selectBookingById = (state: RootState, bookingId: string) =>
   state.bookings?.bookings.find((booking: Booking) => booking.id === bookingId);
 export const selectBookingStatus = (state: RootState) => state.bookings?.status;
+export const selectBookingLoading = (state: RootState) =>
+  state.bookings?.status == "loading";
 export const selectBookingError = (state: RootState) => state.bookings?.error;
 export const selectUpcomingBookings = (state: RootState) =>
   state.bookings?.bookings.filter((booking: Booking) => {
@@ -179,5 +211,10 @@ export const selectUpcomingBookings = (state: RootState) =>
     const bookingDate = new Date(booking.start_time);
     return bookingDate > now;
   });
+
+export const selectBookingByUserId = (state: RootState, userId: string) =>
+  state.bookings?.bookings.filter(
+    (booking: Booking) => booking.user_id === userId
+  );
 
 export default bookingSlice.reducer;
