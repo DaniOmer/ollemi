@@ -56,7 +56,7 @@ export default function UserDashboard() {
   const loading = userLoading || bookingLoading;
 
   // Local state
-  const [activeTab, setActiveTab] = useState("favorites");
+  const [activeTab, setActiveTab] = useState("profile");
   const [editingProfile, setEditingProfile] = useState(false);
   const [editingPreferences, setEditingPreferences] = useState(false);
   const [profileForm, setProfileForm] = useState({
@@ -179,7 +179,7 @@ export default function UserDashboard() {
                       key={tab.id}
                       onClick={() => setActiveTab(tab.id)}
                       className={`
-                        w-1/4 py-4 px-1 text-center border-b-2 font-medium text-sm
+                        w-1/3 py-4 px-1 text-center border-b-2 font-medium text-sm
                         ${
                           activeTab === tab.id
                             ? "border-blue-500 text-blue-600"
