@@ -280,14 +280,16 @@ export default function Home() {
                 className=""
                 pagination={true}
               >
-                {categories.map((category: Category) => (
-                  <CategoryCard
-                    key={category.id}
-                    id={category.id}
-                    name={category.name}
-                    imageUrl={category.image_url || ""}
-                  />
-                ))}
+                {categories.map((category: Category) => {
+                  return (
+                    <CategoryCard
+                      key={category.id}
+                      id={category.id}
+                      name={category.name}
+                      imageUrl={category.imageUrl}
+                    />
+                  );
+                })}
               </Carousel>
             )}
           </div>

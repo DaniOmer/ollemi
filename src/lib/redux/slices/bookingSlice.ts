@@ -212,9 +212,7 @@ export const selectUpcomingBookings = (state: RootState) =>
     return bookingDate > now;
   });
 
-export const selectBookingByUserId = (state: RootState, userId: string) =>
-  state.bookings?.bookings.filter(
-    (booking: Booking) => booking.client_id === userId
-  );
+export const selectBookingByUserId = (state: RootState) =>
+  state.bookings?.currentUserBookings || [];
 
 export default bookingSlice.reducer;

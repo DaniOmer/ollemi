@@ -54,9 +54,7 @@ export default function UserDashboard() {
   const profile = useSelector(selectUserProfile);
   const preferences = useSelector(selectUserPreferences);
   const favorites = useSelector(selectUserFavorites);
-  const bookingHistory = useSelector((state: RootState) =>
-    selectBookingByUserId(state, user?.id)
-  );
+  const bookingHistory = useSelector(selectBookingByUserId);
   const userLoading = useSelector(selectUserLoading);
   const bookingLoading = useSelector(selectBookingLoading);
   const error = useSelector(selectUserError);
@@ -140,7 +138,6 @@ export default function UserDashboard() {
     dispatch(updateUserPreferences(typedPreferences));
     setEditingPreferences(false);
   };
-  console.log("bookingHistory", loading);
 
   if (loading) {
     return (

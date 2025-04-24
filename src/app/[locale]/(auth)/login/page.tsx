@@ -20,6 +20,8 @@ import {
   clearError,
   selectUser,
 } from "@/lib/redux/slices/authSlice";
+
+import { selectUserProfile } from "@/lib/redux/slices/userSlice";
 import {
   Form,
   FormControl,
@@ -53,7 +55,6 @@ export default function LoginPage() {
   const error = useAppSelector(selectAuthError);
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const user = useAppSelector(selectUser);
-
   // Clear any previous errors when the component mounts
   useEffect(() => {
     dispatch(clearError());
@@ -64,14 +65,14 @@ export default function LoginPage() {
       try {
         // Check if the function exists before calling it
         const role = user.role;
-        const isOnboardingComplete = user.onboarding_completed;
+        const isOnboardingComplete = user.onboardingCompleted;
 
-        if (!isOnboardingComplete) {
+        if (!isOnboardingComplete && role === "pro") {
           // User needs to complete onboarding
-          router.push("/onboarding/business-name");
+          router.replace("/onboarding/business-name");
         } else {
           // User doesn't need onboarding or it's complete
-          router.push(`/dashboard/${role}`);
+          router.replace(`/dashboard/${role}`);
         }
       } catch (error) {
         console.error("Error checking onboarding status:", error);
