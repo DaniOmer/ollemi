@@ -75,22 +75,15 @@ export default function ClientBookingsPage() {
     const fetchAppointments = async () => {
       if (!isAuthenticated || !user) return;
 
-      try {
+      if (!bookingHistory) {
         dispatch(fetchBookingByUserIdThunk());
-      } catch (error) {
-        console.error("Error fetching appointments:", error);
-        toast({
-          title: "Erreur",
-          description: "Impossible de récupérer vos rendez-vous.",
-          variant: "destructive",
-        });
       }
     };
 
     if (!authLoading) {
       fetchAppointments();
     }
-  }, [user, isAuthenticated, authLoading, toast]);
+  }, [user, isAuthenticated, authLoading, toast, dispatch]);
 
   // Filter appointments based on active tab
   const filteredAppointments = bookingHistory.filter((appointment) => {

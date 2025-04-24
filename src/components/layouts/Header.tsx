@@ -195,7 +195,7 @@ export default function Header() {
                         {t("nav.dashboard")}
                       </Link>
                       <Link
-                        href={`${dashboardPath}/appointments`}
+                        href={`/dashboard/${dashboardPath}/bookings`}
                         className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-secondary/30 transition-colors"
                         onClick={() => setUserMenuOpen(false)}
                       >
@@ -203,7 +203,7 @@ export default function Header() {
                         {t("nav.appointments")}
                       </Link>
                       <Link
-                        href={`${dashboardPath}/settings`}
+                        href={`/dashboard/${dashboardPath}/settings`}
                         className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-secondary/30 transition-colors"
                         onClick={() => setUserMenuOpen(false)}
                       >

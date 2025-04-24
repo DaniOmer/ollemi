@@ -39,6 +39,7 @@ import {
   PencilIcon,
   CheckIcon,
 } from "@heroicons/react/24/outline";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 export default function UserDashboard() {
   const dispatch = useDispatch<AppDispatch>();
@@ -46,18 +47,16 @@ export default function UserDashboard() {
 
   // Redux state
   const isAuthenticated = useSelector(selectIsAuthenticated);
-  const user = useSelector(selectUserProfile);
   const profile = useSelector(selectUserProfile);
   const preferences = useSelector(selectUserPreferences);
   const favorites = useSelector(selectUserFavorites);
-  const bookingHistory = useSelector(selectBookingByUserId);
   const userLoading = useSelector(selectUserLoading);
   const bookingLoading = useSelector(selectBookingLoading);
   const error = useSelector(selectUserError);
   const loading = userLoading || bookingLoading;
 
   // Local state
-  const [activeTab, setActiveTab] = useState("profile");
+  const [activeTab, setActiveTab] = useState("favorites");
   const [editingProfile, setEditingProfile] = useState(false);
   const [editingPreferences, setEditingPreferences] = useState(false);
   const [profileForm, setProfileForm] = useState({
@@ -74,10 +73,12 @@ export default function UserDashboard() {
 
   useEffect(() => {
     // Fetch user data
-    dispatch(fetchUserProfile());
-    dispatch(fetchUserPreferences());
-    dispatch(fetchUserFavorites());
-    dispatch(fetchBookingByUserIdThunk(user?.id));
+    if (!profile || !preferences || !favorites) {
+      dispatch(fetchUserProfile());
+      dispatch(fetchUserPreferences());
+      dispatch(fetchUserFavorites());
+      dispatch(fetchBookingByUserIdThunk(profile?.id));
+    }
   }, [dispatch, isAuthenticated]);
 
   useEffect(() => {
@@ -137,25 +138,17 @@ export default function UserDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto p-6">
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-            <p className="ml-4 text-lg font-medium text-gray-700">
-              Loading your dashboard...
-            </p>
-          </div>
-        </div>
+      <div className="flex items-center justify-center min-h-screen">
+        <LoadingSpinner size="lg" />
       </div>
     );
   }
 
   // Navigation tabs
   const tabs = [
+    { id: "favorites", name: "Favorites", icon: HeartIcon },
     { id: "profile", name: "Profile", icon: UserIcon },
     { id: "preferences", name: "Preferences", icon: Cog6ToothIcon },
-    { id: "favorites", name: "Favorites", icon: HeartIcon },
-    { id: "appointments", name: "Appointments", icon: CalendarIcon },
   ];
 
   return (
@@ -547,138 +540,8 @@ export default function UserDashboard() {
                     <button
                       type="button"
                       className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
-                      onClick={() => router.push("/professionals")}
                     >
                       Browse Professionals
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Appointments Tab */}
-          {activeTab === "appointments" && (
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                My Appointments
-              </h2>
-
-              {bookingHistory && bookingHistory.length > 0 ? (
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
-                          Date & Time
-                        </th>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
-                          Professional
-                        </th>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
-                          Service
-                        </th>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
-                          Status
-                        </th>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {bookingHistory.map((booking: Booking) => (
-                        <tr key={booking.id}>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm font-medium text-gray-900">
-                              {new Date(
-                                booking.start_time
-                              ).toLocaleDateString()}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              {new Date(booking.start_time).toLocaleTimeString(
-                                [],
-                                {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                }
-                              )}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-900">
-                              {booking.client_name}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-900">
-                              Service ID: {booking.service_id}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span
-                              className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full
-                                ${
-                                  booking.status === "completed"
-                                    ? "bg-green-100 text-green-800"
-                                    : booking.status === "cancelled"
-                                    ? "bg-red-100 text-red-800"
-                                    : "bg-blue-100 text-blue-800"
-                                }
-                              `}
-                            >
-                              {booking.status
-                                ? booking.status.charAt(0).toUpperCase() +
-                                  booking.status.slice(1)
-                                : "Unknown"}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            <button className="text-blue-600 hover:text-blue-900 mr-3">
-                              Details
-                            </button>
-                            {booking.status !== "completed" &&
-                              booking.status !== "cancelled" && (
-                                <button className="text-red-600 hover:text-red-900">
-                                  Cancel
-                                </button>
-                              )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              ) : (
-                <div className="text-center py-12 bg-gray-50 rounded-lg">
-                  <CalendarIcon className="mx-auto h-12 w-12 text-gray-400" />
-                  <h3 className="mt-2 text-lg font-medium text-gray-900">
-                    No appointments found
-                  </h3>
-                  <p className="mt-1 text-sm text-gray-500">
-                    You don't have any past or upcoming appointments.
-                  </p>
-                  <div className="mt-6">
-                    <button
-                      type="button"
-                      className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
-                    >
-                      Book an Appointment
                     </button>
                   </div>
                 </div>
