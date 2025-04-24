@@ -49,9 +49,9 @@ export default function CustomersPage() {
 
   // Fetch appointments on component mount
   useEffect(() => {
-    if (bookings.length === 0) {
-      dispatch(fetchBookingsThunk(user?.company_id));
-    }
+    // if (bookings.length === 0) {
+    dispatch(fetchBookingsThunk(user?.company_id));
+    // }
   }, [dispatch, user?.company_id, bookings.length]);
 
   // Process customers data
@@ -80,6 +80,8 @@ export default function CustomersPage() {
     }
     return acc;
   }, []);
+
+  console.log("customers", bookings);
 
   // Filter customers by search query
   const filteredCustomers = customers.filter(
