@@ -8,11 +8,11 @@ export async function getBookings(
 }
 
 export async function createBooking(
-  booking: Booking
+  data: Booking
 ): Promise<ApiResponse<Booking>> {
-  return fetchPrivateApi<Booking>(`/companies/${booking.company_id}/bookings`, {
+  return fetchPrivateApi<Booking>(`/companies/${data?.company_id}/bookings`, {
     method: "POST",
-    data: booking,
+    data: data,
   });
 }
 
@@ -22,7 +22,7 @@ export async function updateBookingStatus(
   status: string
 ): Promise<ApiResponse<Booking>> {
   return fetchPrivateApi<Booking>(
-    `/companies/${booking.company_id}/bookings/${bookingId}`,
+    `/companies/${booking?.company?.id}/bookings/${bookingId}`,
     {
       method: "PATCH",
       data: { ...booking, status: status },

@@ -14,6 +14,7 @@ export async function PATCH(
     const body = await request.json();
 
     const supabaseWithAuth = createAuthClient(token);
+
     const { id: companyId, bookingId } = await params;
 
     if (!companyId || !bookingId) {
@@ -23,6 +24,10 @@ export async function PATCH(
       );
     }
 
+    // REMBEMBER TO DO THE FOLLOWING:
+    // - Check if the user is the owner of the company
+    // - Check if the user is the client of the booking
+    // - Check if the user is the professional of the booking
     const { data, error } = await supabaseWithAuth
       .from("appointments")
       .update({ status: body.status })

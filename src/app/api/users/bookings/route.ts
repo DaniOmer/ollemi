@@ -21,7 +21,7 @@ export async function GET(request: Request) {
     const { data: bookings, error: bookingsError } = await supabaseWithAuth
       .from("appointments")
       .select(
-        "id, client_id, client_name, client_email, client_phone, notes, start_time, end_time, status, service:services(name, price, duration), company:companies(name, phone, address:addresses(formatted_address, city, postal_code))"
+        "id, client_id, client_name, client_email, client_phone, notes, start_time, end_time, status, service:services(id, name, price, duration), company:companies(id, name, phone, address:addresses(id, formatted_address, city, postal_code))"
       )
       .eq("client_id", data.user.id);
 

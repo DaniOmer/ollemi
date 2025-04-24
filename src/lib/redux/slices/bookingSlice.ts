@@ -14,14 +14,12 @@ import {
 
 interface BookingState {
   bookings: Booking[];
-  currentUserBookings: Booking[];
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
 }
 
 const initialState: BookingState = {
   bookings: [],
-  currentUserBookings: [],
   status: "idle",
   error: null,
 };
@@ -187,7 +185,9 @@ const bookingSlice = createSlice({
       })
       .addCase(fetchBookingByUserIdThunk.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.currentUserBookings = action.payload || [];
+        if (action.payload) {
+          state.bookings = action.payload;
+        }
       })
       .addCase(fetchBookingByUserIdThunk.rejected, (state, action) => {
         state.status = "failed";
@@ -213,6 +213,6 @@ export const selectUpcomingBookings = (state: RootState) =>
   });
 
 export const selectBookingByUserId = (state: RootState) =>
-  state.bookings?.currentUserBookings || [];
+  state.bookings?.bookings || [];
 
 export default bookingSlice.reducer;
