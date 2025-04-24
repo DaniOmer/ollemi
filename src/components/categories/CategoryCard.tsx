@@ -13,7 +13,7 @@ type CategoryCardProps = {
 const CategoryCard = ({ id, name, imageUrl }: CategoryCardProps) => {
   return (
     <Link
-      href={`/category/${id}`}
+      href={`/categories/${id}`}
       className="category-card relative rounded-xl overflow-hidden transition-all h-48 block"
     >
       {/* Image */}

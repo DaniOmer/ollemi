@@ -73,24 +73,27 @@ export default function ProfessionalPage() {
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Header avec fil d'Ariane */}
-      <div className="bg-white border-b border-gray-200 py-3 px-4">
+      {/* <div className="bg-white border-b border-gray-200 py-3 px-4">
         <div className="container mx-auto">
           <div className="text-sm text-gray-500">
             <Link href="/" className="hover:text-gray-700">
               Accueil
             </Link>{" "}
             •{" "}
-            <Link href="/category" className="hover:text-gray-700">
+            <Link href="/categories" className="hover:text-gray-700">
               {professional.services?.[0]?.category || "Services"}
             </Link>{" "}
             •{" "}
-            <Link href="/paris" className="hover:text-gray-700">
+            <Link
+              href={`/pro/${professional.id}`}
+              className="hover:text-gray-700"
+            >
               {professional.city || "Paris"}
             </Link>{" "}
             • <span className="text-gray-700">{professional.name}</span>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Hero Section */}
       <div className="bg-white border-b border-gray-200">
