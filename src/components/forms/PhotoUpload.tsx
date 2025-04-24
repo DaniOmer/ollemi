@@ -9,12 +9,18 @@ import { Photo } from "@/types";
 import { v4 as uuidv4 } from "uuid";
 import { useTranslations } from "@/hooks/useTranslations";
 
+// Extend the Photo type for temporary photos
+interface TempPhoto extends Photo {
+  isTemp?: boolean;
+  file?: File;
+}
+
 interface PhotoUploadProps {
   companyId: string;
   existingPhotos?: Photo[];
-  tempPhotos?: Photo[];
+  tempPhotos?: TempPhoto[];
   onPhotoRemove?: (photoId: string) => void;
-  onAddTempPhoto?: (photo: Photo) => void;
+  onAddTempPhoto?: (photo: TempPhoto) => void;
   onRemoveTempPhoto?: (photoId: string) => void;
   className?: string;
   maxSizeMB?: number;
@@ -74,11 +80,14 @@ export function PhotoUpload({
     }));
 
     // Add to temporary photos via callback
-    const tempPhoto: Photo = {
+    const tempPhoto: TempPhoto = {
       id: photoId,
-      company_id: companyId,
+      pro_id: companyId,
       url: objectUrl,
       featured: false,
+      created_at: new Date().toISOString(),
+      updated_at: null,
+      alt: null,
       isTemp: true, // Flag to identify temporary photos
       file: file, // Attach the file object to the photo
     };
@@ -148,7 +157,7 @@ export function PhotoUpload({
         ))}
 
         {/* Temporary photos */}
-        {tempPhotos.map((photo: Photo) => (
+        {tempPhotos.map((photo: TempPhoto) => (
           <div key={photo.id} className="relative group aspect-square">
             <Image
               src={photo.url}

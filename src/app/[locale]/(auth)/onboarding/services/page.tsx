@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
@@ -9,8 +10,10 @@ import {
   selectServices,
   setServices,
 } from "@/lib/redux/slices/onboardingSlice";
-import { getCategories } from "@/lib/services/categories";
-import Image from "next/image";
+import {
+  fetchCategories,
+  selectCategoriesLoading,
+} from "@/lib/redux/slices/categoriesSlice";
 
 interface CategoryData {
   id: string;
@@ -32,24 +35,15 @@ export default function ServicesPage() {
   const [selectedCategories, setSelectedCategories] = useState<
     SelectedCategoryData[]
   >([]);
-  const [loading, setLoading] = useState(false);
-  const [fetchingCategories, setFetchingCategories] = useState(true);
+  const loading = useAppSelector(selectCategoriesLoading);
 
   // Fetch categories from API
   useEffect(() => {
     const fetchCategoriesData = async () => {
-      setFetchingCategories(true);
       try {
-        const response = await getCategories();
-        if (response.data) {
-          setCategories(response.data);
-        } else {
-          console.error("Failed to fetch categories:", response.error);
-        }
+        await dispatch(fetchCategories());
       } catch (error) {
         console.error("Error fetching categories:", error);
-      } finally {
-        setFetchingCategories(false);
       }
     };
 
@@ -118,7 +112,6 @@ export default function ServicesPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
 
     try {
       // Save data to Redux store
@@ -140,8 +133,6 @@ export default function ServicesPage() {
       router.push("/onboarding/team-size");
     } catch (error) {
       console.error("Error saving categories:", error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -155,7 +146,7 @@ export default function ServicesPage() {
       </p>
 
       <form onSubmit={handleSubmit}>
-        {fetchingCategories ? (
+        {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
             {Array(6)
               .fill(0)
@@ -244,8 +235,7 @@ export default function ServicesPage() {
             disabled={
               selectedCategories.length === 0 ||
               !selectedCategories.some((category) => category.isPrimary) ||
-              loading ||
-              fetchingCategories
+              loading
             }
             className="min-w-[120px]"
           >

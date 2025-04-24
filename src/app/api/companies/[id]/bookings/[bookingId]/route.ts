@@ -3,7 +3,7 @@ import { extractToken, createAuthClient } from "@/lib/supabase/client";
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string; bookingId: string } }
+  { params }: { params: Promise<{ id: string; bookingId: string }> }
 ) {
   try {
     const token = extractToken(request);

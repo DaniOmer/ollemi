@@ -401,18 +401,21 @@ export type Database = {
         Row: {
           id: string;
           name: string;
+          image_url: string | null;
           created_at: string;
           updated_at: string | null;
         };
         Insert: {
           id: string;
           name: string;
+          image_url: string | null;
           created_at: string;
           updated_at: string | null;
         };
         Update: {
           id: string;
           name: string;
+          image_url: string | null;
           created_at: string;
           updated_at: string | null;
         };

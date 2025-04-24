@@ -3,7 +3,7 @@ import { extractToken, createAuthClient } from "@/lib/supabase/client";
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string; addressId: string } }
+  { params }: { params: Promise<{ id: string; addressId: string }> }
 ) {
   const { id, addressId } = await params;
   const body = await request.json();

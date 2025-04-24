@@ -98,7 +98,7 @@ export default function ProBookingsPage() {
     clientName: "",
     serviceId: "all",
     dateRange: null as Date | null,
-    status: "all",
+    status: "all" as "all" | BookingStatus,
   });
   const [activeFilters, setActiveFilters] = useState(false);
 
@@ -134,7 +134,7 @@ export default function ProBookingsPage() {
       if (
         filters.serviceId &&
         filters.serviceId !== "all" &&
-        booking.service.id !== filters.serviceId
+        booking.service_id !== filters.serviceId
       ) {
         return false;
       }
@@ -295,27 +295,27 @@ export default function ProBookingsPage() {
   };
 
   // Get status badge
-  const getStatusBadge = (status: string | undefined) => {
+  const getStatusBadge = (status: BookingStatus | string | undefined) => {
     switch (status) {
-      case "pending":
+      case BookingStatus.PENDING:
         return (
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
             En attente
           </span>
         );
-      case "confirmed":
+      case BookingStatus.CONFIRMED:
         return (
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
             Confirmé
           </span>
         );
-      case "cancelled":
+      case BookingStatus.CANCELLED:
         return (
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
             Annulé
           </span>
         );
-      case "completed":
+      case BookingStatus.COMPLETED:
         return (
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
             Terminé
@@ -444,10 +444,12 @@ export default function ProBookingsPage() {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <div>{booking.service?.name}</div>
+                          <div>
+                            {booking.service?.name || "Service non spécifié"}
+                          </div>
                           <div className="text-sm text-muted-foreground">
-                            {booking.service?.duration} min •{" "}
-                            {booking.service?.price}€
+                            {booking.service?.duration || "--"} min •{" "}
+                            {booking.service?.price || "--"}€
                           </div>
                         </TableCell>
                         <TableCell>
@@ -582,11 +584,15 @@ export default function ProBookingsPage() {
                   Service
                 </h3>
                 <div className="bg-muted p-3 rounded-md">
-                  <p className="font-medium">{selectedBooking.service.name}</p>
+                  <p className="font-medium">
+                    {selectedBooking.service?.name || "Service non spécifié"}
+                  </p>
                   <div className="flex justify-between text-sm">
-                    <span>{selectedBooking.service.duration} minutes</span>
+                    <span>
+                      {selectedBooking.service?.duration || "--"} minutes
+                    </span>
                     <span className="font-medium">
-                      {selectedBooking.service.price}€
+                      {selectedBooking.service?.price || "--"}€
                     </span>
                   </div>
                 </div>
@@ -708,18 +714,22 @@ export default function ProBookingsPage() {
                 <SelectContent>
                   <SelectItem value="all">Tous les services</SelectItem>
                   {/* Get unique services from bookings */}
-                  {Array.from(new Set(bookings.map((b) => b.service?.id))).map(
-                    (serviceId) => {
-                      const service = bookings.find(
-                        (b) => b.service?.id === serviceId
-                      )?.service;
-                      return (
-                        <SelectItem key={serviceId} value={serviceId}>
-                          {service?.name}
-                        </SelectItem>
-                      );
-                    }
-                  )}
+                  {Array.from(
+                    new Set(
+                      bookings
+                        .map((b) => b.service?.id)
+                        .filter((id): id is string => id !== undefined)
+                    )
+                  ).map((serviceId) => {
+                    const service = bookings.find(
+                      (b) => b.service?.id === serviceId
+                    )?.service;
+                    return (
+                      <SelectItem key={serviceId} value={serviceId}>
+                        {service?.name}
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
             </div>
@@ -736,8 +746,11 @@ export default function ProBookingsPage() {
               <Label htmlFor="status">Statut</Label>
               <Select
                 value={filters.status}
-                onValueChange={(value) =>
-                  setFilters({ ...filters, status: value })
+                onValueChange={(value: string) =>
+                  setFilters({
+                    ...filters,
+                    status: value as "all" | BookingStatus,
+                  })
                 }
               >
                 <SelectTrigger id="status">
@@ -745,10 +758,18 @@ export default function ProBookingsPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Tous les statuts</SelectItem>
-                  <SelectItem value="pending">En attente</SelectItem>
-                  <SelectItem value="confirmed">Confirmé</SelectItem>
-                  <SelectItem value="completed">Terminé</SelectItem>
-                  <SelectItem value="cancelled">Annulé</SelectItem>
+                  <SelectItem value={BookingStatus.PENDING}>
+                    En attente
+                  </SelectItem>
+                  <SelectItem value={BookingStatus.CONFIRMED}>
+                    Confirmé
+                  </SelectItem>
+                  <SelectItem value={BookingStatus.COMPLETED}>
+                    Terminé
+                  </SelectItem>
+                  <SelectItem value={BookingStatus.CANCELLED}>
+                    Annulé
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -788,7 +809,9 @@ export default function ProBookingsPage() {
           {selectedBooking && (
             <div className="bg-muted p-3 rounded-md mb-4">
               <p className="font-medium">{selectedBooking.client_name}</p>
-              <p className="text-sm">{selectedBooking.service.name}</p>
+              <p className="text-sm">
+                {selectedBooking.service?.name || "Service non spécifié"}
+              </p>
               <p className="text-sm">
                 {formatAppointmentDate(selectedBooking.start_time)}
               </p>

@@ -261,10 +261,14 @@ export function EnhancedBookingFlow({
         createBookingThunk({
           service: selectedService,
           company_id: companyId,
-          client_id: user?.id,
           start_time: selectedTimeSlot.startTime.toISOString(),
           end_time: selectedTimeSlot.endTime.toISOString(),
           notes: formData.notes,
+          client_id: user?.id,
+          client_name: formData.firstName + " " + formData.lastName,
+          client_email: formData.email,
+          client_phone: formData.phone,
+          service_id: selectedService.id,
         })
       );
 

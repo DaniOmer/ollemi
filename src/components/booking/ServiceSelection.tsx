@@ -71,10 +71,11 @@ export default function ServiceSelection({
         <div className="border rounded-lg p-4">
           <Calendar
             mode="single"
-            selected={selectedDate}
+            selected={selectedDate || undefined}
             onSelect={handleDateSelect}
             locale={fr}
             className="rounded-md"
+            required={true}
           />
         </div>
         {selectedDate && (

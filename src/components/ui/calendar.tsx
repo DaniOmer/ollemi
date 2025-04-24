@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { DayPicker } from "react-day-picker";
-import { format } from "date-fns";
+import { format, Locale } from "date-fns";
 import { fr, enUS } from "date-fns/locale";
 import { useLocale } from "next-intl";
 
@@ -26,7 +26,7 @@ function Calendar({
 
   return (
     <DayPicker
-      ISOWeek
+      ISOWeek={true}
       showOutsideDays={showOutsideDays}
       className={cn("p-4 rounded-xl", className)}
       classNames={{

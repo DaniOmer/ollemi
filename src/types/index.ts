@@ -22,20 +22,22 @@ export enum BookingStatus {
 }
 
 export type Booking = {
-  id: string;
-  user_id: string | null;
-  user_first_name: string;
-  user_last_name: string;
-  user_email: string;
-  user_phone: string;
+  id?: string;
+  client_id: string | null;
+  client_name: string;
+  client_email: string;
+  client_phone: string;
   company_id: string;
   service_id: string;
   start_time: string;
   end_time: string;
-  status: BookingStatus;
-  notes: string | null;
-  created_at: string;
-  updated_at: string | null;
+  status?: BookingStatus;
+  notes?: string | null;
+  created_at?: string;
+  updated_at?: string | null;
+  // Fields from the join query
+  service?: Service;
+  customer?: User;
 };
 
 // Subscription types
@@ -127,12 +129,82 @@ export type PaymentProvider = {
   updated_at: string | null;
 };
 
+// Form data types
+export interface CompanyFormData extends Partial<Company> {
+  address?: string;
+  city?: string;
+  zipcode?: string;
+  imageUrl?: string;
+}
+
+export interface ServiceFormSchema {
+  name: string;
+  description: string;
+  duration: number;
+  price: number;
+  category: string;
+}
+
+// Original ServiceFormData type remains for other uses
+export type ServiceFormData = {
+  service_id: string;
+  start_time: string;
+  end_time: string;
+  notes: string;
+};
+
 export type BusinessHours = {
   id: string;
   company_id: string;
   day: number;
   start_time: string;
   end_time: string;
+  created_at: string;
+  updated_at: string | null;
+};
+
+export interface AvailabilityState {
+  businessHours: BusinessHours[];
+  status: "idle" | "loading" | "succeeded" | "failed";
+  error: string | null;
+}
+
+export interface SearchParams {
+  name?: string;
+  service?: string;
+  category?: string;
+  location?: string;
+  city?: string;
+  postalCode?: string;
+  date?: string;
+  price_min?: number;
+  price_max?: number;
+  rating?: number;
+}
+
+export type Customer = {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string;
+  bookings: Booking[];
+  totalBookings: number;
+  lastBooking: Date | null;
+};
+
+export type TeamMember = {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  image_url: string | null;
+};
+
+export type Review = {
+  id: string;
+  rating: number;
+  comment: string;
   created_at: string;
   updated_at: string | null;
 };

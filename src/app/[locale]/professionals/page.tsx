@@ -14,7 +14,7 @@ import {
   selectCategories,
   selectCategoriesLoading,
 } from "@/lib/redux/slices/categoriesSlice";
-import { Company, Category, Service } from "@/types";
+import { Company, Category, Service, Photo, Address } from "@/types";
 import { useTranslations } from "@/hooks/useTranslations";
 import Header from "@/components/layouts/Header";
 import Footer from "@/components/layouts/Footer";
@@ -27,6 +27,17 @@ import {
   X,
   Check,
 } from "lucide-react";
+
+// Extended company type with optional properties
+type ExtendedCompany = Company & {
+  photos?: Photo[];
+  services?: Service[];
+  addresses?: Address;
+  city?: string;
+  zipcode?: string;
+  rating?: number;
+  company_categories?: Array<{ category: Category }>;
+};
 
 export default function ProfessionalsPage() {
   const { t } = useTranslations();
@@ -165,7 +176,11 @@ export default function ProfessionalsPage() {
   };
 
   // Professional card component
-  const ProfessionalCard = ({ professional }: { professional: Company }) => {
+  const ProfessionalCard = ({
+    professional,
+  }: {
+    professional: ExtendedCompany;
+  }) => {
     return (
       <div className="bg-card rounded-xl shadow-soft overflow-hidden hover-lift transition-all">
         <div className="relative h-48 bg-gradient-to-br from-primary/10 to-accent/10">
@@ -183,18 +198,20 @@ export default function ProfessionalsPage() {
               </div>
             </div>
           )}
-          {professional.rating && (
+          {/* {professional.rating && (
             <div className="absolute top-2 right-2 bg-white/90 rounded-full px-2 py-1 flex items-center text-sm font-medium">
               <Star className="w-4 h-4 text-yellow-400 mr-1 fill-yellow-400" />
               {professional.rating.toFixed(1)}
             </div>
-          )}
+          )} */}
         </div>
         <div className="p-5">
           <h3 className="text-xl font-semibold mb-2">{professional.name}</h3>
           <div className="flex items-center text-sm text-muted-foreground mb-3">
             <MapPin className="w-4 h-4 mr-1" />
-            {professional.addresses?.city || t("common.noLocation")}
+            {professional.addresses?.city ||
+              professional.city ||
+              t("common.noLocation")}
           </div>
           <div className="flex flex-wrap gap-2 mb-4">
             {professional.services &&
@@ -490,7 +507,7 @@ export default function ProfessionalsPage() {
                     {filteredCompanies.map((company) => (
                       <ProfessionalCard
                         key={company.id}
-                        professional={company}
+                        professional={company as ExtendedCompany}
                       />
                     ))}
                   </div>

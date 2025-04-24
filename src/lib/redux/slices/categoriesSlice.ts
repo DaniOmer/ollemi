@@ -10,7 +10,7 @@ import { getCategories, getCategoryById } from "@/lib/services/categories";
 interface CategoriesState {
   categories: Category[];
   currentCategory: Category | null;
-  loading: boolean;
+  status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
 }
 
@@ -18,7 +18,7 @@ interface CategoriesState {
 const initialState: CategoriesState = {
   categories: [],
   currentCategory: null,
-  loading: false,
+  status: "idle",
   error: null,
 };
 
@@ -31,7 +31,6 @@ export const fetchCategories = createAsyncThunk<Category[]>(
       if (response.error) {
         return rejectWithValue(response.error);
       }
-      console.log("Categories fetched:", response.data);
       return response.data || [];
     } catch (error: any) {
       return rejectWithValue(error.message || "Failed to fetch categories");
@@ -71,28 +70,28 @@ const categoriesSlice = createSlice({
     builder
       // Fetch categories
       .addCase(fetchCategories.pending, (state) => {
-        state.loading = true;
+        state.status = "loading";
         state.error = null;
       })
       .addCase(fetchCategories.fulfilled, (state, action) => {
-        state.loading = false;
+        state.status = "succeeded";
         state.categories = action.payload;
       })
       .addCase(fetchCategories.rejected, (state, action) => {
-        state.loading = false;
+        state.status = "failed";
         state.error = action.payload as string;
       })
       // Fetch single category
       .addCase(fetchCategoryById.pending, (state) => {
-        state.loading = true;
+        state.status = "loading";
         state.error = null;
       })
       .addCase(fetchCategoryById.fulfilled, (state, action) => {
-        state.loading = false;
+        state.status = "succeeded";
         state.currentCategory = action.payload;
       })
       .addCase(fetchCategoryById.rejected, (state, action) => {
-        state.loading = false;
+        state.status = "failed";
         state.error = action.payload as string;
       });
   },
@@ -116,7 +115,7 @@ export const selectCurrentCategory = createSelector(
 
 export const selectCategoriesLoading = createSelector(
   [selectCategoriesState],
-  (categoriesState) => categoriesState.loading
+  (categoriesState) => categoriesState.status === "loading"
 );
 
 export const selectCategoriesError = createSelector(

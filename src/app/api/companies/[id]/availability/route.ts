@@ -8,7 +8,7 @@ import {
 // GET /api/companies/[id]/availability
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
@@ -46,7 +46,7 @@ export async function GET(
 // PUT /api/companies/[id]/availability
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;

@@ -13,7 +13,6 @@ import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import {
   Service,
   OpeningHours,
-  DayHours,
   TeamMember,
   Review,
   Photo,
@@ -39,186 +38,15 @@ export default function ProfessionalPage() {
   const dispatch = useAppDispatch();
   const professionalFromStore = useAppSelector(selectCurrentCompany);
   const loading = useAppSelector(selectCompaniesLoading);
-  const [useMockData, setUseMockData] = useState(false);
-
-  // Mock data for testing
-  const mockProfessional: Company = {
-    id: "1",
-    user_id: "1",
-    name: "Centre Anne Cali",
-    description:
-      "Entrez dans l'univers Anne Cali, kinésithérapeute de formation, elle repense le bien-être pour vous. Découvrez le GAD, une méthode drainante et anti-cellulite révolutionnaire. Un geste profond qui combine les effets d'un palper rouler et d'un drainage lymphatique pour une meilleure circulation et tonicité de la peau. L'équipe du centre vous accueille dans un cadre chaleureux et nous prendrons vos mesures au Scanner 3D lors de votre \"1er RDV Bilan\".",
-    address: "7 Rue Lamennais - Code 1638, Paris",
-    city: "Paris",
-    zipcode: "75008",
-    phone: "0123456789",
-    website: "https://www.annecali.com",
-    instagram: "https://www.instagram.com/annecali",
-    facebook: "https://www.facebook.com/annecali",
-    imageUrl:
-      "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=2053&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    rating: 4.9,
-    reviewCount: 193,
-    services: [
-      {
-        id: "1",
-        company_id: "1",
-        name: "OFFRE DECOUVERTE - 1ER RDV BILAN",
-        description: "Premier rendez-vous avec bilan complet",
-        price: 130,
-        duration: 75,
-        category: "Massages 1er RDV",
-      },
-      {
-        id: "2",
-        company_id: "1",
-        name: "Massages GAD",
-        description: "Massage drainant et anti-cellulite",
-        price: 90,
-        duration: 60,
-        category: "Massages GAD",
-      },
-      {
-        id: "3",
-        company_id: "1",
-        name: "Massages BELLY GAD ou REFLEXO",
-        description: "Massage du ventre ou réflexologie",
-        price: 90,
-        duration: 60,
-        category: "Massages BELLY GAD ou REFLEXO",
-      },
-      {
-        id: "4",
-        company_id: "1",
-        name: "Massages DETOX ou DEEP TISSUE",
-        description: "Massage détoxifiant ou massage profond",
-        price: 90,
-        duration: 60,
-        category: "Massages DETOX ou DEEP TISSUE",
-      },
-    ],
-    opening_hours: {
-      monday: { open: true, start: "09:00", end: "19:00" },
-      tuesday: { open: true, start: "09:00", end: "19:00" },
-      wednesday: { open: true, start: "09:00", end: "19:00" },
-      thursday: { open: true, start: "09:00", end: "19:00" },
-      friday: { open: true, start: "09:00", end: "19:00" },
-      saturday: { open: true, start: "10:00", end: "17:00" },
-      sunday: { open: false, start: "", end: "" },
-    },
-    team: [
-      {
-        id: "1",
-        name: "Jess",
-        role: "Masseuse",
-        imageUrl:
-          "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=1961&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      },
-      {
-        id: "2",
-        name: "Adeline",
-        role: "Masseuse",
-        imageUrl:
-          "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      },
-      {
-        id: "3",
-        name: "Ben",
-        role: "Masseur",
-        imageUrl:
-          "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      },
-      {
-        id: "4",
-        name: "Traicy",
-        role: "Masseuse",
-        imageUrl:
-          "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      },
-    ],
-    reviews: [
-      {
-        id: "1",
-        rating: 5,
-        comment: "Topissime !",
-        date: "2025-03-26T09:31:00Z",
-      },
-      {
-        id: "2",
-        rating: 5,
-        comment:
-          "Un grand merci à Franck pour son accueil et sa bienveillance 👍",
-        date: "2025-03-11T19:09:00Z",
-      },
-      {
-        id: "3",
-        rating: 5,
-        comment:
-          "Je viens juste de commencer mais je suis déjà conquise ! J'ai beaucoup... accueil top, soins super, équipe au top !",
-        date: "2025-03-06T13:54:00Z",
-      },
-      {
-        id: "4",
-        rating: 5,
-        comment: "Excellent service, je recommande vivement !",
-        date: "2025-03-05T17:04:00Z",
-      },
-    ],
-    photos: [
-      {
-        id: "1",
-        company_id: "1",
-        url: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=2053&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        alt: "Salon de massage",
-        featured: true,
-      },
-      {
-        id: "2",
-        company_id: "1",
-        url: "https://images.unsplash.com/photo-1600334129128-685c5582fd35?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        alt: "Salle de massage",
-        featured: false,
-      },
-      {
-        id: "3",
-        company_id: "1",
-        url: "https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        alt: "Produits de massage",
-        featured: false,
-      },
-      {
-        id: "4",
-        company_id: "1",
-        url: "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        alt: "Huiles essentielles",
-        featured: false,
-      },
-      {
-        id: "5",
-        company_id: "1",
-        url: "https://images.unsplash.com/photo-1470259078422-826894b933aa?q=80&w=2074&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        alt: "Accueil du salon",
-        featured: false,
-      },
-      {
-        id: "6",
-        company_id: "1",
-        url: "https://images.unsplash.com/photo-1519415510236-718bdfcd89c8?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        alt: "Table de massage",
-        featured: false,
-      },
-    ],
-  };
 
   // Set to use mock data by default
   useEffect(() => {
-    setUseMockData(true);
     // Still try to fetch from API in case it works
     dispatch(fetchCompanyById(id as string));
   }, [dispatch, id]);
 
   // Use mock data by default, or use data from store if available
-  const professional = professionalFromStore || mockProfessional;
+  const professional = professionalFromStore;
 
   if (loading && !professional) {
     return <LoadingSpinner />;
@@ -500,9 +328,9 @@ export default function ProfessionalPage() {
                 professional.team.map((member: TeamMember) => (
                   <div key={member.id} className="text-center">
                     <div className="w-24 h-24 mx-auto mb-3 rounded-full overflow-hidden bg-gray-200">
-                      {member.imageUrl ? (
+                      {member.image_url ? (
                         <img
-                          src={member.imageUrl}
+                          src={member.image_url}
                           alt={member.name}
                           className="w-full h-full object-cover"
                         />
@@ -597,7 +425,7 @@ export default function ProfessionalPage() {
                       <div>
                         <div className="font-medium text-gray-900">Client</div>
                         <div className="text-sm text-gray-500">
-                          {new Date(review.date).toLocaleDateString()}
+                          {new Date(review.created_at).toLocaleDateString()}
                         </div>
                       </div>
                     </div>

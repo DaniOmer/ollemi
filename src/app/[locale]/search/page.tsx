@@ -148,12 +148,12 @@ export default function SearchResults() {
   };
 
   // Filter results based on selected filters
-  const filteredResults = results.filter((company) => {
+  const filteredResults = results.filter((company: any) => {
     // Filter by price range if company has services
     const priceFilter =
       !company.services ||
       company.services.some(
-        (service) =>
+        (service: any) =>
           service.price >= priceRange[0] && service.price <= priceRange[1]
       );
 
@@ -413,7 +413,7 @@ export default function SearchResults() {
                 </div>
               ) : (
                 <div className="space-y-6">
-                  {filteredResults.map((company) => (
+                  {filteredResults.map((company: any) => (
                     <div
                       key={company.id}
                       className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow"
@@ -462,23 +462,25 @@ export default function SearchResults() {
                                 {t("search.popularServices")}
                               </h4>
                               <div className="flex flex-wrap gap-2">
-                                {company.services.slice(0, 3).map((service) => (
-                                  <div
-                                    key={service.id}
-                                    className="flex items-center bg-gray-100 rounded-full px-3 py-1 text-sm"
-                                  >
-                                    <span>{service.name}</span>
-                                    <span className="mx-1">•</span>
-                                    <span className="font-medium">
-                                      €{service.price}
-                                    </span>
-                                    <span className="mx-1">•</span>
-                                    <span className="flex items-center text-muted-foreground">
-                                      <Clock className="w-3 h-3 mr-1" />
-                                      {service.duration}min
-                                    </span>
-                                  </div>
-                                ))}
+                                {company.services
+                                  .slice(0, 3)
+                                  .map((service: any) => (
+                                    <div
+                                      key={service.id}
+                                      className="flex items-center bg-gray-100 rounded-full px-3 py-1 text-sm"
+                                    >
+                                      <span>{service.name}</span>
+                                      <span className="mx-1">•</span>
+                                      <span className="font-medium">
+                                        €{service.price}
+                                      </span>
+                                      <span className="mx-1">•</span>
+                                      <span className="flex items-center text-muted-foreground">
+                                        <Clock className="w-3 h-3 mr-1" />
+                                        {service.duration}min
+                                      </span>
+                                    </div>
+                                  ))}
                                 {company.services.length > 3 && (
                                   <div className="bg-gray-100 rounded-full px-3 py-1 text-sm">
                                     +{company.services.length - 3}{" "}

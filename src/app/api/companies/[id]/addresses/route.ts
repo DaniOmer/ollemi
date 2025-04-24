@@ -8,7 +8,7 @@ import {
 // GET /api/companies/[id]/addresses
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
@@ -46,7 +46,7 @@ export async function GET(
 // POST /api/companies/[id]/addresses
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
@@ -119,7 +119,7 @@ export async function POST(
 // PUT /api/companies/[id]/addresses/[addressId]
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string; addressId: string } }
+  { params }: { params: Promise<{ id: string; addressId: string }> }
 ) {
   try {
     const { id, addressId } = await params;

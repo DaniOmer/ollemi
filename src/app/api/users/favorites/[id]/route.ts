@@ -3,10 +3,10 @@ import { extractToken, createAuthClient } from "@/lib/supabase/client";
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const professionalId = params.id;
+    const { id } = await params;
 
     // Get token from the request
     const token = extractToken(request);
@@ -28,7 +28,7 @@ export async function DELETE(
       .from("user_favorites")
       .delete()
       .eq("user_id", data.user.id)
-      .eq("professional_id", professionalId);
+      .eq("professional_id", id);
 
     if (deleteError) {
       console.error("Error removing user favorite:", deleteError);

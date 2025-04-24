@@ -8,7 +8,7 @@ import {
 // GET /api/companies/[id]/photos
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
 
@@ -39,7 +39,7 @@ export async function GET(
 // POST /api/companies/[id]/photos
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
   const { photoUrl } = await request.json();

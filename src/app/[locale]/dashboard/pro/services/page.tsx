@@ -44,21 +44,19 @@ export default function ServicesPage() {
   }, [dispatch, user?.company_id]);
 
   // Handle service form submission
-  const handleServiceSubmit = (
-    formData: Omit<Service, "id" | "company_id">
-  ) => {
+  const handleServiceSubmit = (formData: Omit<Service, "id" | "pro_id">) => {
     if (editingService) {
       dispatch(
         updateServiceThunk({
           id: editingService.id,
-          service: { ...formData, company_id: user?.company_id || "" },
+          service: { ...formData, pro_id: user?.company_id || "" },
           companyId: user?.company_id || "",
         })
       );
     } else {
       dispatch(
         createServiceThunk({
-          service: { ...formData, company_id: user?.company_id || "" },
+          service: { ...formData, pro_id: user?.company_id || "" },
           companyId: user?.company_id || "",
         })
       );

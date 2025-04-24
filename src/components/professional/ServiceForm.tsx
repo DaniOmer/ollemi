@@ -4,7 +4,7 @@ import { Service } from "@/types";
 
 interface ServiceFormProps {
   initialData?: Service | null;
-  onSubmit: (formData: Omit<Service, "id" | "company_id">) => void;
+  onSubmit: (formData: Omit<Service, "id" | "pro_id">) => void;
   onCancel: () => void;
   isEditing: boolean;
 }
@@ -25,6 +25,8 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
     duration: 60,
     price: 0,
     category: "general",
+    created_at: new Date().toISOString(),
+    updated_at: null as string | null,
   });
 
   // Update form data when initialData changes
@@ -36,6 +38,8 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
         duration: initialData.duration || 60,
         price: initialData.price || 0,
         category: initialData.category || "",
+        created_at: initialData.created_at,
+        updated_at: initialData.updated_at,
       });
     }
   }, [initialData]);

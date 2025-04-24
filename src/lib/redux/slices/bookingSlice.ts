@@ -214,7 +214,7 @@ export const selectUpcomingBookings = (state: RootState) =>
 
 export const selectBookingByUserId = (state: RootState, userId: string) =>
   state.bookings?.bookings.filter(
-    (booking: Booking) => booking.user_id === userId
+    (booking: Booking) => booking.client_id === userId
   );
 
 export default bookingSlice.reducer;

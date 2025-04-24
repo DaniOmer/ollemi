@@ -190,7 +190,7 @@ export default function ProfessionalDashboard() {
                       {format(new Date(booking.start_time), "HH:mm")} -
                       {
                         services.find(
-                          (s: Service) => s.id === booking.service.id
+                          (s: Service) => s.id === booking?.service?.id
                         )?.name
                       }
                     </div>

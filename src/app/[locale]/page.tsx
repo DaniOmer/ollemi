@@ -5,7 +5,14 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { fetchCompanies } from "@/lib/redux/slices/companiesSlice";
 import { fetchCategories } from "@/lib/redux/slices/categoriesSlice";
-import { Professional, Company, Category } from "@/types";
+import {
+  Professional,
+  Company,
+  Category,
+  Photo,
+  Service,
+  Address,
+} from "@/types";
 import { useTranslations } from "@/hooks/useTranslations";
 import { MapPin, ChevronRight, Search } from "lucide-react";
 
@@ -91,7 +98,11 @@ export default function Home() {
   const ProfessionalCard = ({
     professional,
   }: {
-    professional: Professional;
+    professional: Professional & {
+      photos: Photo[];
+      services: Service[];
+      addresses: Address;
+    };
   }) => {
     return (
       <div className="bg-card rounded-xl shadow-soft overflow-hidden hover-lift transition-all">
@@ -274,7 +285,7 @@ export default function Home() {
                     key={category.id}
                     id={category.id}
                     name={category.name}
-                    imageUrl={category.imageUrl}
+                    imageUrl={category.image_url || ""}
                   />
                 ))}
               </Carousel>
@@ -320,9 +331,17 @@ export default function Home() {
               </div>
             ) : companies.length > 0 ? (
               <div className="grid md:grid-cols-3 gap-8">
-                {companies.slice(0, 3).map((company: Company) => (
-                  <ProfessionalCard key={company.id} professional={company} />
-                ))}
+                {companies.slice(0, 3).map(
+                  (
+                    company: Company & {
+                      photos: Photo[];
+                      services: Service[];
+                      addresses: Address;
+                    }
+                  ) => (
+                    <ProfessionalCard key={company.id} professional={company} />
+                  )
+                )}
               </div>
             ) : (
               <div className="text-center py-12 text-muted-foreground">

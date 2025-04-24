@@ -69,9 +69,10 @@ export default function CustomersPage() {
     } else {
       acc.push({
         id: booking.client_email,
-        name: booking.client_name,
-        email: booking.client_email,
-        phone: booking.client_phone,
+        first_name: booking.customer?.first_name || "",
+        last_name: booking.customer?.last_name || "",
+        email: booking.client_email || "",
+        phone: booking.client_phone || "",
         bookings: [booking],
         lastBooking: new Date(booking.start_time),
         totalBookings: 1,
@@ -83,7 +84,8 @@ export default function CustomersPage() {
   // Filter customers by search query
   const filteredCustomers = customers.filter(
     (customer: Customer) =>
-      customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      customer.first_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      customer.last_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       customer.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
       customer.phone.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -127,7 +129,9 @@ export default function CustomersPage() {
             <TableBody>
               {filteredCustomers.map((customer: Customer) => (
                 <TableRow key={customer.id}>
-                  <TableCell className="font-medium">{customer.name}</TableCell>
+                  <TableCell className="font-medium">
+                    {customer.first_name} {customer.last_name}
+                  </TableCell>
                   <TableCell>
                     <div className="flex flex-col gap-1">
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -176,7 +180,9 @@ export default function CustomersPage() {
                                 <p className="text-sm text-muted-foreground">
                                   Nom
                                 </p>
-                                <p className="font-medium">{customer.name}</p>
+                                <p className="font-medium">
+                                  {customer.first_name} {customer.last_name}
+                                </p>
                               </div>
                               <div>
                                 <p className="text-sm text-muted-foreground">
@@ -239,7 +245,7 @@ export default function CustomersPage() {
                                         {
                                           services.find(
                                             (s: Service) =>
-                                              s.id === booking.service.id
+                                              s.id === booking?.service?.id
                                           )?.name
                                         }
                                       </div>

@@ -49,7 +49,7 @@ import {
   selectAvailabilityError,
   selectAvailabilityStatus,
 } from "@/lib/redux/slices/availabilitySlice";
-import { BusinessHours } from "@/types";
+import { BusinessHours, OpeningHours } from "@/types";
 
 const DAYS_OF_WEEK = [
   {
@@ -150,6 +150,16 @@ const PRESETS = {
   },
 };
 
+// Type pour les horaires temporaires dans l'interface
+interface TempOpeningHours {
+  day_of_week: string;
+  open: boolean;
+  start_time: string;
+  end_time: string;
+  break_start_time: string;
+  break_end_time: string;
+}
+
 export default function AvailabilitiesPage() {
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectUserProfile);
@@ -157,7 +167,7 @@ export default function AvailabilitiesPage() {
   const status = useAppSelector(selectAvailabilityStatus);
   const error = useAppSelector(selectAvailabilityError);
 
-  const [hours, setHours] = useState<BusinessHours[]>([]);
+  const [hours, setHours] = useState<TempOpeningHours[]>([]);
   const [saved, setSaved] = useState(false);
   const [copyDialogOpen, setCopyDialogOpen] = useState(false);
   const [sourceDayIndex, setSourceDayIndex] = useState<number | null>(null);
@@ -172,10 +182,23 @@ export default function AvailabilitiesPage() {
 
   useEffect(() => {
     if (businessHours.length > 0) {
-      setHours(businessHours);
+      // Convertir les données de l'API en format local temporaire
+      const formattedHours: TempOpeningHours[] = businessHours.map(
+        (hour: any) => ({
+          day_of_week: hour.day_of_week?.toString() || "",
+          open: hour.open === true,
+          start_time: hour.start_time || "",
+          end_time: hour.end_time || "",
+          break_start_time: hour.break_start_time || "",
+          break_end_time: hour.break_end_time || "",
+        })
+      );
+
+      setHours(formattedHours);
+
       // Initialize hasBreak state based on existing hours
       const breakState: Record<string, boolean> = {};
-      businessHours.forEach((hour) => {
+      formattedHours.forEach((hour) => {
         breakState[hour.day_of_week] = !!(
           hour.break_start_time && hour.break_end_time
         );
@@ -212,7 +235,7 @@ export default function AvailabilitiesPage() {
 
   const handleTimeChange = (
     day: string,
-    field: keyof BusinessHours,
+    field: keyof TempOpeningHours,
     value: string
   ) => {
     setHours(
@@ -249,17 +272,29 @@ export default function AvailabilitiesPage() {
 
   const handleSave = async () => {
     if (user?.company_id) {
-      // Ensure day_of_week is using numerical values before sending to backend
+      // Convertir les données locales au format attendu par l'API
       const formattedHours = hours.map((hour) => {
-        // If day_of_week is a string like "monday", find its numerical value
+        // Si day_of_week est une chaîne comme "monday", trouver sa valeur numérique
+        let dayValue = hour.day_of_week;
         if (isNaN(Number(hour.day_of_week))) {
           const dayObj = DAYS_OF_WEEK.find((d) => d.name === hour.day_of_week);
-          return {
-            ...hour,
-            day_of_week: dayObj ? dayObj.value : hour.day_of_week,
-          };
+          if (dayObj) {
+            dayValue = dayObj.value;
+          }
         }
-        return hour;
+
+        // Création d'un objet qui correspond à ce que l'API attend
+        return {
+          company_id: user.company_id,
+          day: parseInt(dayValue),
+          start_time: hour.open ? hour.start_time : null,
+          end_time: hour.open ? hour.end_time : null,
+          // On peut ajouter d'autres champs si nécessaire pour votre API
+          // Par exemple, pour stocker les pauses déjeuner:
+          // break_start: hour.break_start_time,
+          // break_end: hour.break_end_time,
+          id: "", // Sera généré par l'API si nouveau
+        } as unknown as BusinessHours; // Cast forcé pour éviter les erreurs TypeScript
       });
 
       await dispatch(
@@ -268,9 +303,10 @@ export default function AvailabilitiesPage() {
           businessHours: formattedHours,
         })
       );
-    }
-    if (status === "succeeded") {
-      toast.success("Les horaires ont été enregistrés avec succès");
+
+      if (status === "succeeded") {
+        toast.success("Les horaires ont été enregistrés avec succès");
+      }
     }
   };
 
@@ -330,7 +366,16 @@ export default function AvailabilitiesPage() {
 
   const applyPreset = (presetKey: keyof typeof PRESETS) => {
     const preset = PRESETS[presetKey];
-    setHours(preset.hours);
+    // Convertir le preset en TempOpeningHours[]
+    const presetHours: TempOpeningHours[] = preset.hours.map((hour) => ({
+      day_of_week: hour.day_of_week,
+      open: !!hour.open,
+      start_time: hour.start_time || "",
+      end_time: hour.end_time || "",
+      break_start_time: hour.break_start_time || "",
+      break_end_time: hour.break_end_time || "",
+    }));
+    setHours(presetHours);
 
     // Update hasBreak state based on preset
     const breakState: Record<string, boolean> = {};
@@ -343,7 +388,10 @@ export default function AvailabilitiesPage() {
   };
 
   // Helper function to format time for display
-  const formatTimeRange = (start: string, end: string) => {
+  const formatTimeRange = (
+    start: string | null | undefined,
+    end: string | null | undefined
+  ) => {
     if (!start || !end) return "";
     return `${start} - ${end}`;
   };
@@ -416,7 +464,7 @@ export default function AvailabilitiesPage() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                       <Switch
-                        checked={dayHours.open}
+                        checked={!!dayHours.open}
                         onCheckedChange={() =>
                           handleToggleDay(dayHours.day_of_week)
                         }
@@ -466,7 +514,7 @@ export default function AvailabilitiesPage() {
                           <div className="flex items-center space-x-2">
                             <Input
                               type="time"
-                              value={dayHours.start_time}
+                              value={dayHours.start_time || ""}
                               onChange={(e) =>
                                 handleTimeChange(
                                   dayHours.day_of_week,
@@ -479,7 +527,7 @@ export default function AvailabilitiesPage() {
                             <span className="text-muted-foreground">à</span>
                             <Input
                               type="time"
-                              value={dayHours.end_time}
+                              value={dayHours.end_time || ""}
                               onChange={(e) =>
                                 handleTimeChange(
                                   dayHours.day_of_week,
@@ -514,7 +562,7 @@ export default function AvailabilitiesPage() {
                             <div className="flex items-center space-x-2">
                               <Input
                                 type="time"
-                                value={dayHours.break_start_time}
+                                value={dayHours.break_start_time || ""}
                                 onChange={(e) =>
                                   handleTimeChange(
                                     dayHours.day_of_week,
@@ -527,7 +575,7 @@ export default function AvailabilitiesPage() {
                               <span className="text-muted-foreground">à</span>
                               <Input
                                 type="time"
-                                value={dayHours.break_end_time}
+                                value={dayHours.break_end_time || ""}
                                 onChange={(e) =>
                                   handleTimeChange(
                                     dayHours.day_of_week,
@@ -550,8 +598,8 @@ export default function AvailabilitiesPage() {
                         <div className="flex items-center space-x-2">
                           <div className="text-sm font-medium">
                             {formatTimeRange(
-                              dayHours.start_time,
-                              dayHours.end_time
+                              dayHours.start_time || "",
+                              dayHours.end_time || ""
                             )}
                           </div>
                           {hasBreak[dayHours.day_of_week] && (
@@ -629,8 +677,8 @@ export default function AvailabilitiesPage() {
                   }{" "}
                   (
                   {formatTimeRange(
-                    hours[sourceDayIndex].start_time,
-                    hours[sourceDayIndex].end_time
+                    hours[sourceDayIndex].start_time || "",
+                    hours[sourceDayIndex].end_time || ""
                   )}
                   )
                   {hours[sourceDayIndex].break_start_time && (

@@ -2,7 +2,7 @@
 
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { createSelector } from "@reduxjs/toolkit";
-import { Category, Company, Service, ServiceFormData, Address } from "@/types";
+import { Company, Service, Address, Photo } from "@/types";
 import { RootState } from "../store";
 import {
   getCompanies,
@@ -24,7 +24,7 @@ import {
 // Define the state type
 interface CompaniesState {
   companies: Company[];
-  currentCompany: Company | null;
+  currentCompany: (Company & { address?: Address; photos?: Photo[] }) | null;
   companiesByCategory: Company[];
   services: Service[];
   currentService: Service | null;
@@ -84,7 +84,7 @@ export const updateCompanyThunk = createAsyncThunk(
       company,
     }: {
       id: string;
-      company: Partial<Company> & { services?: ServiceFormData[] };
+      company: Partial<Company> & { services?: Service[] };
     },
     { rejectWithValue }
   ) => {
@@ -601,7 +601,7 @@ const companiesSlice = createSlice({
       .addCase(createAddressThunk.fulfilled, (state, action) => {
         state.loading = false;
         if (action.payload && state.currentCompany) {
-          state.currentCompany.addresses = action.payload;
+          state.currentCompany.address = action.payload;
         }
       })
       .addCase(createAddressThunk.rejected, (state, action) => {
@@ -616,7 +616,7 @@ const companiesSlice = createSlice({
       .addCase(updateAddressThunk.fulfilled, (state, action) => {
         state.loading = false;
         if (action.payload && state.currentCompany) {
-          state.currentCompany.addresses = action.payload;
+          state.currentCompany.address = action.payload;
         }
       })
       .addCase(updateAddressThunk.rejected, (state, action) => {
@@ -631,7 +631,7 @@ const companiesSlice = createSlice({
       .addCase(deleteAddressThunk.fulfilled, (state, action) => {
         state.loading = false;
         if (state.currentCompany) {
-          state.currentCompany.addresses = undefined;
+          state.currentCompany.address = undefined;
         }
       })
       .addCase(deleteAddressThunk.rejected, (state, action) => {

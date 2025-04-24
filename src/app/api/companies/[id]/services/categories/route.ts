@@ -7,7 +7,7 @@ import {
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string; serviceId: string } }
+  { params }: { params: Promise<{ id: string; serviceId: string }> }
 ) {
   const { id, serviceId } = await params;
 
@@ -29,7 +29,7 @@ export async function GET(
 
 export async function POST(
   request: Request,
-  { params }: { params: { id: string; serviceId: string } }
+  { params }: { params: Promise<{ id: string; serviceId: string }> }
 ) {
   const { id, serviceId } = await params;
   const body = await request.json();

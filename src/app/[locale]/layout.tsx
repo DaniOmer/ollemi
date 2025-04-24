@@ -11,11 +11,11 @@ export default function LocaleLayout({
   params,
 }: {
   children: React.ReactNode;
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
   // Properly unwrap params using React.use()
-  const unwrappedParams = React.use(params as any);
-  const locale = (unwrappedParams as { locale: string }).locale;
+  const unwrappedParams = React.use(params);
+  const locale = unwrappedParams.locale;
 
   const [messages, setMessages] = useState<Record<string, any> | null>(null);
 

@@ -7,7 +7,7 @@ import Image from "next/image";
 import { useSelector } from "react-redux";
 
 import { useTranslations } from "@/hooks/useTranslations";
-import { Category, Professional } from "@/types";
+import { Category, Professional, Photo, Address, Service } from "@/types";
 
 import { useAppDispatch } from "@/lib/redux/store";
 import { selectCompaniesByCategory } from "@/lib/redux/slices/companiesSlice";
@@ -79,7 +79,11 @@ const CategoryPage = () => {
   const ProfessionalCard = ({
     professional,
   }: {
-    professional: Professional;
+    professional: Professional & {
+      photos?: Photo[];
+      addresses?: Address;
+      services?: Service[];
+    };
   }) => {
     return (
       <div className="bg-card rounded-xl shadow-soft overflow-hidden hover-lift transition-all">
@@ -88,13 +92,6 @@ const CategoryPage = () => {
             <Image
               src={professional.photos[0].url}
               alt={professional.photos[0].alt || professional.name}
-              fill
-              className="object-cover"
-            />
-          ) : professional.imageUrl ? (
-            <Image
-              src={professional.imageUrl}
-              alt={professional.name}
               fill
               className="object-cover"
             />

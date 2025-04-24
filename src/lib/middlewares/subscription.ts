@@ -31,7 +31,8 @@ export async function checkSubscriptionFeature(
       return false;
     }
 
-    const features = subscription.subscription_plans?.features;
+    // Accéder au premier élément du tableau avant d'accéder à features
+    const features = subscription.subscription_plans?.[0]?.features;
 
     if (!features || !features[feature]) {
       // Feature not defined in the subscription plan

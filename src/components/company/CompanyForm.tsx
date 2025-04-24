@@ -4,7 +4,13 @@ import { useState, useEffect, useRef } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Company, Service, ServiceFormData } from "@/types";
+import {
+  Company,
+  Service,
+  ServiceFormData,
+  CompanyFormData,
+  ServiceFormSchema,
+} from "@/types";
 import {
   Form,
   FormControl,
@@ -51,10 +57,10 @@ declare global {
 // Define the service schema for the form
 const serviceSchema = z.object({
   name: z.string().min(2, "Service name must be at least 2 characters"),
-  description: z.string().optional(),
+  description: z.string().default(""),
   duration: z.number().min(5, "Duration must be at least 5 minutes"),
   price: z.number().min(0, "Price must be a positive number"),
-  category: z.string().optional(),
+  category: z.string().default("general"),
 });
 
 // Define the form schema with validation
@@ -73,22 +79,17 @@ const companyFormSchema = z.object({
   instagram: z.string().optional(),
   facebook: z.string().optional(),
   imageUrl: z.string().optional(),
-  services: z
-    .array(serviceSchema)
-    .optional()
-    .transform((services) =>
-      services?.map((service) => service as ServiceFormData)
-    ),
+  services: z.array(serviceSchema).optional(),
 });
 
 type CompanyFormValues = z.infer<typeof companyFormSchema>;
 
 interface CompanyFormProps {
-  initialData?: Partial<Company>;
+  initialData?: CompanyFormData;
   onSubmit: (data: CompanyFormValues) => void;
   onCancel?: () => void;
   isEditing?: boolean;
-  initialServices?: Service[] | ServiceFormData[];
+  initialServices?: Service[] | ServiceFormSchema[];
   onServiceSubmit?: (service: Omit<Service, "id">) => void;
 }
 
@@ -119,16 +120,24 @@ export default function CompanyForm({
       facebook: initialData?.facebook || "",
       imageUrl: initialData?.imageUrl || "",
       services:
-        initialServices.map(
-          (service) =>
-            ({
-              name: service.name,
-              description: service.description || "",
-              duration: service.duration || 60,
-              price: service.price || 0,
-              category: service.category || "general",
-            } as ServiceFormData)
-        ) || [],
+        initialServices.map((service) => {
+          // Handle both Service and ServiceFormSchema types
+          const name = "name" in service ? service.name : "";
+          const description =
+            "description" in service ? service.description ?? "" : "";
+          const duration = "duration" in service ? service.duration : 60;
+          const price = "price" in service ? service.price : 0;
+          const category =
+            "category" in service ? service.category ?? "general" : "general";
+
+          return {
+            name,
+            description,
+            duration,
+            price,
+            category,
+          };
+        }) || [],
     },
   });
 
@@ -200,13 +209,24 @@ export default function CompanyForm({
         facebook: initialData.facebook || "",
         imageUrl: initialData.imageUrl || "",
         services:
-          initialServices.map((service) => ({
-            name: service.name,
-            description: service.description || "",
-            duration: service.duration || 60,
-            price: service.price || 0,
-            category: service.category || "general",
-          })) || [],
+          initialServices.map((service) => {
+            // Handle both Service and ServiceFormSchema types
+            const name = "name" in service ? service.name : "";
+            const description =
+              "description" in service ? service.description ?? "" : "";
+            const duration = "duration" in service ? service.duration : 60;
+            const price = "price" in service ? service.price : 0;
+            const category =
+              "category" in service ? service.category ?? "general" : "general";
+
+            return {
+              name,
+              description,
+              duration,
+              price,
+              category,
+            };
+          }) || [],
       });
       setImageUrl(initialData.imageUrl || "");
     }

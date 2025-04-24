@@ -628,7 +628,7 @@ export default function UserDashboard() {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="text-sm text-gray-900">
-                              {booking.user_first_name} {booking.user_last_name}
+                              {booking.client_name}
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
@@ -648,8 +648,10 @@ export default function UserDashboard() {
                                 }
                               `}
                             >
-                              {booking.status.charAt(0).toUpperCase() +
-                                booking.status.slice(1)}
+                              {booking.status
+                                ? booking.status.charAt(0).toUpperCase() +
+                                  booking.status.slice(1)
+                                : "Unknown"}
                             </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

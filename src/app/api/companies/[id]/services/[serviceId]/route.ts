@@ -3,7 +3,7 @@ import { extractToken, createAuthClient } from "@/lib/supabase/client";
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string; serviceId: string } }
+  { params }: { params: Promise<{ id: string; serviceId: string }> }
 ) {
   const { id, serviceId } = await params;
   const token = extractToken(request);
@@ -43,7 +43,7 @@ export async function GET(
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string; serviceId: string } }
+  { params }: { params: Promise<{ id: string; serviceId: string }> }
 ) {
   const { id, serviceId } = await params;
   const body = await request.json();
@@ -103,7 +103,7 @@ export async function PUT(
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string; serviceId: string } }
+  { params }: { params: Promise<{ id: string; serviceId: string }> }
 ) {
   const { id, serviceId } = await params;
   const body = await request.json();
@@ -163,7 +163,7 @@ export async function PATCH(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string; serviceId: string } }
+  { params }: { params: Promise<{ id: string; serviceId: string }> }
 ) {
   const { id, serviceId } = await params;
   const token = extractToken(request);
