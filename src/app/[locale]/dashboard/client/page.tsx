@@ -122,50 +122,50 @@ export default function UserDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      <div className="container mx-auto py-4 md:py-8 px-3 sm:px-6 lg:px-8">
         {/* Welcome Header */}
-        <div className="bg-white rounded-xl shadow-sm mb-8 p-6">
-          <h1 className="text-2xl font-bold text-gray-900">
+        <div className="bg-white rounded-xl shadow-sm mb-4 md:mb-8 p-4 md:p-6">
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900">
             Welcome back, {profile?.first_name || "User"}!
           </h1>
-          <p className="text-gray-600 mt-1">
+          <p className="text-gray-600 mt-1 text-sm md:text-base">
             Here's what's happening with your account
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
           {/* Main Content - Left Column */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className="md:col-span-1 lg:col-span-2 space-y-4 md:space-y-8 order-2 lg:order-1">
             {/* Upcoming Appointments */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-bold text-gray-900 flex items-center">
+            <div className="bg-white rounded-xl shadow-sm p-4 md:p-6">
+              <div className="flex justify-between items-center mb-4 md:mb-6">
+                <h2 className="text-lg md:text-xl font-bold text-gray-900 flex items-center">
                   <CalendarIcon className="h-5 w-5 mr-2 text-blue-500" />
                   Upcoming Appointments
                 </h2>
                 <Link
                   href="/dashboard/client/bookings"
-                  className="text-sm text-blue-600 hover:text-blue-800 flex items-center"
+                  className="text-xs md:text-sm text-blue-600 hover:text-blue-800 flex items-center"
                 >
                   View all <ArrowRightIcon className="h-4 w-4 ml-1" />
                 </Link>
               </div>
 
               {upcomingAppointments && upcomingAppointments.length > 0 ? (
-                <div className="space-y-4">
+                <div className="space-y-3 md:space-y-4">
                   {upcomingAppointments.map((booking: Booking) => (
                     <div
                       key={booking.id}
-                      className="flex items-center border border-gray-100 rounded-lg p-4 hover:bg-gray-50"
+                      className="flex flex-col sm:flex-row items-start sm:items-center border border-gray-100 rounded-lg p-3 md:p-4 hover:bg-gray-50"
                     >
-                      <div className="bg-blue-100 rounded-full p-3 mr-4">
-                        <ClockIcon className="h-6 w-6 text-blue-600" />
+                      <div className="bg-blue-100 rounded-full p-3 mr-4 mb-2 sm:mb-0">
+                        <ClockIcon className="h-5 w-5 md:h-6 md:w-6 text-blue-600" />
                       </div>
-                      <div className="flex-grow">
+                      <div className="flex-grow mb-2 sm:mb-0">
                         <p className="font-medium text-gray-900">
                           {booking.company?.name || "Appointment"}
                         </p>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-xs md:text-sm text-gray-500">
                           {formatDate(booking.start_time)} at{" "}
                           {formatTime(booking.start_time)}
                         </p>
@@ -174,7 +174,7 @@ export default function UserDashboard() {
                         onClick={() =>
                           router.push(`/dashboard/client/bookings`)
                         }
-                        className="text-xs bg-blue-100 text-blue-800 py-1 px-3 rounded-full"
+                        className="text-xs bg-blue-100 text-blue-800 py-1 px-3 rounded-full w-full sm:w-auto text-center"
                       >
                         Details
                       </button>
@@ -182,18 +182,18 @@ export default function UserDashboard() {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-8 bg-gray-50 rounded-lg">
-                  <CalendarIcon className="mx-auto h-10 w-10 text-gray-400" />
-                  <h3 className="mt-2 text-base font-medium text-gray-900">
+                <div className="text-center py-6 md:py-8 bg-gray-50 rounded-lg">
+                  <CalendarIcon className="mx-auto h-8 w-8 md:h-10 md:w-10 text-gray-400" />
+                  <h3 className="mt-2 text-sm md:text-base font-medium text-gray-900">
                     No upcoming appointments
                   </h3>
-                  <p className="mt-1 text-sm text-gray-500">
+                  <p className="mt-1 text-xs md:text-sm text-gray-500">
                     Schedule your next appointment now
                   </p>
-                  <div className="mt-6">
+                  <div className="mt-4 md:mt-6">
                     <button
                       type="button"
-                      className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+                      className="inline-flex items-center px-3 py-1.5 md:px-4 md:py-2 border border-transparent rounded-md shadow-sm text-xs md:text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
                       onClick={() => router.push("/professionals")}
                     >
                       Book an Appointment
@@ -204,9 +204,9 @@ export default function UserDashboard() {
             </div>
 
             {/* Recent Activity */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-bold text-gray-900 flex items-center">
+            <div className="bg-white rounded-xl shadow-sm p-4 md:p-6">
+              <div className="flex justify-between items-center mb-4 md:mb-6">
+                <h2 className="text-lg md:text-xl font-bold text-gray-900 flex items-center">
                   <FireIcon className="h-5 w-5 mr-2 text-orange-500" />
                   Recent Activity
                 </h2>
@@ -214,25 +214,25 @@ export default function UserDashboard() {
 
               {recentCompletedAppointments &&
               recentCompletedAppointments.length > 0 ? (
-                <div className="space-y-4">
+                <div className="space-y-3 md:space-y-4">
                   {recentCompletedAppointments.map((booking: Booking) => (
                     <div
                       key={booking.id}
-                      className="border-l-4 border-green-500 pl-4 py-2"
+                      className="border-l-4 border-green-500 pl-3 md:pl-4 py-2"
                     >
-                      <p className="font-medium text-gray-900">
+                      <p className="font-medium text-gray-900 text-sm md:text-base">
                         Completed appointment with{" "}
                         {booking.company?.name || "Professional"}
                       </p>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-xs md:text-sm text-gray-500">
                         {formatDate(booking.start_time)}
                       </p>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-6 bg-gray-50 rounded-lg">
-                  <p className="text-sm text-gray-500">
+                <div className="text-center py-4 md:py-6 bg-gray-50 rounded-lg">
+                  <p className="text-xs md:text-sm text-gray-500">
                     No recent activity to display
                   </p>
                 </div>
@@ -241,11 +241,11 @@ export default function UserDashboard() {
           </div>
 
           {/* Sidebar - Right Column */}
-          <div className="space-y-8">
+          <div className="space-y-4 md:space-y-8 order-1 lg:order-2">
             {/* Profile Summary */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold text-gray-900 flex items-center">
+            <div className="bg-white rounded-xl shadow-sm p-4 md:p-6">
+              <div className="flex justify-between items-center mb-3 md:mb-4">
+                <h2 className="text-lg md:text-xl font-bold text-gray-900 flex items-center">
                   <UserIcon className="h-5 w-5 mr-2 text-purple-500" />
                   Profile Summary
                 </h2>
@@ -256,24 +256,28 @@ export default function UserDashboard() {
                   Edit
                 </Link>
               </div>
-              <div className="space-y-3">
+              <div className="space-y-2 md:space-y-3">
                 <div>
                   <p className="text-xs text-gray-500">Name</p>
-                  <p className="font-medium">
+                  <p className="font-medium text-sm md:text-base">
                     {profile?.first_name} {profile?.last_name}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500">Email</p>
-                  <p className="font-medium">{profile?.email}</p>
+                  <p className="font-medium text-sm md:text-base overflow-hidden text-ellipsis">
+                    {profile?.email}
+                  </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500">Phone</p>
-                  <p className="font-medium">{profile?.phone || "-"}</p>
+                  <p className="font-medium text-sm md:text-base">
+                    {profile?.phone || "-"}
+                  </p>
                 </div>
                 <Link
                   href="/dashboard/client/settings"
-                  className="block mt-4 text-center text-sm text-blue-600 hover:text-blue-800 py-2 border border-blue-200 rounded-lg hover:bg-blue-50"
+                  className="block mt-3 md:mt-4 text-center text-xs md:text-sm text-blue-600 hover:text-blue-800 py-1.5 md:py-2 border border-blue-200 rounded-lg hover:bg-blue-50"
                 >
                   View Full Profile
                 </Link>
@@ -281,34 +285,34 @@ export default function UserDashboard() {
             </div>
 
             {/* Statistics */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <h2 className="text-xl font-bold text-gray-900 flex items-center mb-6">
+            <div className="bg-white rounded-xl shadow-sm p-4 md:p-6">
+              <h2 className="text-lg md:text-xl font-bold text-gray-900 flex items-center mb-4 md:mb-6">
                 <CalculatorIcon className="h-5 w-5 mr-2 text-green-500" />
                 Your Statistics
               </h2>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-blue-50 p-4 rounded-lg text-center">
-                  <p className="text-3xl font-bold text-blue-600">
+              <div className="grid grid-cols-2 gap-3 md:gap-4">
+                <div className="bg-blue-50 p-3 md:p-4 rounded-lg text-center">
+                  <p className="text-xl md:text-3xl font-bold text-blue-600">
                     {totalAppointments}
                   </p>
                   <p className="text-xs text-gray-600 mt-1">
                     Total Appointments
                   </p>
                 </div>
-                <div className="bg-purple-50 p-4 rounded-lg text-center">
-                  <p className="text-3xl font-bold text-purple-600">
+                <div className="bg-purple-50 p-3 md:p-4 rounded-lg text-center">
+                  <p className="text-xl md:text-3xl font-bold text-purple-600">
                     {completedAppointments}
                   </p>
                   <p className="text-xs text-gray-600 mt-1">Completed</p>
                 </div>
-                <div className="bg-pink-50 p-4 rounded-lg text-center">
-                  <p className="text-3xl font-bold text-pink-600">
+                <div className="bg-pink-50 p-3 md:p-4 rounded-lg text-center">
+                  <p className="text-xl md:text-3xl font-bold text-pink-600">
                     {totalFavorites}
                   </p>
                   <p className="text-xs text-gray-600 mt-1">Favorite Pros</p>
                 </div>
-                <div className="bg-green-50 p-4 rounded-lg text-center">
-                  <p className="text-3xl font-bold text-green-600">
+                <div className="bg-green-50 p-3 md:p-4 rounded-lg text-center">
+                  <p className="text-xl md:text-3xl font-bold text-green-600">
                     {completedAppointments > 0 ? "★★★★☆" : "-"}
                   </p>
                   <p className="text-xs text-gray-600 mt-1">Average Rating</p>
@@ -317,30 +321,30 @@ export default function UserDashboard() {
             </div>
 
             {/* Quick Actions */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">
+            <div className="bg-white rounded-xl shadow-sm p-4 md:p-6">
+              <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-3 md:mb-4">
                 Quick Actions
               </h2>
-              <div className="space-y-3">
+              <div className="space-y-2 md:space-y-3">
                 <button
                   onClick={() => router.push("/professionals")}
-                  className="w-full text-left px-4 py-3 rounded-lg bg-blue-600 text-white hover:bg-blue-700 flex items-center"
+                  className="w-full text-left px-3 md:px-4 py-2 md:py-3 rounded-lg bg-blue-600 text-white hover:bg-blue-700 flex items-center text-xs md:text-sm"
                 >
-                  <CalendarIcon className="h-5 w-5 mr-3" />
+                  <CalendarIcon className="h-4 w-4 md:h-5 md:w-5 mr-2 md:mr-3" />
                   Book New Appointment
                 </button>
                 <button
                   onClick={() => router.push("/dashboard/client/bookings")}
-                  className="w-full text-left px-4 py-3 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200 flex items-center"
+                  className="w-full text-left px-3 md:px-4 py-2 md:py-3 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200 flex items-center text-xs md:text-sm"
                 >
-                  <ClockIcon className="h-5 w-5 mr-3" />
+                  <ClockIcon className="h-4 w-4 md:h-5 md:w-5 mr-2 md:mr-3" />
                   Manage Appointments
                 </button>
                 <button
                   onClick={() => router.push("/dashboard/client/settings")}
-                  className="w-full text-left px-4 py-3 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200 flex items-center"
+                  className="w-full text-left px-3 md:px-4 py-2 md:py-3 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200 flex items-center text-xs md:text-sm"
                 >
-                  <Cog6ToothIcon className="h-5 w-5 mr-3" />
+                  <Cog6ToothIcon className="h-4 w-4 md:h-5 md:w-5 mr-2 md:mr-3" />
                   Account Settings
                 </button>
               </div>

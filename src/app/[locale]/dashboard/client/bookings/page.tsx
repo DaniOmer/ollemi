@@ -222,7 +222,7 @@ export default function ClientBookingsPage() {
       <h1 className="text-2xl font-bold mb-6">Mes rendez-vous</h1>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
         <Card>
           <CardContent className="pt-6">
             <div className="text-2xl font-bold">
@@ -251,7 +251,7 @@ export default function ClientBookingsPage() {
             <p className="text-muted-foreground">À venir</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="sm:col-span-2 md:col-span-1">
           <CardContent className="pt-6">
             <div className="text-2xl font-bold">
               {bookingHistory.filter((a) => a.status === "cancelled").length}
@@ -263,11 +263,19 @@ export default function ClientBookingsPage() {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
-        <TabsList className="mb-4">
-          <TabsTrigger value="upcoming">À venir</TabsTrigger>
-          <TabsTrigger value="today">Aujourd'hui</TabsTrigger>
-          <TabsTrigger value="past">Passés</TabsTrigger>
-          <TabsTrigger value="cancelled">Annulés</TabsTrigger>
+        <TabsList className="mb-4 w-full flex flex-wrap sm:flex-nowrap">
+          <TabsTrigger className="flex-1" value="upcoming">
+            À venir
+          </TabsTrigger>
+          <TabsTrigger className="flex-1" value="today">
+            Aujourd'hui
+          </TabsTrigger>
+          <TabsTrigger className="flex-1" value="past">
+            Passés
+          </TabsTrigger>
+          <TabsTrigger className="flex-1" value="cancelled">
+            Annulés
+          </TabsTrigger>
         </TabsList>
 
         {/* Tab Content */}
@@ -281,70 +289,80 @@ export default function ClientBookingsPage() {
                 {activeTab === "cancelled" && "Rendez-vous annulés"}
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-0 sm:p-6">
               {filteredAppointments.length > 0 ? (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Prestataire</TableHead>
-                      <TableHead>Service</TableHead>
-                      <TableHead>Date & Heure</TableHead>
-                      <TableHead>Statut</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredAppointments.map((appointment) => (
-                      <TableRow key={appointment.id}>
-                        <TableCell>
-                          <div className="font-medium">
-                            {appointment.company?.name}
-                          </div>
-                          <p className="text-sm flex items-center">
-                            <MapPin className="w-3 h-3 mr-1 text-muted-foreground" />
-                            <a
-                              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-                                appointment.company?.address
-                                  ?.formatted_address || ""
-                              )}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="hover:text-blue-600 hover:underline"
-                            >
-                              {appointment.company?.address?.formatted_address}
-                            </a>
-                          </p>
-                        </TableCell>
-                        <TableCell>
-                          <div>{appointment.service?.name}</div>
-                          <div className="text-sm text-muted-foreground">
-                            {appointment.service?.duration} min •{" "}
-                            {appointment.service?.price} FCFA
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          {formatAppointmentDate(appointment.start_time)}
-                        </TableCell>
-                        <TableCell>
-                          {getStatusBadge(appointment.status ?? "pending")}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              setSelectedAppointment(appointment);
-                              setDetailsDialogOpen(true);
-                            }}
-                          >
-                            <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">Détails</span>
-                          </Button>
-                        </TableCell>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-[30%]">Prestataire</TableHead>
+                        <TableHead className="w-[25%]">Service</TableHead>
+                        <TableHead className="w-[25%]">Date & Heure</TableHead>
+                        <TableHead className="w-[10%]">Statut</TableHead>
+                        <TableHead className="text-right w-[10%]">
+                          Actions
+                        </TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredAppointments.map((appointment) => (
+                        <TableRow key={appointment.id}>
+                          <TableCell className="font-medium">
+                            <div className="truncate max-w-[200px]">
+                              {appointment.company?.name}
+                            </div>
+                            <p className="text-xs sm:text-sm flex items-center">
+                              <MapPin className="w-3 h-3 mr-1 text-muted-foreground flex-shrink-0" />
+                              <a
+                                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                                  appointment.company?.address
+                                    ?.formatted_address || ""
+                                )}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="hover:text-blue-600 hover:underline truncate"
+                              >
+                                {
+                                  appointment.company?.address
+                                    ?.formatted_address
+                                }
+                              </a>
+                            </p>
+                          </TableCell>
+                          <TableCell>
+                            <div className="truncate max-w-[150px]">
+                              {appointment.service?.name}
+                            </div>
+                            <div className="text-xs sm:text-sm text-muted-foreground">
+                              {appointment.service?.duration} min •{" "}
+                              {appointment.service?.price} FCFA
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-xs sm:text-sm">
+                            {formatAppointmentDate(appointment.start_time)}
+                          </TableCell>
+                          <TableCell>
+                            {getStatusBadge(appointment.status ?? "pending")}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0"
+                              onClick={() => {
+                                setSelectedAppointment(appointment);
+                                setDetailsDialogOpen(true);
+                              }}
+                            >
+                              <MoreHorizontal className="h-4 w-4" />
+                              <span className="sr-only">Détails</span>
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               ) : (
                 <div className="text-center py-8 text-muted-foreground">
                   Aucun rendez-vous trouvé.
@@ -357,7 +375,7 @@ export default function ClientBookingsPage() {
 
       {/* Appointment Details Dialog */}
       <Dialog open={detailsDialogOpen} onOpenChange={setDetailsDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md max-w-[calc(100%-2rem)] overflow-y-auto max-h-[90vh]">
           <DialogHeader>
             <DialogTitle>Détails du rendez-vous</DialogTitle>
           </DialogHeader>
@@ -366,18 +384,18 @@ export default function ClientBookingsPage() {
             <div className="space-y-4">
               <div className="space-y-2">
                 <h3 className="font-medium flex items-center">
-                  <Calendar className="w-4 h-4 mr-2 text-primary" />
+                  <Calendar className="w-4 h-4 mr-2 text-primary flex-shrink-0" />
                   Date et heure
                 </h3>
                 <div className="bg-muted p-3 rounded-md">
-                  <p>
+                  <p className="text-sm sm:text-base">
                     {format(
                       parseISO(selectedAppointment.start_time),
                       "EEEE d MMMM yyyy",
                       { locale: fr }
                     )}
                   </p>
-                  <p className="text-sm">
+                  <p className="text-xs sm:text-sm">
                     {format(parseISO(selectedAppointment.start_time), "HH:mm")}{" "}
                     - {format(parseISO(selectedAppointment.end_time), "HH:mm")}
                   </p>
@@ -386,15 +404,15 @@ export default function ClientBookingsPage() {
 
               <div className="space-y-2">
                 <h3 className="font-medium flex items-center">
-                  <Building className="w-4 h-4 mr-2 text-primary" />
+                  <Building className="w-4 h-4 mr-2 text-primary flex-shrink-0" />
                   Prestataire
                 </h3>
                 <div className="bg-muted p-3 rounded-md space-y-1">
                   <p className="font-medium">
                     {selectedAppointment.company?.name}
                   </p>
-                  <p className="text-sm flex items-center">
-                    <MapPin className="w-3 h-3 mr-1 text-muted-foreground" />
+                  <p className="text-xs sm:text-sm flex items-center">
+                    <MapPin className="w-3 h-3 mr-1 text-muted-foreground flex-shrink-0" />
                     <a
                       href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
                         selectedAppointment.company?.address
@@ -402,7 +420,7 @@ export default function ClientBookingsPage() {
                       )}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="hover:text-blue-600 hover:underline"
+                      className="hover:text-blue-600 hover:underline truncate"
                     >
                       {selectedAppointment.company?.address?.formatted_address}
                     </a>
@@ -412,14 +430,14 @@ export default function ClientBookingsPage() {
 
               <div className="space-y-2">
                 <h3 className="font-medium flex items-center">
-                  <Clock className="w-4 h-4 mr-2 text-primary" />
+                  <Clock className="w-4 h-4 mr-2 text-primary flex-shrink-0" />
                   Service
                 </h3>
                 <div className="bg-muted p-3 rounded-md">
-                  <p className="font-medium">
+                  <p className="font-medium text-sm sm:text-base">
                     {selectedAppointment.service?.name}
                   </p>
-                  <div className="flex justify-between text-sm">
+                  <div className="flex justify-between text-xs sm:text-sm">
                     <span>{selectedAppointment.service?.duration} minutes</span>
                     <span className="font-medium">
                       {selectedAppointment.service?.price} FCFA
@@ -430,19 +448,19 @@ export default function ClientBookingsPage() {
 
               <div className="space-y-2">
                 <h3 className="font-medium flex items-center">
-                  <User className="w-4 h-4 mr-2 text-primary" />
+                  <User className="w-4 h-4 mr-2 text-primary flex-shrink-0" />
                   Vos informations
                 </h3>
                 <div className="bg-muted p-3 rounded-md space-y-1">
                   <p className="font-medium">
                     {selectedAppointment.client_name}
                   </p>
-                  <p className="text-sm flex items-center">
-                    <Mail className="w-3 h-3 mr-1 text-muted-foreground" />
+                  <p className="text-xs sm:text-sm flex items-center">
+                    <Mail className="w-3 h-3 mr-1 text-muted-foreground flex-shrink-0" />
                     {selectedAppointment.client_email}
                   </p>
-                  <p className="text-sm flex items-center">
-                    <Phone className="w-3 h-3 mr-1 text-muted-foreground" />
+                  <p className="text-xs sm:text-sm flex items-center">
+                    <Phone className="w-3 h-3 mr-1 text-muted-foreground flex-shrink-0" />
                     {selectedAppointment.client_phone}
                   </p>
                 </div>
@@ -451,11 +469,13 @@ export default function ClientBookingsPage() {
               {selectedAppointment.notes && (
                 <div className="space-y-2">
                   <h3 className="font-medium flex items-center">
-                    <MessageSquare className="w-4 h-4 mr-2 text-primary" />
+                    <MessageSquare className="w-4 h-4 mr-2 text-primary flex-shrink-0" />
                     Notes
                   </h3>
                   <div className="bg-muted p-3 rounded-md">
-                    <p className="text-sm">{selectedAppointment.notes}</p>
+                    <p className="text-xs sm:text-sm">
+                      {selectedAppointment.notes}
+                    </p>
                   </div>
                 </div>
               )}
@@ -477,7 +497,8 @@ export default function ClientBookingsPage() {
                         setConfirmDialogOpen(true);
                       }}
                     >
-                      Annuler
+                      <span className="hidden sm:inline">Annuler</span>
+                      <XCircle className="w-4 h-4 sm:ml-2 sm:hidden" />
                     </Button>
                   )}
                 </div>
@@ -485,10 +506,11 @@ export default function ClientBookingsPage() {
             </div>
           )}
 
-          <DialogFooter>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
             <Button
               variant="outline"
               onClick={() => setDetailsDialogOpen(false)}
+              className="w-full sm:w-auto"
             >
               Fermer
             </Button>
@@ -498,7 +520,7 @@ export default function ClientBookingsPage() {
 
       {/* Confirm Cancellation Dialog */}
       <Dialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md max-w-[calc(100%-2rem)]">
           <DialogHeader>
             <DialogTitle>Annuler le rendez-vous</DialogTitle>
             <DialogDescription>
@@ -508,19 +530,24 @@ export default function ClientBookingsPage() {
 
           {selectedAppointment && (
             <div className="bg-muted p-3 rounded-md mb-4">
-              <p className="font-medium">{selectedAppointment.company?.name}</p>
-              <p className="text-sm">{selectedAppointment.service?.name}</p>
-              <p className="text-sm">
+              <p className="font-medium text-sm sm:text-base">
+                {selectedAppointment.company?.name}
+              </p>
+              <p className="text-xs sm:text-sm">
+                {selectedAppointment.service?.name}
+              </p>
+              <p className="text-xs sm:text-sm">
                 {formatAppointmentDate(selectedAppointment.start_time)}
               </p>
             </div>
           )}
 
-          <DialogFooter className="flex space-x-2 sm:space-x-0">
+          <DialogFooter className="flex-col sm:flex-row gap-2 sm:space-x-0">
             <Button
               variant="outline"
               onClick={() => setConfirmDialogOpen(false)}
               disabled={bookingLoading}
+              className="w-full sm:w-auto"
             >
               Retour
             </Button>
@@ -531,6 +558,7 @@ export default function ClientBookingsPage() {
                 cancelAppointment(selectedAppointment.id ?? "")
               }
               disabled={bookingLoading}
+              className="w-full sm:w-auto"
             >
               {bookingLoading ? (
                 <LoadingSpinner size="sm" className="mr-2" />
