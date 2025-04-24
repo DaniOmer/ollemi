@@ -46,42 +46,29 @@ import {
 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
-interface Appointment {
-  id: string;
-  client_name: string;
-  client_email: string;
-  client_phone: string;
-  start_time: string;
-  end_time: string;
-  status: "pending" | "confirmed" | "cancelled" | "completed";
-  notes?: string;
-  service: {
-    id: string;
-    name: string;
-    price: number;
-    duration: number;
-  };
-  company: {
-    id: string;
-    name: string;
-    address: string;
-    city: string;
-  };
-}
+import {
+  fetchBookingByUserIdThunk,
+  selectBookingByUserId,
+  selectBookingLoading,
+  updateBookingThunk,
+} from "@/lib/redux/slices/bookingSlice";
+
+import { useAppSelector, useAppDispatch } from "@/lib/redux/store";
+import { Booking } from "@/types";
 
 export default function ClientBookingsPage() {
   const { t } = useTranslations();
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
+  const dispatch = useAppDispatch();
 
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [loading, setLoading] = useState(true);
+  const bookingHistory = useAppSelector(selectBookingByUserId);
+  const bookingLoading = useAppSelector(selectBookingLoading);
   const [activeTab, setActiveTab] = useState("upcoming");
   const [selectedAppointment, setSelectedAppointment] =
-    useState<Appointment | null>(null);
+    useState<Booking | null>(null);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
-  const [actionLoading, setActionLoading] = useState(false);
 
   // Fetch appointments
   useEffect(() => {
@@ -89,15 +76,7 @@ export default function ClientBookingsPage() {
       if (!isAuthenticated || !user) return;
 
       try {
-        setLoading(true);
-        const response = await fetch(`/api/bookings?clientId=${user.id}`);
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch appointments");
-        }
-
-        const data = await response.json();
-        setAppointments(data);
+        dispatch(fetchBookingByUserIdThunk());
       } catch (error) {
         console.error("Error fetching appointments:", error);
         toast({
@@ -105,8 +84,6 @@ export default function ClientBookingsPage() {
           description: "Impossible de récupérer vos rendez-vous.",
           variant: "destructive",
         });
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -116,7 +93,7 @@ export default function ClientBookingsPage() {
   }, [user, isAuthenticated, authLoading, toast]);
 
   // Filter appointments based on active tab
-  const filteredAppointments = appointments.filter((appointment) => {
+  const filteredAppointments = bookingHistory.filter((appointment) => {
     const startTime = parseISO(appointment.start_time);
     const now = new Date();
 
@@ -150,25 +127,13 @@ export default function ClientBookingsPage() {
   // Handle appointment cancellation
   const cancelAppointment = async (appointmentId: string) => {
     try {
-      setActionLoading(true);
-
-      const response = await fetch(`/api/appointments/${appointmentId}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ status: "cancelled" }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to cancel appointment");
-      }
-
-      // Update local state
-      setAppointments((prev) =>
-        prev.map((app) =>
-          app.id === appointmentId ? { ...app, status: "cancelled" } : app
-        )
+      dispatch(
+        updateBookingThunk({
+          booking: bookingHistory.find(
+            (booking) => booking.id === appointmentId
+          ) as Booking,
+          status: "cancelled",
+        })
       );
 
       toast({
@@ -185,8 +150,6 @@ export default function ClientBookingsPage() {
         description: "Impossible d'annuler le rendez-vous.",
         variant: "destructive",
       });
-    } finally {
-      setActionLoading(false);
     }
   };
 
@@ -235,7 +198,7 @@ export default function ClientBookingsPage() {
     }
   };
 
-  if (authLoading || loading) {
+  if (authLoading || bookingLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <LoadingSpinner size="lg" />
@@ -271,7 +234,7 @@ export default function ClientBookingsPage() {
           <CardContent className="pt-6">
             <div className="text-2xl font-bold">
               {
-                appointments.filter(
+                bookingHistory.filter(
                   (a) =>
                     (a.status === "pending" || a.status === "confirmed") &&
                     isToday(parseISO(a.start_time))
@@ -285,7 +248,7 @@ export default function ClientBookingsPage() {
           <CardContent className="pt-6">
             <div className="text-2xl font-bold">
               {
-                appointments.filter(
+                bookingHistory.filter(
                   (a) =>
                     (a.status === "pending" || a.status === "confirmed") &&
                     isAfter(parseISO(a.start_time), new Date())
@@ -298,7 +261,7 @@ export default function ClientBookingsPage() {
         <Card>
           <CardContent className="pt-6">
             <div className="text-2xl font-bold">
-              {appointments.filter((a) => a.status === "cancelled").length}
+              {bookingHistory.filter((a) => a.status === "cancelled").length}
             </div>
             <p className="text-muted-foreground">Annulés</p>
           </CardContent>
@@ -342,24 +305,24 @@ export default function ClientBookingsPage() {
                       <TableRow key={appointment.id}>
                         <TableCell>
                           <div className="font-medium">
-                            {appointment.company.name}
+                            {appointment.company?.name}
                           </div>
-                          <div className="text-sm text-muted-foreground">
-                            {appointment.company.address}
-                          </div>
+                          {/* <div className="text-sm text-muted-foreground">
+                            {appointment.company?.address}
+                          </div> */}
                         </TableCell>
                         <TableCell>
-                          <div>{appointment.service.name}</div>
+                          <div>{appointment.service?.name}</div>
                           <div className="text-sm text-muted-foreground">
-                            {appointment.service.duration} min •{" "}
-                            {appointment.service.price}€
+                            {appointment.service?.duration} min •{" "}
+                            {appointment.service?.price} FCFA
                           </div>
                         </TableCell>
                         <TableCell>
                           {formatAppointmentDate(appointment.start_time)}
                         </TableCell>
                         <TableCell>
-                          {getStatusBadge(appointment.status)}
+                          {getStatusBadge(appointment.status ?? "pending")}
                         </TableCell>
                         <TableCell className="text-right">
                           <Button
@@ -424,12 +387,12 @@ export default function ClientBookingsPage() {
                 </h3>
                 <div className="bg-muted p-3 rounded-md space-y-1">
                   <p className="font-medium">
-                    {selectedAppointment.company.name}
+                    {selectedAppointment.company?.name}
                   </p>
-                  <p className="text-sm flex items-center">
+                  {/* <p className="text-sm flex items-center">
                     <MapPin className="w-3 h-3 mr-1 text-muted-foreground" />
-                    {selectedAppointment.company.address}
-                  </p>
+                    {selectedAppointment.company?.address}
+                  </p> */}
                 </div>
               </div>
 
@@ -440,12 +403,12 @@ export default function ClientBookingsPage() {
                 </h3>
                 <div className="bg-muted p-3 rounded-md">
                   <p className="font-medium">
-                    {selectedAppointment.service.name}
+                    {selectedAppointment.service?.name}
                   </p>
                   <div className="flex justify-between text-sm">
-                    <span>{selectedAppointment.service.duration} minutes</span>
+                    <span>{selectedAppointment.service?.duration} minutes</span>
                     <span className="font-medium">
-                      {selectedAppointment.service.price}€
+                      {selectedAppointment.service?.price} FCFA
                     </span>
                   </div>
                 </div>
@@ -486,7 +449,9 @@ export default function ClientBookingsPage() {
               <div className="space-y-2">
                 <h3 className="font-medium">Statut</h3>
                 <div className="flex justify-between items-center">
-                  <div>{getStatusBadge(selectedAppointment.status)}</div>
+                  <div>
+                    {getStatusBadge(selectedAppointment.status ?? "pending")}
+                  </div>
 
                   {(selectedAppointment.status === "pending" ||
                     selectedAppointment.status === "confirmed") && (
@@ -529,8 +494,8 @@ export default function ClientBookingsPage() {
 
           {selectedAppointment && (
             <div className="bg-muted p-3 rounded-md mb-4">
-              <p className="font-medium">{selectedAppointment.company.name}</p>
-              <p className="text-sm">{selectedAppointment.service.name}</p>
+              <p className="font-medium">{selectedAppointment.company?.name}</p>
+              <p className="text-sm">{selectedAppointment.service?.name}</p>
               <p className="text-sm">
                 {formatAppointmentDate(selectedAppointment.start_time)}
               </p>
@@ -541,18 +506,19 @@ export default function ClientBookingsPage() {
             <Button
               variant="outline"
               onClick={() => setConfirmDialogOpen(false)}
-              disabled={actionLoading}
+              disabled={bookingLoading}
             >
               Retour
             </Button>
             <Button
               variant="destructive"
               onClick={() =>
-                selectedAppointment && cancelAppointment(selectedAppointment.id)
+                selectedAppointment &&
+                cancelAppointment(selectedAppointment.id ?? "")
               }
-              disabled={actionLoading}
+              disabled={bookingLoading}
             >
-              {actionLoading ? (
+              {bookingLoading ? (
                 <LoadingSpinner size="sm" className="mr-2" />
               ) : (
                 <XCircle className="w-4 h-4 mr-2" />

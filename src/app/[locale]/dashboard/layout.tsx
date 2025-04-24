@@ -66,7 +66,7 @@ export default function DashboardLayout({
     : [
         { href: "/dashboard/client", label: "Tableau de bord", icon: BarChart },
         {
-          href: "/dashboard/client/schedule",
+          href: "/dashboard/client/bookings",
           label: "Mes rendez-vous",
           icon: Calendar,
         },

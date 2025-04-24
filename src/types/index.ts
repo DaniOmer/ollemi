@@ -38,6 +38,7 @@ export type Booking = {
   // Fields from the join query
   service?: Service;
   customer?: User;
+  company?: Company;
 };
 
 // Subscription types
