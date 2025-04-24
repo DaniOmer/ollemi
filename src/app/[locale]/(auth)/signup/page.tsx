@@ -37,8 +37,10 @@ import {
   Phone,
   CheckCircle,
 } from "lucide-react";
-import { signUp } from "@/lib/services/auth";
 import { signInWithGoogle } from "@/lib/supabase/client";
+
+import { useAppDispatch, useAppSelector } from "@/lib/redux/store";
+import { registerThunk, selectAuthLoading } from "@/lib/redux/slices/authSlice";
 
 // Define the form schema with zod
 const signupFormSchema = z
@@ -72,7 +74,8 @@ type SignupFormValues = z.infer<typeof signupFormSchema>;
 export default function SignupPage() {
   const { t } = useTranslations();
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
+  const dispatch = useAppDispatch();
+  const isLoading = useAppSelector(selectAuthLoading);
   const [error, setError] = useState<string | null>(null);
 
   // Set up the form with react-hook-form and zod validation
@@ -92,45 +95,18 @@ export default function SignupPage() {
 
   // Handle form submission
   const onSubmit = async (values: SignupFormValues) => {
-    setIsLoading(true);
-    setError(null);
-
     try {
-      const { data, error } = await signUp(
-        values.email,
-        values.password,
-        values.firstName,
-        values.lastName,
-        values.phone,
-        values.role,
-        values.acceptTerms
-      );
+      const response = await dispatch(registerThunk(values));
 
-      if (error) {
-        throw new Error(error);
-      }
-
-      // Redirect to onboarding for professional users or to dashboard for clients
-      if (data) {
-        // Afficher un message de succès
-        setError("Registration successful! Redirecting...");
-
-        // Petit délai pour permettre à l'utilisateur de voir le message
-        setTimeout(() => {
-          if (data.redirectUrl) {
-            console.log("Redirecting to:", data.redirectUrl);
-            // router.push(data.redirectUrl);
-          } else {
-            console.log("Redirecting to dashboard");
-            // router.push("/dashboard");
-          }
-        }, 1500);
+      // Access user property safely with optional chaining
+      const responseData = response.payload as any;
+      if (responseData?.user) {
+        router.push("/login");
       }
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "An error occurred during signup"
       );
-      setIsLoading(false);
     }
   };
 
@@ -475,7 +451,6 @@ export default function SignupPage() {
                 className="mt-4 w-full border-primary/20 hover:bg-primary/5 transition-all flex items-center justify-center shadow-sm"
                 onClick={async () => {
                   try {
-                    setIsLoading(true);
                     await signInWithGoogle();
                   } catch (error) {
                     console.error("Google sign-in error:", error);
@@ -484,7 +459,6 @@ export default function SignupPage() {
                         ? error.message
                         : "An error occurred during Google sign-in"
                     );
-                    setIsLoading(false);
                   }
                 }}
                 disabled={isLoading}

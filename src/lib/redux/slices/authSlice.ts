@@ -3,20 +3,14 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { createSelector } from "@reduxjs/toolkit";
 import { User } from "@/types";
-import {
-  signIn,
-  signOut,
-  signUp,
-  getCurrentUser,
-  AuthResponse,
-} from "@/lib/services/auth";
+import { signIn, signOut, signUp, getCurrentUser } from "@/lib/services/auth";
 import { RootState } from "../store";
 
 // Define the state type
 interface AuthState {
   user: User | null;
   token: string | null;
-  loading: boolean;
+  status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
 }
 
@@ -24,7 +18,7 @@ interface AuthState {
 const initialState: AuthState = {
   user: null,
   token: null,
-  loading: false,
+  status: "idle",
   error: null,
 };
 
@@ -47,7 +41,7 @@ export const login = createAsyncThunk(
   }
 );
 
-export const register = createAsyncThunk(
+export const registerThunk = createAsyncThunk(
   "auth/register",
   async (
     {
@@ -136,69 +130,68 @@ const authSlice = createSlice({
     // Login
     builder
       .addCase(login.pending, (state) => {
-        state.loading = true;
+        state.status = "loading";
         state.error = null;
       })
       .addCase(login.fulfilled, (state, action) => {
         if (action.payload) {
-          state.loading = false;
+          state.status = "succeeded";
           state.user = action.payload.user_data;
           state.token = action.payload.session.access_token;
         }
       })
       .addCase(login.rejected, (state, action) => {
-        state.loading = false;
+        state.status = "failed";
         state.error = action.payload as string;
       });
 
     // Register
     builder
-      .addCase(register.pending, (state) => {
-        state.loading = true;
+      .addCase(registerThunk.pending, (state) => {
+        state.status = "loading";
         state.error = null;
       })
-      .addCase(register.fulfilled, (state, action) => {
+      .addCase(registerThunk.fulfilled, (state, action) => {
+        state.status = "succeeded";
         if (action.payload) {
-          state.loading = false;
           state.user = action.payload.user;
-          state.token = action.payload.session.access_token;
         }
       })
-      .addCase(register.rejected, (state, action) => {
-        state.loading = false;
+      .addCase(registerThunk.rejected, (state, action) => {
+        state.status = "failed";
         state.error = action.payload as string;
       });
 
     // Logout
     builder
       .addCase(logout.pending, (state) => {
-        state.loading = true;
+        state.status = "loading";
         state.error = null;
       })
       .addCase(logout.fulfilled, (state) => {
-        state.loading = false;
+        state.status = "succeeded";
         state.user = null;
         state.token = null;
       })
       .addCase(logout.rejected, (state, action) => {
-        state.loading = false;
+        state.status = "failed";
         state.error = action.payload as string;
       });
 
     // Fetch current user
     builder
       .addCase(fetchCurrentUser.pending, (state) => {
-        state.loading = true;
+        state.status = "loading";
         state.error = null;
       })
       .addCase(fetchCurrentUser.fulfilled, (state, action) => {
+        state.status = "succeeded";
         if (action.payload) {
-          state.loading = false;
           state.user = action.payload.user;
         }
       })
       .addCase(fetchCurrentUser.rejected, (state, action) => {
-        state.loading = false;
+        state.status = "failed";
         state.error = action.payload as string;
       });
   },
@@ -234,7 +227,7 @@ export const selectIsAuthenticated = createSelector(
 
 export const selectAuthLoading = createSelector(
   [selectAuthState],
-  (state) => state.loading
+  (state) => state.status === "loading"
 );
 
 export const selectAuthError = createSelector(

@@ -33,7 +33,7 @@ function addSecurityHeaders(response: NextResponse): void {
   if (process.env.NODE_ENV === "production") {
     response.headers.set(
       "Content-Security-Policy",
-      "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:;"
+      "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://knbrbqjkgxwvopnqvonn.supabase.co; font-src 'self' data:;"
     );
   }
 }

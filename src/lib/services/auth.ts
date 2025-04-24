@@ -26,11 +26,11 @@ export async function signUp(
     data: {
       email,
       password,
-      firstName,
-      lastName,
+      first_name: firstName,
+      last_name: lastName,
       phone,
       role,
-      acceptTerms,
+      accept_terms: acceptTerms,
     },
   });
 

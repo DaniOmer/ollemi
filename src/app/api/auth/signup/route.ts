@@ -3,10 +3,17 @@ import { supabase } from "@/lib/supabase/client";
 
 export async function POST(request: Request) {
   try {
-    const { email, password, firstName, lastName, phone, role, acceptTerms } =
-      await request.json();
+    const {
+      email,
+      password,
+      first_name,
+      last_name,
+      phone,
+      role,
+      accept_terms,
+    } = await request.json();
 
-    if (!email || !password || !firstName || !lastName || !acceptTerms) {
+    if (!email || !password || !first_name || !last_name || !accept_terms) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
@@ -26,11 +33,11 @@ export async function POST(request: Request) {
       password,
       options: {
         data: {
-          first_name: firstName,
-          last_name: lastName,
+          first_name,
+          last_name,
           phone,
           role,
-          accept_terms: acceptTerms,
+          accept_terms,
           onboarding_completed: role === "professional" ? false : true,
         },
       },
