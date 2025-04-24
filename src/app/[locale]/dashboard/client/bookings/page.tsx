@@ -307,9 +307,20 @@ export default function ClientBookingsPage() {
                           <div className="font-medium">
                             {appointment.company?.name}
                           </div>
-                          {/* <div className="text-sm text-muted-foreground">
-                            {appointment.company?.address}
-                          </div> */}
+                          <p className="text-sm flex items-center">
+                            <MapPin className="w-3 h-3 mr-1 text-muted-foreground" />
+                            <a
+                              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                                appointment.company?.address
+                                  ?.formatted_address || ""
+                              )}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="hover:text-blue-600 hover:underline"
+                            >
+                              {appointment.company?.address?.formatted_address}
+                            </a>
+                          </p>
                         </TableCell>
                         <TableCell>
                           <div>{appointment.service?.name}</div>
@@ -389,10 +400,20 @@ export default function ClientBookingsPage() {
                   <p className="font-medium">
                     {selectedAppointment.company?.name}
                   </p>
-                  {/* <p className="text-sm flex items-center">
+                  <p className="text-sm flex items-center">
                     <MapPin className="w-3 h-3 mr-1 text-muted-foreground" />
-                    {selectedAppointment.company?.address}
-                  </p> */}
+                    <a
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                        selectedAppointment.company?.address
+                          ?.formatted_address || ""
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:text-blue-600 hover:underline"
+                    >
+                      {selectedAppointment.company?.address?.formatted_address}
+                    </a>
+                  </p>
                 </div>
               </div>
 
