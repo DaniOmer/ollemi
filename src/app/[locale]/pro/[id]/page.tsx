@@ -47,7 +47,10 @@ export default function ProfessionalPage() {
     dispatch(fetchCompanyById(id as string));
   }, [dispatch, id]);
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+  const baseUrl =
+    typeof window !== "undefined"
+      ? `${window.location.protocol}//${window.location.host}`
+      : process.env.NEXT_PUBLIC_BASE_URL || "https://ollemi.com";
   const profileUrl = `${baseUrl}/pro/${id}`;
 
   const shareProfileUrl = () => {
@@ -55,7 +58,7 @@ export default function ProfessionalPage() {
       navigator
         .share({
           title: professional.name,
-          text: `Découvrir ${professional.name} sur Ollemi`,
+          text: `Découvrir ${professional.name} sur Ollemi et réserver ses prestations.`,
           url: profileUrl,
         })
         .catch((err) => console.error("Failed to share", err));
@@ -187,8 +190,8 @@ export default function ProfessionalPage() {
               "photos",
               "prestations",
               "equipe",
+              "events",
               "avis",
-              // "acheter",
               "apropos",
             ].map((tab) => (
               <button
@@ -203,8 +206,8 @@ export default function ProfessionalPage() {
                 {tab === "photos" && "Photos"}
                 {tab === "prestations" && "Prestations"}
                 {tab === "equipe" && "Équipe"}
+                {tab === "events" && "Événements"}
                 {tab === "avis" && "Avis"}
-                {/* {tab === "acheter" && "Acheter"} */}
                 {tab === "apropos" && "À propos"}
               </button>
             ))}
@@ -385,6 +388,15 @@ export default function ProfessionalPage() {
                 </div>
               )}
             </div>
+          </div>
+        )}
+
+        {/* Section Événements */}
+        {activeTab === "events" && (
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              Événements
+            </h2>
           </div>
         )}
 
