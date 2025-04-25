@@ -27,7 +27,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // First, try to sign up the user
+    // Try to sign up the user
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
@@ -43,11 +43,36 @@ export async function POST(request: Request) {
       },
     });
 
+    // Check for "Email already registered" error message
     if (authError) {
       console.error("Auth signup error:", authError);
+
+      // Check if the error is related to an existing user
+      if (
+        authError.message.includes("already registered") ||
+        authError.message.includes("already in use") ||
+        authError.message.toLowerCase().includes("email already")
+      ) {
+        return NextResponse.json(
+          { error: "A user with this email already exists" },
+          { status: 400 }
+        );
+      }
+
       return NextResponse.json(
         { error: authError.message },
         { status: authError.status || 400 }
+      );
+    }
+
+    // Check if user has the identities property (indicates a new user vs existing one)
+    if (
+      authData.user &&
+      (!authData.user.identities || authData.user.identities.length === 0)
+    ) {
+      return NextResponse.json(
+        { error: "A user with this email already exists" },
+        { status: 400 }
       );
     }
 

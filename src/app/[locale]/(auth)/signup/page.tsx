@@ -95,13 +95,29 @@ export default function SignupPage() {
 
   // Handle form submission
   const onSubmit = async (values: SignupFormValues) => {
+    setError(null); // Clear previous errors
     try {
       const response = await dispatch(registerThunk(values));
+
+      // Check if there was an error in the response
+      if (response.type.includes("rejected")) {
+        const errorPayload = response.payload as any;
+        setError(
+          typeof errorPayload === "string"
+            ? errorPayload
+            : "An error occurred during signup"
+        );
+        return;
+      }
 
       // Access user property safely with optional chaining
       const responseData = response.payload as any;
       if (responseData?.user) {
         router.push("/login");
+      } else {
+        setError(
+          "Registration successful, but user data was not returned properly. Please try logging in."
+        );
       }
     } catch (err) {
       setError(
