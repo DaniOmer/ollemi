@@ -18,6 +18,7 @@ import {
 // Components
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import ProQRCode from "@/components/ProQRCode";
 
 // Redux
 import {
@@ -109,6 +110,12 @@ export default function ProfessionalDashboard() {
       color: "text-green-500",
     },
   ];
+
+  // Get the base URL dynamically based on the environment
+  const baseUrl =
+    typeof window !== "undefined"
+      ? `${window.location.protocol}//${window.location.host}`
+      : process.env.NEXT_PUBLIC_BASE_URL || "https://ollemi.com";
 
   return (
     <div className="space-y-6">
@@ -227,6 +234,41 @@ export default function ProfessionalDashboard() {
           </div>
         </CardContent>
       </Card>
+
+      {/* QR Code section */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Profile QR Code Card */}
+        <div>
+          {currentCompany && !loading ? (
+            <ProQRCode companyId={currentCompany.id} baseUrl={baseUrl} />
+          ) : (
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex justify-center items-center h-40">
+                  <p className="text-muted-foreground">Chargement...</p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+
+        {/* Business tips or summary */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Votre page publique</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground mb-4">
+              Partagez ce QR code pour permettre à vos clients d'accéder
+              facilement à votre profil et prendre rendez-vous.
+            </p>
+            <p className="text-muted-foreground">
+              Vous pouvez l'imprimer et l'afficher dans votre établissement ou
+              l'inclure sur vos cartes de visite.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
