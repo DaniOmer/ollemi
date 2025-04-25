@@ -15,6 +15,7 @@ import {
   fetchCompanyById,
   createAddressThunk,
   updateAddressThunk,
+  selectCompaniesLoading,
 } from "@/lib/redux/slices/companiesSlice";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -55,6 +56,7 @@ import {
   Eye,
   AlertCircle,
   XCircle,
+  Settings,
 } from "lucide-react";
 
 import Badge from "@/components/ui/badge";
@@ -88,6 +90,8 @@ import {
   fetchActiveSubscriptionThunk,
 } from "@/lib/redux/slices/subscriptionSlice";
 
+import ProQRCode from "@/components/ProQRCode";
+
 // Types for subscription plans
 type SubscriptionPlan = {
   id: string;
@@ -113,6 +117,7 @@ export default function SettingsPage() {
   const company = useAppSelector(selectCurrentCompany);
   const user = useAppSelector(selectUserProfile);
   const { toast } = useToast();
+  const loading = useAppSelector(selectCompaniesLoading);
 
   const [activeTab, setActiveTab] = useState("general");
   const [isSaving, setIsSaving] = useState(false);
@@ -508,6 +513,12 @@ export default function SettingsPage() {
       setIsResuming(false);
     }
   };
+
+  // Get the base URL dynamically based on the environment
+  const baseUrl =
+    typeof window !== "undefined"
+      ? `${window.location.protocol}//${window.location.host}`
+      : process.env.NEXT_PUBLIC_BASE_URL || "https://ollemi.com";
 
   return (
     <div className="container mx-auto py-8">
@@ -1216,6 +1227,38 @@ export default function SettingsPage() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Profile QR Code Card */}
+        <div>
+          {currentCompany && !loading ? (
+            <ProQRCode companyId={currentCompany.id} baseUrl={baseUrl} />
+          ) : (
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex justify-center items-center h-40">
+                  <p className="text-muted-foreground">Chargement...</p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+
+        {/* More settings cards can be added here */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <Settings className="w-5 h-5 mr-2" />
+              Paramètres du compte
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground">
+              D'autres paramètres seront disponibles prochainement.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

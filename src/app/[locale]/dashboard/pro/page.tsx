@@ -12,6 +12,7 @@ import {
   BarChart2,
   CreditCard,
   Scissors,
+  Settings,
 } from "lucide-react";
 
 // Components
@@ -145,7 +146,7 @@ export default function ProfessionalDashboard() {
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Button
           className="w-full"
           onClick={() => router.push("/dashboard/pro/bookings")}
@@ -160,6 +161,14 @@ export default function ProfessionalDashboard() {
         >
           <Scissors className="w-4 h-4 mr-2" />
           Gérer les services
+        </Button>
+        <Button
+          className="w-full"
+          variant="secondary"
+          onClick={() => router.push("/dashboard/pro/settings")}
+        >
+          <Settings className="w-4 h-4 mr-2" />
+          Paramètres
         </Button>
       </div>
 
