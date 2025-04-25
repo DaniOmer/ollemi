@@ -39,11 +39,37 @@ export default function ProfessionalPage() {
   const professionalFromStore = useAppSelector(selectCurrentCompany);
   const loading = useAppSelector(selectCompaniesLoading);
 
+  const [showShareTooltip, setShowShareTooltip] = useState(false);
+
   // Set to use mock data by default
   useEffect(() => {
     // Still try to fetch from API in case it works
     dispatch(fetchCompanyById(id as string));
   }, [dispatch, id]);
+
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+  const profileUrl = `${baseUrl}/pro/${id}`;
+
+  const shareProfileUrl = () => {
+    if (navigator.share) {
+      navigator
+        .share({
+          title: professional.name,
+          text: `Découvrir ${professional.name} sur Ollemi`,
+          url: profileUrl,
+        })
+        .catch((err) => console.error("Failed to share", err));
+    } else {
+      // Fallback: copy to clipboard
+      navigator.clipboard
+        .writeText(profileUrl)
+        .then(() => {
+          setShowShareTooltip(true);
+          setTimeout(() => setShowShareTooltip(false), 2000);
+        })
+        .catch((err) => console.error("Failed to copy", err));
+    }
+  };
 
   // Use mock data by default, or use data from store if available
   const professional = professionalFromStore;
@@ -72,29 +98,6 @@ export default function ProfessionalPage() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Header avec fil d'Ariane */}
-      {/* <div className="bg-white border-b border-gray-200 py-3 px-4">
-        <div className="container mx-auto">
-          <div className="text-sm text-gray-500">
-            <Link href="/" className="hover:text-gray-700">
-              Accueil
-            </Link>{" "}
-            •{" "}
-            <Link href="/categories" className="hover:text-gray-700">
-              {professional.services?.[0]?.category || "Services"}
-            </Link>{" "}
-            •{" "}
-            <Link
-              href={`/pro/${professional.id}`}
-              className="hover:text-gray-700"
-            >
-              {professional.city || "Paris"}
-            </Link>{" "}
-            • <span className="text-gray-700">{professional.name}</span>
-          </div>
-        </div>
-      </div> */}
-
       {/* Hero Section */}
       <div className="bg-white border-b border-gray-200">
         <div className="container mx-auto px-4 py-6">
@@ -133,7 +136,10 @@ export default function ProfessionalPage() {
           <div className="flex justify-between items-center">
             <div></div>
             <div className="flex gap-2">
-              <button className="p-2 rounded-full border border-gray-300 hover:bg-gray-100">
+              <button
+                onClick={shareProfileUrl}
+                className="p-2 rounded-full border border-gray-300 hover:bg-gray-100 relative"
+              >
                 <svg
                   className="w-5 h-5 text-gray-600"
                   fill="none"
@@ -147,6 +153,11 @@ export default function ProfessionalPage() {
                     d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
                   />
                 </svg>
+                {showShareTooltip && (
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded whitespace-nowrap">
+                    Lien copié !
+                  </div>
+                )}
               </button>
               <button className="p-2 rounded-full border border-gray-300 hover:bg-gray-100">
                 <svg
