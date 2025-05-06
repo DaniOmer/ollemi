@@ -320,7 +320,41 @@
     "upcomingAppointments": "Prochains rendez-vous",
     "totalClients": "Total des clients",
     "viewAll": "Voir tout",
-    "client": "Client",
+    "client": {
+      "welcome": "Bienvenue",
+      "welcomeSubtitle": "Voici ce qui se passe avec votre compte",
+      "upcomingAppointments": "Rendez-vous à venir",
+      "noUpcomingAppointments": "Aucun rendez-vous à venir",
+      "scheduleNow": "Planifiez votre prochain rendez-vous maintenant",
+      "bookAppointment": "Réserver un rendez-vous",
+      "recentActivity": "Activité récente",
+      "completedAppointment": "Rendez-vous terminé avec",
+      "noRecentActivity": "Aucune activité récente à afficher",
+      "profileSummary": "Résumé du profil",
+      "viewFullProfile": "Voir le profil complet",
+      "yourStatistics": "Vos statistiques",
+      "quickActions": "Actions rapides",
+      "tabs": {
+        "profile": "Profil",
+        "preferences": "Préférences",
+        "favorites": "Favoris",
+        "appointments": "Rendez-vous"
+      },
+      "stats": {
+        "totalAppointments": "Total des rendez-vous",
+        "completed": "Terminés",
+        "favoritePros": "Pros favoris",
+        "averageRating": "Note moyenne"
+      },
+      "actions": {
+        "bookNew": "Réserver un nouveau rendez-vous",
+        "manageAppointments": "Gérer mes rendez-vous",
+        "accountSettings": "Paramètres du compte"
+      },
+      "overview": "Tableau de bord",
+      "bookings": "Mes rendez-vous",
+      "settings": "Paramètres"
+    },
     "service": "Service",
     "date": "Date",
     "time": "Heure",
@@ -335,7 +369,19 @@
     "appointmentsDescription": "Gérez vos rendez-vous, réservations et planning.",
     "clientsDescription": "Gérez votre base de données clients et vos communications.",
     "servicesDescription": "Gérez vos services, prix et disponibilité.",
-    "profileDescription": "Gérez votre profil, les informations de votre entreprise et les paramètres de votre compte."
+    "profileDescription": "Gérez votre profil, les informations de votre entreprise et les paramètres de votre compte.",
+    "pro": {
+      "overview": "Tableau de bord",
+      "bookings": "Réservations",
+      "availabilities": "Disponibilités",
+      "services": "Services",
+      "customers": "Clients",
+      "settings": "Paramètres"
+    },
+    "logout": "Déconnexion",
+    "footer": {
+      "rights": "Tous droits réservés."
+    }
   },
   "common": {
     "error": "Erreur",
@@ -358,7 +404,13 @@
     "noResults": "Aucun résultat trouvé",
     "noData": "Aucune donnée disponible",
     "noInternet": "Aucune connexion internet",
-    "noLocation": "Aucune localisation trouvée"
+    "noLocation": "Aucune localisation trouvée",
+    "user": "Utilisateur",
+    "appointment": "Rendez-vous",
+    "at": "à",
+    "details": "Détails",
+    "viewAll": "Voir tout",
+    "professional": "Professionnel"
   },
   "notFound": {
     "title": "404",

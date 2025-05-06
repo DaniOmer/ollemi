@@ -315,7 +315,53 @@
     "upcomingAppointments": "Upcoming Appointments",
     "totalClients": "Total Clients",
     "viewAll": "View All",
-    "client": "Client",
+    "client": {
+      "welcome": "Welcome back",
+      "welcomeSubtitle": "Here's what's happening with your account",
+      "upcomingAppointments": "Upcoming Appointments",
+      "noUpcomingAppointments": "No upcoming appointments",
+      "scheduleNow": "Schedule your next appointment now",
+      "bookAppointment": "Book an Appointment",
+      "recentActivity": "Recent Activity",
+      "completedAppointment": "Completed appointment with",
+      "noRecentActivity": "No recent activity to display",
+      "profileSummary": "Profile Summary",
+      "viewFullProfile": "View Full Profile",
+      "yourStatistics": "Your Statistics",
+      "quickActions": "Quick Actions",
+      "tabs": {
+        "profile": "Profile",
+        "preferences": "Preferences",
+        "favorites": "Favorites",
+        "appointments": "Appointments"
+      },
+      "stats": {
+        "totalAppointments": "Total Appointments",
+        "completed": "Completed",
+        "favoritePros": "Favorite Pros",
+        "averageRating": "Average Rating"
+      },
+      "actions": {
+        "bookNew": "Book New Appointment",
+        "manageAppointments": "Manage Appointments",
+        "accountSettings": "Account Settings"
+      },
+      "pro": {
+        "overview": "Dashboard",
+        "bookings": "Bookings",
+        "availabilities": "Availabilities",
+        "services": "Services",
+        "customers": "Customers",
+        "settings": "Settings"
+      },
+      "logout": "Logout",
+      "footer": {
+        "rights": "All rights reserved."
+      },
+      "overview": "Dashboard",
+      "bookings": "My Appointments",
+      "settings": "Settings"
+    },
     "service": "Service",
     "date": "Date",
     "time": "Time",
@@ -330,7 +376,19 @@
     "appointmentsDescription": "Manage your appointments, bookings, and schedule.",
     "clientsDescription": "Manage your client database and communication.",
     "servicesDescription": "Manage your services, prices, and availability.",
-    "profileDescription": "Manage your profile, business information, and account settings."
+    "profileDescription": "Manage your profile, business information, and account settings.",
+    "pro": {
+      "overview": "Dashboard",
+      "bookings": "Bookings",
+      "availabilities": "Availabilities",
+      "services": "Services",
+      "customers": "Customers",
+      "settings": "Settings"
+    },
+    "logout": "Logout",
+    "footer": {
+      "rights": "All rights reserved."
+    }
   },
   "common": {
     "error": "Error",
@@ -354,7 +412,15 @@
     "noData": "No data available",
     "noInternet": "No internet connection",
     "noLocation": "No location found",
-    "noPermission": "You don't have permission to access this page"
+    "noPermission": "You don't have permission to access this page",
+    "user": "User",
+    "appointment": "Appointment",
+    "at": "at",
+    "details": "Details",
+    "name": "Name",
+    "phone": "Phone",
+    "viewAll": "View all",
+    "professional": "Professional"
   },
   "notFound": {
     "title": "404",

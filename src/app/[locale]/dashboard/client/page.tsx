@@ -12,6 +12,7 @@ import {
   selectUserLoading,
 } from "@/lib/redux/slices/userSlice";
 import { selectIsAuthenticated } from "@/lib/redux/slices/authSlice";
+import { useTranslations } from "@/hooks/useTranslations";
 
 import {
   fetchBookingByUserIdThunk,
@@ -38,6 +39,7 @@ import LoadingSpinner from "@/components/ui/LoadingSpinner";
 export default function UserDashboard() {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
+  const { t } = useTranslations();
 
   // Redux state
   const isAuthenticated = useSelector(selectIsAuthenticated);
@@ -114,10 +116,22 @@ export default function UserDashboard() {
 
   // Navigation tabs
   const tabs = [
-    { id: "profile", name: "Profile", icon: UserIcon },
-    { id: "preferences", name: "Preferences", icon: Cog6ToothIcon },
-    { id: "favorites", name: "Favorites", icon: HeartIcon },
-    { id: "appointments", name: "Appointments", icon: CalendarIcon },
+    { id: "profile", name: t("dashboard.client.tabs.profile"), icon: UserIcon },
+    {
+      id: "preferences",
+      name: t("dashboard.client.tabs.preferences"),
+      icon: Cog6ToothIcon,
+    },
+    {
+      id: "favorites",
+      name: t("dashboard.client.tabs.favorites"),
+      icon: HeartIcon,
+    },
+    {
+      id: "appointments",
+      name: t("dashboard.client.tabs.appointments"),
+      icon: CalendarIcon,
+    },
   ];
 
   return (
@@ -126,10 +140,11 @@ export default function UserDashboard() {
         {/* Welcome Header */}
         <div className="bg-white rounded-xl shadow-sm mb-4 md:mb-8 p-4 md:p-6">
           <h1 className="text-xl md:text-2xl font-bold text-gray-900">
-            Welcome back, {profile?.first_name || "User"}!
+            {t("dashboard.client.welcome")},{" "}
+            {profile?.first_name || t("common.user")}!
           </h1>
           <p className="text-gray-600 mt-1 text-sm md:text-base">
-            Here's what's happening with your account
+            {t("dashboard.client.welcomeSubtitle")}
           </p>
         </div>
 
@@ -141,13 +156,14 @@ export default function UserDashboard() {
               <div className="flex justify-between items-center mb-4 md:mb-6">
                 <h2 className="text-lg md:text-xl font-bold text-gray-900 flex items-center">
                   <CalendarIcon className="h-5 w-5 mr-2 text-blue-500" />
-                  Upcoming Appointments
+                  {t("dashboard.client.upcomingAppointments")}
                 </h2>
                 <Link
                   href="/dashboard/client/bookings"
                   className="text-xs md:text-sm text-blue-600 hover:text-blue-800 flex items-center"
                 >
-                  View all <ArrowRightIcon className="h-4 w-4 ml-1" />
+                  {t("common.viewAll")}{" "}
+                  <ArrowRightIcon className="h-4 w-4 ml-1" />
                 </Link>
               </div>
 
@@ -163,10 +179,10 @@ export default function UserDashboard() {
                       </div>
                       <div className="flex-grow mb-2 sm:mb-0">
                         <p className="font-medium text-gray-900">
-                          {booking.company?.name || "Appointment"}
+                          {booking.company?.name || t("common.appointment")}
                         </p>
                         <p className="text-xs md:text-sm text-gray-500">
-                          {formatDate(booking.start_time)} at{" "}
+                          {formatDate(booking.start_time)} {t("common.at")}{" "}
                           {formatTime(booking.start_time)}
                         </p>
                       </div>
@@ -176,7 +192,7 @@ export default function UserDashboard() {
                         }
                         className="text-xs bg-blue-100 text-blue-800 py-1 px-3 rounded-full w-full sm:w-auto text-center"
                       >
-                        Details
+                        {t("common.details")}
                       </button>
                     </div>
                   ))}
@@ -185,10 +201,10 @@ export default function UserDashboard() {
                 <div className="text-center py-6 md:py-8 bg-gray-50 rounded-lg">
                   <CalendarIcon className="mx-auto h-8 w-8 md:h-10 md:w-10 text-gray-400" />
                   <h3 className="mt-2 text-sm md:text-base font-medium text-gray-900">
-                    No upcoming appointments
+                    {t("dashboard.client.noUpcomingAppointments")}
                   </h3>
                   <p className="mt-1 text-xs md:text-sm text-gray-500">
-                    Schedule your next appointment now
+                    {t("dashboard.client.scheduleNow")}
                   </p>
                   <div className="mt-4 md:mt-6">
                     <button
@@ -196,7 +212,7 @@ export default function UserDashboard() {
                       className="inline-flex items-center px-3 py-1.5 md:px-4 md:py-2 border border-transparent rounded-md shadow-sm text-xs md:text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
                       onClick={() => router.push("/professionals")}
                     >
-                      Book an Appointment
+                      {t("dashboard.client.bookAppointment")}
                     </button>
                   </div>
                 </div>
@@ -208,7 +224,7 @@ export default function UserDashboard() {
               <div className="flex justify-between items-center mb-4 md:mb-6">
                 <h2 className="text-lg md:text-xl font-bold text-gray-900 flex items-center">
                   <FireIcon className="h-5 w-5 mr-2 text-orange-500" />
-                  Recent Activity
+                  {t("dashboard.client.recentActivity")}
                 </h2>
               </div>
 
@@ -221,8 +237,8 @@ export default function UserDashboard() {
                       className="border-l-4 border-green-500 pl-3 md:pl-4 py-2"
                     >
                       <p className="font-medium text-gray-900 text-sm md:text-base">
-                        Completed appointment with{" "}
-                        {booking.company?.name || "Professional"}
+                        {t("dashboard.client.completedAppointment")}{" "}
+                        {booking.company?.name || t("common.professional")}
                       </p>
                       <p className="text-xs md:text-sm text-gray-500">
                         {formatDate(booking.start_time)}
@@ -233,7 +249,7 @@ export default function UserDashboard() {
               ) : (
                 <div className="text-center py-4 md:py-6 bg-gray-50 rounded-lg">
                   <p className="text-xs md:text-sm text-gray-500">
-                    No recent activity to display
+                    {t("dashboard.client.noRecentActivity")}
                   </p>
                 </div>
               )}
@@ -247,30 +263,30 @@ export default function UserDashboard() {
               <div className="flex justify-between items-center mb-3 md:mb-4">
                 <h2 className="text-lg md:text-xl font-bold text-gray-900 flex items-center">
                   <UserIcon className="h-5 w-5 mr-2 text-purple-500" />
-                  Profile Summary
+                  {t("dashboard.client.profileSummary")}
                 </h2>
                 <Link
                   href="/dashboard/client/settings"
                   className="text-xs text-blue-600 hover:text-blue-800"
                 >
-                  Edit
+                  {t("common.edit")}
                 </Link>
               </div>
               <div className="space-y-2 md:space-y-3">
                 <div>
-                  <p className="text-xs text-gray-500">Name</p>
+                  <p className="text-xs text-gray-500">{t("common.name")}</p>
                   <p className="font-medium text-sm md:text-base">
                     {profile?.first_name} {profile?.last_name}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Email</p>
+                  <p className="text-xs text-gray-500">{t("common.email")}</p>
                   <p className="font-medium text-sm md:text-base overflow-hidden text-ellipsis">
                     {profile?.email}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Phone</p>
+                  <p className="text-xs text-gray-500">{t("common.phone")}</p>
                   <p className="font-medium text-sm md:text-base">
                     {profile?.phone || "-"}
                   </p>
@@ -279,7 +295,7 @@ export default function UserDashboard() {
                   href="/dashboard/client/settings"
                   className="block mt-3 md:mt-4 text-center text-xs md:text-sm text-blue-600 hover:text-blue-800 py-1.5 md:py-2 border border-blue-200 rounded-lg hover:bg-blue-50"
                 >
-                  View Full Profile
+                  {t("dashboard.client.viewFullProfile")}
                 </Link>
               </div>
             </div>
@@ -288,7 +304,7 @@ export default function UserDashboard() {
             <div className="bg-white rounded-xl shadow-sm p-4 md:p-6">
               <h2 className="text-lg md:text-xl font-bold text-gray-900 flex items-center mb-4 md:mb-6">
                 <CalculatorIcon className="h-5 w-5 mr-2 text-green-500" />
-                Your Statistics
+                {t("dashboard.client.yourStatistics")}
               </h2>
               <div className="grid grid-cols-2 gap-3 md:gap-4">
                 <div className="bg-blue-50 p-3 md:p-4 rounded-lg text-center">
@@ -296,26 +312,32 @@ export default function UserDashboard() {
                     {totalAppointments}
                   </p>
                   <p className="text-xs text-gray-600 mt-1">
-                    Total Appointments
+                    {t("dashboard.client.stats.totalAppointments")}
                   </p>
                 </div>
                 <div className="bg-purple-50 p-3 md:p-4 rounded-lg text-center">
                   <p className="text-xl md:text-3xl font-bold text-purple-600">
                     {completedAppointments}
                   </p>
-                  <p className="text-xs text-gray-600 mt-1">Completed</p>
+                  <p className="text-xs text-gray-600 mt-1">
+                    {t("dashboard.client.stats.completed")}
+                  </p>
                 </div>
                 <div className="bg-pink-50 p-3 md:p-4 rounded-lg text-center">
                   <p className="text-xl md:text-3xl font-bold text-pink-600">
                     {totalFavorites}
                   </p>
-                  <p className="text-xs text-gray-600 mt-1">Favorite Pros</p>
+                  <p className="text-xs text-gray-600 mt-1">
+                    {t("dashboard.client.stats.favoritePros")}
+                  </p>
                 </div>
                 <div className="bg-green-50 p-3 md:p-4 rounded-lg text-center">
                   <p className="text-xl md:text-3xl font-bold text-green-600">
                     {completedAppointments > 0 ? "★★★★☆" : "-"}
                   </p>
-                  <p className="text-xs text-gray-600 mt-1">Average Rating</p>
+                  <p className="text-xs text-gray-600 mt-1">
+                    {t("dashboard.client.stats.averageRating")}
+                  </p>
                 </div>
               </div>
             </div>
@@ -323,7 +345,7 @@ export default function UserDashboard() {
             {/* Quick Actions */}
             <div className="bg-white rounded-xl shadow-sm p-4 md:p-6">
               <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-3 md:mb-4">
-                Quick Actions
+                {t("dashboard.client.quickActions")}
               </h2>
               <div className="space-y-2 md:space-y-3">
                 <button
@@ -331,21 +353,21 @@ export default function UserDashboard() {
                   className="w-full text-left px-3 md:px-4 py-2 md:py-3 rounded-lg bg-blue-600 text-white hover:bg-blue-700 flex items-center text-xs md:text-sm"
                 >
                   <CalendarIcon className="h-4 w-4 md:h-5 md:w-5 mr-2 md:mr-3" />
-                  Book New Appointment
+                  {t("dashboard.client.actions.bookNew")}
                 </button>
                 <button
                   onClick={() => router.push("/dashboard/client/bookings")}
                   className="w-full text-left px-3 md:px-4 py-2 md:py-3 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200 flex items-center text-xs md:text-sm"
                 >
                   <ClockIcon className="h-4 w-4 md:h-5 md:w-5 mr-2 md:mr-3" />
-                  Manage Appointments
+                  {t("dashboard.client.actions.manageAppointments")}
                 </button>
                 <button
                   onClick={() => router.push("/dashboard/client/settings")}
                   className="w-full text-left px-3 md:px-4 py-2 md:py-3 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200 flex items-center text-xs md:text-sm"
                 >
                   <Cog6ToothIcon className="h-4 w-4 md:h-5 md:w-5 mr-2 md:mr-3" />
-                  Account Settings
+                  {t("dashboard.client.actions.accountSettings")}
                 </button>
               </div>
             </div>

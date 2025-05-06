@@ -65,35 +65,51 @@ export default function DashboardLayout({
 
   const sidebarLinks = pathname.includes("/dashboard/pro")
     ? [
-        { href: "/dashboard/pro", label: "Tableau de bord", icon: BarChart },
+        {
+          href: "/dashboard/pro",
+          label: t("dashboard.pro.overview"),
+          icon: BarChart,
+        },
         {
           href: "/dashboard/pro/bookings",
-          label: "Réservations",
+          label: t("dashboard.pro.bookings"),
           icon: Calendar,
         },
         {
           href: "/dashboard/pro/availabilities",
-          label: "Disponibilités",
+          label: t("dashboard.pro.availabilities"),
           icon: Clock,
         },
-        { href: "/dashboard/pro/services", label: "Services", icon: Scissors },
-        { href: "/dashboard/pro/customers", label: "Clients", icon: Users },
+        {
+          href: "/dashboard/pro/services",
+          label: t("dashboard.pro.services"),
+          icon: Scissors,
+        },
+        {
+          href: "/dashboard/pro/customers",
+          label: t("dashboard.pro.customers"),
+          icon: Users,
+        },
         {
           href: "/dashboard/pro/settings",
-          label: "Paramètres",
+          label: t("dashboard.pro.settings"),
           icon: Settings,
         },
       ]
     : [
-        { href: "/dashboard/client", label: "Tableau de bord", icon: BarChart },
+        {
+          href: "/dashboard/client",
+          label: t("dashboard.client.overview"),
+          icon: BarChart,
+        },
         {
           href: "/dashboard/client/bookings",
-          label: "Mes rendez-vous",
+          label: t("dashboard.client.bookings"),
           icon: Calendar,
         },
         {
           href: "/dashboard/client/settings",
-          label: "Paramètres",
+          label: t("dashboard.client.settings"),
           icon: Settings,
         },
       ];
@@ -153,7 +169,7 @@ export default function DashboardLayout({
               className="flex items-center w-full px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 rounded-lg"
             >
               <LogOut className="w-5 h-5 mr-3" />
-              Déconnexion
+              {t("dashboard.logout")}
             </button>
           </div>
         </div>
@@ -197,7 +213,7 @@ export default function DashboardLayout({
               className="flex items-center w-full px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 rounded-lg"
             >
               <LogOut className="w-5 h-5 mr-3" />
-              Déconnexion
+              {t("dashboard.logout")}
             </button>
           </div>
         </div>
@@ -250,7 +266,8 @@ export default function DashboardLayout({
         {/* Footer */}
         <footer className="bg-white border-t border-gray-200">
           <div className="px-4 py-2 md:py-3 text-center text-xs md:text-sm text-gray-600">
-            © {new Date().getFullYear()} Ollemi Pro. Tous droits réservés.
+            © {new Date().getFullYear()} Ollemi Pro.{" "}
+            {t("dashboard.footer.rights")}
           </div>
         </footer>
       </div>
