@@ -4,10 +4,10 @@ import { cookies } from "next/headers";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const supabase = createRouteHandlerClient({ cookies });
-  const { id } = params;
+  const { id } = await params;
 
   const { data, error } = await supabase
     .from("reviews")
@@ -23,10 +23,10 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const supabase = createRouteHandlerClient({ cookies });
-  const { id } = params;
+  const { id } = await params;
   const body = await request.json();
 
   if (!body.rating || !body.review) {
