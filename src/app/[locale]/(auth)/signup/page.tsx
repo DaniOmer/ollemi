@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useTranslations } from "@/hooks/useTranslations";
@@ -41,6 +41,11 @@ import { signInWithGoogle } from "@/lib/supabase/client";
 
 import { useAppDispatch, useAppSelector } from "@/lib/redux/store";
 import { registerThunk, selectAuthLoading } from "@/lib/redux/slices/authSlice";
+import Select from "@/components/ui/Select";
+import {
+  AddressAutocomplete,
+  AddressData,
+} from "@/components/forms/AddressAutocomplete";
 
 // Define the form schema with zod
 const signupFormSchema = z
@@ -367,24 +372,26 @@ export default function SignupPage() {
                           className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground z-10"
                           strokeWidth={1.5}
                         />
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="pl-10 border-primary/20 focus:border-primary">
-                              <SelectValue />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="pro">
-                              {t("auth.signup.proProfessional")}
-                            </SelectItem>
-                            <SelectItem value="client">
-                              {t("auth.signup.client")}
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <FormControl>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger className="pl-10 border-primary/20 focus:border-primary">
+                                <SelectValue />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="pro">
+                                {t("auth.signup.proProfessional")}
+                              </SelectItem>
+                              <SelectItem value="client">
+                                {t("auth.signup.client")}
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
                       </div>
                       <FormMessage />
                     </FormItem>

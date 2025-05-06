@@ -40,6 +40,17 @@ export default function SearchResults() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Function to safely parse JSON from URL params
+  const safeJsonParse = <T,>(str: string | null, fallback: T): T => {
+    if (!str) return fallback;
+    try {
+      return JSON.parse(str) as T;
+    } catch (e) {
+      console.error("Failed to parse URL param:", e);
+      return fallback;
+    }
+  };
+
   // Fetch categories
   useEffect(() => {
     dispatch(fetchCategories());
@@ -48,13 +59,6 @@ export default function SearchResults() {
   const [searchCategory, setSearchCategory] = useState(
     searchParams.get("category") || ""
   );
-
-  // Initialize selectedCategories with the search category if it exists
-  useEffect(() => {
-    if (searchCategory) {
-      setSelectedCategories([searchCategory]);
-    }
-  }, [searchCategory]);
   const [searchLocation, setSearchLocation] = useState(
     searchParams.get("location") || ""
   );
@@ -62,9 +66,26 @@ export default function SearchResults() {
   const [searchAddress, setSearchAddress] = useState<AddressData | null>(null);
 
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 200]);
-  const [selectedRating, setSelectedRating] = useState<number | null>(null);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  // Initialize filters from URL parameters
+  const [priceRange, setPriceRange] = useState<[number, number]>(
+    safeJsonParse(searchParams.get("price"), [0, 200])
+  );
+  const [selectedRating, setSelectedRating] = useState<number | null>(
+    searchParams.get("rating")
+      ? parseInt(searchParams.get("rating") || "0")
+      : null
+  );
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(
+    safeJsonParse(searchParams.get("categories"), [])
+  );
+
+  // Initialize selectedCategories with the search category if it exists and categories is empty
+  useEffect(() => {
+    if (searchCategory && selectedCategories.length === 0) {
+      setSelectedCategories([searchCategory]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchCategory]); // Only run when searchCategory changes initially
 
   // Fetch search results
   useEffect(() => {
@@ -114,21 +135,52 @@ export default function SearchResults() {
     setSearchLocation(address.fullAddress);
   };
 
+  // Update URL parameters whenever search criteria or filters change
+  useEffect(() => {
+    const updateUrlParams = () => {
+      const params = new URLSearchParams(window.location.search);
+
+      if (searchCategory) params.set("category", searchCategory);
+      else params.delete("category");
+      if (searchLocation) params.set("location", searchLocation);
+      else params.delete("location");
+      if (searchDate) params.set("date", searchDate);
+      else params.delete("date");
+
+      if (selectedRating !== null)
+        params.set("rating", selectedRating.toString());
+      else params.delete("rating");
+      if (selectedCategories.length > 0)
+        params.set("categories", JSON.stringify(selectedCategories));
+      else params.delete("categories");
+      if (priceRange[0] !== 0 || priceRange[1] !== 200)
+        params.set("price", JSON.stringify(priceRange));
+      else params.delete("price");
+
+      // Use replaceState to avoid adding to browser history
+      window.history.replaceState(
+        {},
+        "",
+        `${window.location.pathname}?${params.toString()}`
+      );
+    };
+    updateUrlParams();
+  }, [
+    searchCategory,
+    searchLocation,
+    searchDate,
+    selectedRating,
+    selectedCategories,
+    priceRange,
+  ]);
+
   const handleSearch = () => {
-    // Update URL with search params
-    const params = new URLSearchParams();
-    if (searchCategory) params.set("category", searchCategory);
-    if (searchLocation) params.set("location", searchLocation);
-    if (searchDate) params.set("date", searchDate);
-
-    // Replace the current URL with the new search params
-    window.history.replaceState(
-      {},
-      "",
-      `${window.location.pathname}?${params.toString()}`
-    );
-
-    // Fetch results with new params (will be triggered by useEffect)
+    // This function might not be strictly needed anymore as useEffect updates URL,
+    // but we can keep it if direct button click should trigger something specific
+    // For now, it just ensures the latest state is reflected in the URL,
+    // which useEffect already does.
+    // We could potentially trigger a manual refetch here if needed.
+    console.log("Manual search triggered (URL updated via useEffect)");
   };
 
   const toggleFilters = () => {
@@ -406,6 +458,11 @@ export default function SearchResults() {
                       setSelectedRating(null);
                       setSelectedCategories([]);
                       setPriceRange([0, 200]);
+                      // Clear main search fields as well
+                      setSearchCategory("");
+                      setSearchLocation("");
+                      setSearchDate("");
+                      // The useEffect hook will clear the URL params
                     }}
                   >
                     {t("search.clearFilters")}

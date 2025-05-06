@@ -25,6 +25,7 @@ import {
   AddressData,
 } from "@/components/forms/AddressAutocomplete";
 import { ServiceSearchAutocomplete } from "@/components/forms/ServiceSearchAutocomplete";
+import Select from "@/components/ui/select";
 import { useAppSelector, useAppDispatch } from "@/lib/redux/store";
 import {
   selectCompanies,
@@ -47,6 +48,12 @@ export default function Home() {
   const categories = useAppSelector(selectCategories);
   const categoriesLoading = useAppSelector(selectCategoriesLoading);
   const loading = useAppSelector(selectCompaniesLoading);
+
+  // Prepare categories for the Select component
+  const categoryOptions = categories.map((category: Category) => ({
+    value: category.name, // Use category name as value for now, adjust if needed
+    label: category.name,
+  }));
 
   // Fetch companies
   useEffect(() => {
@@ -179,11 +186,13 @@ export default function Home() {
                   <label className="block text-sm font-medium mb-2">
                     {t("client.home.search.service")}
                   </label>
-                  <ServiceSearchAutocomplete
-                    onCategorySelect={setSearchCategory}
-                    defaultValue={searchCategory}
+                  <Select
+                    options={categoryOptions}
+                    value={searchCategory}
+                    onChange={(e) => setSearchCategory(e.target.value)}
                     placeholder={t("client.home.search.servicePlaceholder")}
                     className="w-full"
+                    disabled={categoriesLoading}
                   />
                 </div>
                 <div className="col-span-4 md:col-span-1">
