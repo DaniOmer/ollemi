@@ -46,6 +46,13 @@ export async function GET() {
           url,
           alt,
           featured
+        ),
+        reviews (
+          id,
+          rating,
+          review,
+          user_id,
+          created_at
         )
       `
     );

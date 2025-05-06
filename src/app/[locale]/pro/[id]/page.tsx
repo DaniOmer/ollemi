@@ -110,7 +110,7 @@ export default function ProfessionalPage() {
           <div className="flex items-center gap-2 mb-2">
             <div className="flex items-center">
               <span className="text-xl font-semibold">
-                {professional.rating || "4.9"}
+                {professional.rating || "0"}
               </span>
               <div className="flex ml-1">
                 {[...Array(5)].map((_, i) => (
@@ -125,7 +125,7 @@ export default function ProfessionalPage() {
                 ))}
               </div>
               <span className="ml-1 text-gray-500">
-                ({professional.reviewCount || "193"})
+                ({professional.reviews.length})
               </span>
             </div>
             <span className="text-gray-500">•</span>
@@ -419,10 +419,12 @@ export default function ProfessionalPage() {
                   ))}
                 </div>
                 <span className="ml-2 text-2xl font-bold text-gray-900">
-                  {professional.rating || "4.9"}
+                  {professional.reviews.length
+                    ? professional.rating.toFixed(1)
+                    : "0"}
                 </span>
                 <span className="ml-1 text-gray-500">
-                  ({professional.reviewCount || "193"})
+                  ({professional.reviews.length})
                 </span>
               </div>
             </div>
@@ -471,7 +473,7 @@ export default function ProfessionalPage() {
                         </svg>
                       ))}
                     </div>
-                    <p className="text-gray-700">{review.comment}</p>
+                    <p className="text-gray-700">{review.review}</p>
                   </div>
                 ))
               ) : (

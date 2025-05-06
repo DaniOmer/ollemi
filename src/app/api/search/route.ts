@@ -60,6 +60,13 @@ export async function GET(request: NextRequest) {
           url,
           alt,
           featured
+        ),
+        reviews (
+          id,
+          rating,
+          review,
+          user_id,
+          created_at
         )
       `
     );

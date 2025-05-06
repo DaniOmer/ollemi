@@ -654,6 +654,32 @@ export type Database = {
           updated_at: string | null;
         };
       };
+      reviews: {
+        Row: {
+          id: string;
+          rating: number;
+          review: string;
+          user_id: string;
+          company_id: string;
+          created_at: string;
+        };
+        Insert: {
+          id: string;
+          rating: number;
+          review: string;
+          user_id: string;
+          company_id: string;
+          created_at: string;
+        };
+        Update: {
+          id: string;
+          rating: number;
+          review: string;
+          user_id: string;
+          company_id: string;
+          created_at: string;
+        };
+      };
     };
     Views: {
       [_ in never]: never;

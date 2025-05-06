@@ -11,6 +11,7 @@ export type Appointment = Database["public"]["Tables"]["appointments"]["Row"];
 export type OpeningHours = Database["public"]["Tables"]["opening_hours"]["Row"];
 export type Address = Database["public"]["Tables"]["addresses"]["Row"];
 export type Photo = Database["public"]["Tables"]["photos"]["Row"];
+export type Review = Database["public"]["Tables"]["reviews"]["Row"];
 
 // Legacy types (to be removed once migration is complete)
 export type Professional = Company;
@@ -200,12 +201,4 @@ export type TeamMember = {
   email: string;
   phone: string;
   image_url: string | null;
-};
-
-export type Review = {
-  id: string;
-  rating: number;
-  comment: string;
-  created_at: string;
-  updated_at: string | null;
 };
