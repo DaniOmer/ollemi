@@ -286,15 +286,16 @@ export default function AvailabilitiesPage() {
         // Création d'un objet qui correspond à ce que l'API attend
         return {
           company_id: user.company_id,
-          day: parseInt(dayValue),
+          day_of_week: parseInt(dayValue),
           start_time: hour.open ? hour.start_time : null,
           end_time: hour.open ? hour.end_time : null,
-          // On peut ajouter d'autres champs si nécessaire pour votre API
-          // Par exemple, pour stocker les pauses déjeuner:
-          // break_start: hour.break_start_time,
-          // break_end: hour.break_end_time,
-          id: "", // Sera généré par l'API si nouveau
-        } as unknown as BusinessHours; // Cast forcé pour éviter les erreurs TypeScript
+          break_start_time:
+            hour.open && hour.break_start_time ? hour.break_start_time : null,
+          break_end_time:
+            hour.open && hour.break_end_time ? hour.break_end_time : null,
+          open: hour.open,
+          // Ne pas inclure l'ID, la base de données le générera automatiquement
+        } as unknown as BusinessHours;
       });
 
       await dispatch(
@@ -306,6 +307,9 @@ export default function AvailabilitiesPage() {
 
       if (status === "succeeded") {
         toast.success("Les horaires ont été enregistrés avec succès");
+        setSaved(true);
+      } else if (error) {
+        toast.error(`Erreur: ${error}`);
       }
     }
   };
@@ -337,9 +341,12 @@ export default function AvailabilitiesPage() {
 
     const updatedHours = [...hours];
     selectedTargetDays.forEach((targetDay) => {
+      // Convertir targetDay en string pour assurer la bonne comparaison
+      const targetDayStr = String(targetDay);
       const targetIndex = updatedHours.findIndex(
-        (h) => h.day_of_week === targetDay
+        (h) => String(h.day_of_week) === targetDayStr
       );
+
       if (targetIndex !== -1) {
         updatedHours[targetIndex] = {
           ...updatedHours[targetIndex],
@@ -353,7 +360,7 @@ export default function AvailabilitiesPage() {
         // Update hasBreak state for the target day
         setHasBreak((prev) => ({
           ...prev,
-          [targetDay]: !!(
+          [targetDayStr]: !!(
             sourceDay.break_start_time && sourceDay.break_end_time
           ),
         }));
