@@ -81,15 +81,19 @@ export default function CustomersPage() {
     return acc;
   }, []);
 
-  console.log("customers", bookings);
-
   // Filter customers by search query
   const filteredCustomers = customers.filter(
     (customer: Customer) =>
-      customer.first_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      customer.last_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      customer.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      customer.phone.toLowerCase().includes(searchQuery.toLowerCase())
+      (customer.first_name?.toLowerCase() || "").includes(
+        searchQuery.toLowerCase()
+      ) ||
+      (customer.last_name?.toLowerCase() || "").includes(
+        searchQuery.toLowerCase()
+      ) ||
+      (customer.email?.toLowerCase() || "").includes(
+        searchQuery.toLowerCase()
+      ) ||
+      (customer.phone?.toLowerCase() || "").includes(searchQuery.toLowerCase())
   );
 
   return (
