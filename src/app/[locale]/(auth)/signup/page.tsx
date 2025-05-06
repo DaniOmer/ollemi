@@ -41,7 +41,7 @@ import { signInWithGoogle } from "@/lib/supabase/client";
 
 import { useAppDispatch, useAppSelector } from "@/lib/redux/store";
 import { registerThunk, selectAuthLoading } from "@/lib/redux/slices/authSlice";
-import Select from "@/components/ui/Select";
+
 import {
   AddressAutocomplete,
   AddressData,

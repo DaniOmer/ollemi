@@ -25,7 +25,13 @@ import {
   AddressData,
 } from "@/components/forms/AddressAutocomplete";
 import { ServiceSearchAutocomplete } from "@/components/forms/ServiceSearchAutocomplete";
-import Select from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useAppSelector, useAppDispatch } from "@/lib/redux/store";
 import {
   selectCompanies,
@@ -50,10 +56,11 @@ export default function Home() {
   const loading = useAppSelector(selectCompaniesLoading);
 
   // Prepare categories for the Select component
-  const categoryOptions = categories.map((category: Category) => ({
-    value: category.name, // Use category name as value for now, adjust if needed
-    label: category.name,
-  }));
+  const categoryOptions: Array<{ value: string; label: string }> =
+    categories.map((category: Category) => ({
+      value: category.name, // Use category name as value for now, adjust if needed
+      label: category.name,
+    }));
 
   // Fetch companies
   useEffect(() => {
@@ -187,13 +194,23 @@ export default function Home() {
                     {t("client.home.search.service")}
                   </label>
                   <Select
-                    options={categoryOptions}
                     value={searchCategory}
-                    onChange={(e) => setSearchCategory(e.target.value)}
-                    placeholder={t("client.home.search.servicePlaceholder")}
-                    className="w-full"
+                    onValueChange={setSearchCategory}
                     disabled={categoriesLoading}
-                  />
+                  >
+                    <SelectTrigger className="w-full h-[50px]">
+                      <SelectValue
+                        placeholder={t("client.home.search.servicePlaceholder")}
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categoryOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="col-span-4 md:col-span-1">
                   <label className="block text-sm font-medium mb-2">
