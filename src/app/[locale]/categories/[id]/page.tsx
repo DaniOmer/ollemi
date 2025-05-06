@@ -211,7 +211,8 @@ const CategoryPage = () => {
       {/* Professionals Count */}
       <div className="mb-6">
         <h2 className="text-xl font-medium">
-          {filteredProfessionals.length} {t("client.category.subheading")}
+          {filteredProfessionals.length}{" "}
+          {t("client.category.professionalsFound")}
         </h2>
       </div>
 

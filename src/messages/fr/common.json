@@ -1,7 +1,7 @@
 {
   "app": {
     "name": "Ollemi",
-    "tagline": "Simplifiez votre entreprise de beauté"
+    "tagline": "Simplifiez la gestion de votre entreprise de beauté"
   },
   "client": {
     "home": {
@@ -121,41 +121,87 @@
     "settings": "Paramètres"
   },
   "hero": {
-    "title": "Simplifiez votre entreprise de beauté",
+    "title": "Simplifiez la gestion de votre entreprise de beauté",
     "subtitle": "Ollemi aide les professionnels de la beauté à gérer leurs rendez-vous, à présenter leur entreprise et à réduire les absences grâce à des rappels automatisés.",
     "startTrial": "Commencer l'essai gratuit",
     "seeHowItWorks": "Voir comment ça marche"
   },
   "features": {
-    "title": "Tout ce dont votre entreprise de beauté a besoin",
-    "subtitle": "Des fonctionnalités puissantes conçues spécifiquement pour les professionnels de la beauté.",
-    "booking": {
-      "title": "Réservation en ligne",
-      "description": "Permettez aux clients de réserver des rendez-vous 24h/24 et 7j/7 depuis leur ordinateur ou smartphone."
+    "title": "Fonctionnalités Conçues Pour Vous",
+    "subtitle": "Tout ce dont vous avez besoin pour développer votre activité et simplifier votre quotidien.",
+    "onlineBooking": {
+      "title": "Réservation en ligne 24/7",
+      "description": "Vos clients réservent quand ils le souhaitent, même quand vous êtes fermé."
     },
-    "reminders": {
-      "title": "Rappels automatisés",
-      "description": "Réduisez les absences grâce à des rappels automatisés par SMS et e-mail aux clients."
+    "dashboard": {
+      "title": "Tableau de bord intuitif",
+      "description": "Visualisez et gérez tous vos rendez-vous en un clin d'œil."
     },
-    "profile": {
-      "title": "Présence en ligne",
-      "description": "Créez et personnalisez facilement le profil de votre entreprise pour attirer de nouveaux clients."
+    "noShows": {
+      "title": "Réduction des 'no-shows'",
+      "description": "Diminuez les rendez-vous manqués grâce aux rappels automatiques par email."
+    },
+    "onlinePresence": {
+      "title": "Profil professionnel",
+      "description": "Professionnalisez votre entreprise grâce à une présentation en ligne. Mettez en avant vos services, vos tarifs et vos horaires d'ouverture."
+    },
+    "gallery": {
+      "title": "Galerie photos",
+      "description": "Montrez vos plus belles réalisations pour attirer plus de clients."
+    },
+    "reviews": {
+      "title": "Avis clients",
+      "description": "Collectez et affichez les témoignages de vos clients satisfaits."
+    },
+    "qrCode": {
+      "title": "QR Code unique",
+      "description": "Partagez facilement votre profil de réservation dans votre établissement."
+    },
+    "serviceManagement": {
+      "title": "Gestion des services",
+      "description": "Organisez facilement votre catalogue de prestations avec prix et durée."
+    },
+    "realTimeAvailability": {
+      "title": "Disponibilité temps réel",
+      "description": "Les clients voient uniquement les créneaux où vous êtes vraiment disponible."
+    },
+    "multiLanguage": {
+      "title": "Multi-langues",
+      "description": "Interface disponible en français et anglais pour une clientèle élargie."
+    },
+    "accessibility": {
+      "title": "Accessible partout",
+      "description": "Utilisable sur ordinateur, tablette et smartphone, sans installation."
     }
   },
   "howItWorks": {
-    "title": "Comment ça marche",
-    "subtitle": "Commencez en quelques minutes et transformez votre entreprise.",
-    "step1": {
-      "title": "Créez votre profil",
-      "description": "Inscrivez-vous et créez le profil de votre entreprise avec les services, les photos et les heures d'ouverture."
+    "title": "Comment ça marche ?",
+    "subtitle": "Un processus simple en quelques étapes, pour vous et vos clients.",
+    "forProfessionalsTitle": "Pour les Professionnels",
+    "proStep1": {
+      "title": "1. Créez votre Profil",
+      "description": "Présentez votre salon, vos services et vos talents avec un profil attractif et complet."
     },
-    "step2": {
-      "title": "Configurez votre calendrier",
-      "description": "Configurez votre disponibilité et laissez les clients réserver des rendez-vous en ligne."
+    "proStep2": {
+      "title": "2. Configurez vos Services",
+      "description": "Ajoutez vos prestations, prix et disponibilités pour que les clients puissent réserver facilement."
     },
-    "step3": {
-      "title": "Commencez à accepter les réservations",
-      "description": "Partagez votre lien de réservation avec les clients et commencez à recevoir des rendez-vous."
+    "proStep3": {
+      "title": "3. Gérez vos Réservations",
+      "description": "Consultez et gérez vos rendez-vous depuis un tableau de bord simple et intuitif."
+    },
+    "forClientsTitle": "Pour les Clients",
+    "clientStep1": {
+      "title": "1. Trouvez votre Professionnel",
+      "description": "Recherchez par catégorie, explorez les profils, consultez les avis et les photos."
+    },
+    "clientStep2": {
+      "title": "2. Choisissez et Réservez",
+      "description": "Sélectionnez la prestation désirée, choisissez une date et une heure disponibles."
+    },
+    "clientStep3": {
+      "title": "3. Confirmez et Profitez",
+      "description": "Validez votre rendez-vous en quelques clics et recevez une confirmation instantanée."
     }
   },
   "pricing": {
@@ -474,6 +520,8 @@
     "cancel": "Annuler l'abonnement",
     "cancelAtPeriodEnd": "Votre abonnement sera annulé à la fin de la période de facturation actuelle",
     "noPlans": "Aucun plan disponible pour le moment",
+    "mostPopular": "Le plus populaire",
+    "tryItFree": "Essayer gratuitement",
     "resumeSubscription": "Reprendre l'abonnement",
     "viewSubscription": "Voir l'abonnement",
     "manage": {

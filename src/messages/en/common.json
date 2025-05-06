@@ -126,35 +126,81 @@
     "seeHowItWorks": "See How It Works"
   },
   "features": {
-    "title": "Everything Your Beauty Business Needs",
-    "subtitle": "Powerful features designed specifically for beauty professionals.",
-    "booking": {
-      "title": "Online Booking",
-      "description": "Allow clients to book appointments 24/7 from their computer or smartphone."
+    "title": "Features Designed For You",
+    "subtitle": "Everything you need to grow your business and simplify your daily life.",
+    "onlineBooking": {
+      "title": "24/7 Online Booking",
+      "description": "Your clients can book anytime, even outside your opening hours."
     },
-    "reminders": {
-      "title": "Automated Reminders",
-      "description": "Reduce no-shows with automated SMS and email reminders to clients."
+    "dashboard": {
+      "title": "Intuitive Dashboard",
+      "description": "Easily view and manage your appointments at a glance."
     },
-    "profile": {
-      "title": "Online Presence",
-      "description": "Easily create and customize your business profile to attract new clients."
+    "noShows": {
+      "title": "Reduce No-Shows",
+      "description": "Decrease missed appointments with automatic email reminders."
+    },
+    "onlinePresence": {
+      "title": "Professional Profile",
+      "description": "Showcase your business, services, and pricing."
+    },
+    "gallery": {
+      "title": "Photo Gallery",
+      "description": "Highlight your work with a quality image gallery to attract more clients."
+    },
+    "reviews": {
+      "title": "Customer Reviews",
+      "description": "Collect and display reviews from your satisfied customers."
+    },
+    "qrCode": {
+      "title": "Unique QR Code",
+      "description": "Easily share your booking profile via a QR code in your establishment."
+    },
+    "serviceManagement": {
+      "title": "Service Management",
+      "description": "Create and organize your services by categories with pricing and duration."
+    },
+    "realTimeAvailability": {
+      "title": "Real-time Availability",
+      "description": "Clients only see slots that are actually available."
+    },
+    "multiLanguage": {
+      "title": "Multi-language",
+      "description": "Interface available in French and English to reach an international clientele."
+    },
+    "accessibility": {
+      "title": "Accessible Everywhere",
+      "description": "Use on desktop, tablet, and smartphone, no technical training needed."
     }
   },
   "howItWorks": {
-    "title": "How It Works",
-    "subtitle": "Get started in minutes and transform your business.",
-    "step1": {
-      "title": "Create Your Profile",
-      "description": "Sign up and create your business profile with services, photos, and business hours."
+    "title": "How It Works?",
+    "subtitle": "A simple process in a few steps, for you and your clients.",
+    "forProfessionalsTitle": "For Professionals",
+    "proStep1": {
+      "title": "1. Create Your Profile",
+      "description": "Showcase your salon, services, and talents with an attractive and complete profile."
     },
-    "step2": {
-      "title": "Set Up Your Calendar",
-      "description": "Configure your availability and let clients book appointments online."
+    "proStep2": {
+      "title": "2. Configure Your Services",
+      "description": "Add your services, prices, and availability so clients can book easily."
     },
-    "step3": {
-      "title": "Start Accepting Bookings",
-      "description": "Share your booking link with clients and start receiving appointments."
+    "proStep3": {
+      "title": "3. Manage Your Bookings",
+      "description": "View and manage your appointments from a simple and intuitive dashboard."
+    },
+    "forClientsTitle": "For Clients",
+    "clientStep1": {
+      "title": "1. Find Your Professional",
+      "description": "Search by category, explore profiles, check reviews and photos."
+    },
+    "clientStep2": {
+      "title": "2. Choose & Book",
+      "description": "Select the desired service, choose an available date and time."
+    },
+    "clientStep3": {
+      "title": "3. Confirm & Enjoy",
+      "description": "Validate your appointment in a few clicks and receive instant confirmation."
     }
   },
   "pricing": {
@@ -477,6 +523,8 @@
     "manageSubscription": "Manage Subscription",
     "fetchError": "Error fetching subscription data",
     "checkoutError": "Error processing subscription",
-    "noPlans": "No subscription plans available at the moment"
+    "noPlans": "No subscription plans available at the moment",
+    "mostPopular": "Most Popular",
+    "tryItFree": "Try it free"
   }
 }
