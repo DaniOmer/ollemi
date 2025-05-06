@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useLocale } from "next-intl";
 import { locales, Locale, localeNames } from "@/i18n";
 import { useCallback } from "react";
@@ -11,6 +11,7 @@ export function LanguageSwitcher() {
   const pathname = usePathname();
   const router = useRouter();
   const currentLocale = useLocale() as Locale;
+  const searchParams = useSearchParams();
 
   // Function to change the locale
   const handleLocaleChange = useCallback(
@@ -26,12 +27,18 @@ export function LanguageSwitcher() {
       );
 
       // Construct the new path
-      const newPath = `/${newLocale}${pathnameWithoutLocale || ""}`;
+      let newPath = `/${newLocale}${pathnameWithoutLocale || ""}`;
+
+      // Preserve existing search parameters
+      const currentSearchParams = searchParams.toString();
+      if (currentSearchParams) {
+        newPath += `?${currentSearchParams}`;
+      }
 
       // Navigate to the new path
       router.push(newPath);
     },
-    [currentLocale, pathname, router]
+    [currentLocale, pathname, router, searchParams]
   );
 
   return (
