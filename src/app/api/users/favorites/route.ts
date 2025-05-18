@@ -24,13 +24,15 @@ export async function GET(request: Request) {
       .select(
         `
         id,
-        professional_id,
-        professionals (
+        company_id,
+        companies (
           id,
-          business_name,
+          name,
+          description,
           address,
           city,
-          zipcode,
+          postal_code,
+          country,
           phone,
           website
         )
@@ -48,15 +50,15 @@ export async function GET(request: Request) {
 
     // Transform data to match the expected format
     const formattedFavorites = favorites.map((favorite: any) => ({
-      id: favorite.professional_id,
-      businessName: favorite.professionals?.business_name || "",
-      address: favorite.professionals?.address || "",
-      city: favorite.professionals?.city || "",
-      postalCode: favorite.professionals?.postal_code || "",
-      country: favorite.professionals?.country || "",
-      phone: favorite.professionals?.phone || "",
-      email: favorite.professionals?.email || "",
-      website: favorite.professionals?.website || "",
+      id: favorite.company_id,
+      name: favorite.companies?.name || "",
+      description: favorite.companies?.description || "",
+      address: favorite.companies?.address || "",
+      city: favorite.companies?.city || "",
+      postalCode: favorite.companies?.postal_code || "",
+      country: favorite.companies?.country || "",
+      phone: favorite.companies?.phone || "",
+      website: favorite.companies?.website || "",
     }));
 
     return NextResponse.json(formattedFavorites);
@@ -89,26 +91,23 @@ export async function POST(request: Request) {
     // Get request body
     const body = await request.json();
 
-    if (!body.professionalId) {
+    if (!body.company_id) {
       return NextResponse.json(
-        { error: "Professional ID is required" },
+        { error: "Company ID is required" },
         { status: 400 }
       );
     }
 
-    // Check if professional exists
-    const { data: professional, error: professionalError } =
-      await supabaseWithAuth
-        .from("professionals")
-        .select("id, first_name, last_name, business_name, avatar_url")
-        .eq("id", body.professionalId)
-        .single();
+    // Check if company exists
+    const { data: company, error: companyError } = await supabaseWithAuth
+      .from("companies")
+      .select("id, name, description")
+      .eq("id", body.company_id)
+      .single();
 
-    if (professionalError || !professional) {
-      return NextResponse.json(
-        { error: "Professional not found" },
-        { status: 404 }
-      );
+    if (companyError || !company) {
+      console.error("Company not found:", companyError);
+      return NextResponse.json({ error: "Company not found" }, { status: 404 });
     }
 
     // Check if already favorited
@@ -116,16 +115,15 @@ export async function POST(request: Request) {
       .from("user_favorites")
       .select("id")
       .eq("user_id", data.user.id)
-      .eq("professional_id", body.professionalId)
+      .eq("company_id", body.company_id)
       .single();
 
     if (existingFavorite) {
       // Already favorited, return the professional info
       return NextResponse.json({
-        id: professional.id,
-        name: `${professional.first_name} ${professional.last_name}`,
-        businessName: professional.business_name || "",
-        imageUrl: professional.avatar_url || undefined,
+        id: company.id,
+        name: company.name || "",
+        description: company.description || "",
       });
     }
 
@@ -134,7 +132,7 @@ export async function POST(request: Request) {
       .from("user_favorites")
       .insert({
         user_id: data.user.id,
-        professional_id: body.professionalId,
+        company_id: body.company_id,
       })
       .select("id");
 
@@ -148,10 +146,9 @@ export async function POST(request: Request) {
 
     // Return the professional info
     return NextResponse.json({
-      id: professional.id,
-      name: `${professional.first_name} ${professional.last_name}`,
-      businessName: professional.business_name || "",
-      imageUrl: professional.avatar_url || undefined,
+      id: company.id,
+      name: company.name || "",
+      description: company.description || "",
     });
   } catch (error) {
     console.error("Add user favorite error:", error);

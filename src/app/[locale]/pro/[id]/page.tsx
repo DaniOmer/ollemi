@@ -9,6 +9,15 @@ import {
   selectCompaniesLoading,
 } from "@/lib/redux/slices/companiesSlice";
 import { fetchCompanyById } from "@/lib/redux/slices/companiesSlice";
+import {
+  addUserFavoriteThunk,
+  removeUserFavoriteThunk,
+  checkUserFavoriteThunk,
+} from "@/lib/redux/slices/userSlice";
+
+import { HeartIcon } from "@heroicons/react/24/outline";
+import { HeartIcon as HeartIconFilled } from "@heroicons/react/24/solid";
+
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import {
   Service,
@@ -27,16 +36,18 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import Link from "next/link";
+
+import { useToast } from "@/components/ui/use-toast";
 
 export default function ProfessionalPage() {
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [activeTab, setActiveTab] = useState("prestations");
+  const [isFavorite, setIsFavorite] = useState(false);
   const { id } = useParams();
   const { t } = useTranslations();
-
+  const { toast } = useToast();
   const dispatch = useAppDispatch();
-  const professionalFromStore = useAppSelector(selectCurrentCompany);
+  const professional = useAppSelector(selectCurrentCompany);
   const loading = useAppSelector(selectCompaniesLoading);
 
   const [showShareTooltip, setShowShareTooltip] = useState(false);
@@ -46,6 +57,16 @@ export default function ProfessionalPage() {
     // Still try to fetch from API in case it works
     dispatch(fetchCompanyById(id as string));
   }, [dispatch, id]);
+
+  useEffect(() => {
+    const checkFavorite = async () => {
+      const response = await dispatch(
+        checkUserFavoriteThunk(professional.id)
+      ).unwrap();
+      setIsFavorite(response?.isFavorite!);
+    };
+    checkFavorite();
+  }, [dispatch, professional.id]);
 
   const baseUrl =
     typeof window !== "undefined"
@@ -74,8 +95,33 @@ export default function ProfessionalPage() {
     }
   };
 
-  // Use mock data by default, or use data from store if available
-  const professional = professionalFromStore;
+  const handleAddToFavorites = async () => {
+    await dispatch(addUserFavoriteThunk(professional.id));
+    setIsFavorite(true);
+
+    toast({
+      title: t("common.added"),
+      description: t("professional.addedToFavorites"),
+    });
+  };
+
+  const handleRemoveFromFavorites = async () => {
+    await dispatch(removeUserFavoriteThunk(professional.id));
+    setIsFavorite(false);
+
+    toast({
+      title: t("common.removed"),
+      description: t("professional.removedFromFavorites"),
+    });
+  };
+
+  const handleToggleFavorite = async () => {
+    if (isFavorite) {
+      handleRemoveFromFavorites();
+    } else {
+      handleAddToFavorites();
+    }
+  };
 
   if (loading && !professional) {
     return <LoadingSpinner />;
@@ -162,20 +208,15 @@ export default function ProfessionalPage() {
                   </div>
                 )}
               </button>
-              <button className="p-2 rounded-full border border-gray-300 hover:bg-gray-100">
-                <svg
-                  className="w-5 h-5 text-gray-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                  />
-                </svg>
+              <button
+                onClick={handleToggleFavorite}
+                className="p-2 rounded-full border border-gray-300 hover:bg-gray-100"
+              >
+                {isFavorite ? (
+                  <HeartIconFilled className="w-5 h-5 text-red-500" />
+                ) : (
+                  <HeartIcon className="w-5 h-5 text-gray-600" />
+                )}
               </button>
             </div>
           </div>

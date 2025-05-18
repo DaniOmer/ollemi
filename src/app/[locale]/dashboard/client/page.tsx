@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   fetchUserProfile,
-  fetchUserFavorites,
+  fetchUserFavoritesThunk,
   selectUserProfile,
   selectUserFavorites,
   selectUserLoading,
@@ -55,7 +55,7 @@ export default function UserDashboard() {
     // Fetch user data
     if (!profile || !favorites || !bookingHistory) {
       dispatch(fetchUserProfile());
-      dispatch(fetchUserFavorites());
+      dispatch(fetchUserFavoritesThunk());
       dispatch(fetchBookingByUserIdThunk(user?.id));
     }
   }, [dispatch, isAuthenticated]);

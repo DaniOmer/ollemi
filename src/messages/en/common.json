@@ -75,6 +75,8 @@
     }
   },
   "professional": {
+    "addedToFavorites": "Added to favorites",
+    "removedFromFavorites": "Removed from favorites",
     "about": "About",
     "services": "Services",
     "reviews": "Reviews",
@@ -398,6 +400,8 @@
     "edit": "Edit",
     "add": "Add",
     "remove": "Remove",
+    "added": "Added",
+    "removed": "Removed",
     "close": "Close",
     "save": "Save",
     "back": "Back",

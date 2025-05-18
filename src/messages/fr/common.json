@@ -75,6 +75,8 @@
     }
   },
   "professional": {
+    "addedToFavorites": "Ajouté aux favoris",
+    "removedFromFavorites": "Supprimé des favoris",
     "about": "À propos",
     "services": "Services",
     "reviews": "Avis",
@@ -391,6 +393,8 @@
     "edit": "Modifier",
     "add": "Ajouter",
     "remove": "Supprimer",
+    "added": "Ajouté",
+    "removed": "Supprimé",
     "close": "Fermer",
     "save": "Enregistrer",
     "back": "Retour",

@@ -54,19 +54,30 @@ export interface FavoriteProfessional {
   imageUrl?: string;
 }
 
+// User favorite get endpoint
 export async function getUserFavorites(): Promise<
   ApiResponse<FavoriteProfessional[]>
 > {
   return fetchPrivateApi<FavoriteProfessional[]>("/users/favorites");
 }
 
+// User favorite add endpoint
 export async function addUserFavorite(
   professionalId: string
 ): Promise<ApiResponse<FavoriteProfessional>> {
   return fetchPrivateApi<FavoriteProfessional>("/users/favorites", {
     method: "POST",
-    data: { professionalId },
+    data: { company_id: professionalId },
   });
+}
+
+// User favorite check endpoint
+export async function checkUserFavorite(
+  professionalId: string
+): Promise<ApiResponse<{ isFavorite: boolean }>> {
+  return fetchPrivateApi<{ isFavorite: boolean }>(
+    `/users/favorites/${professionalId}/check`
+  );
 }
 
 export async function removeUserFavorite(

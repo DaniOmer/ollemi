@@ -11,8 +11,9 @@ import {
   getUserPreferences,
   updateUserPreferences as updateUserPreferencesService,
   getUserFavorites,
-  addUserFavorite as addUserFavoriteService,
-  removeUserFavorite as removeUserFavoriteService,
+  addUserFavorite,
+  removeUserFavorite,
+  checkUserFavorite,
   getUserPoints,
   getUserAppointmentHistory,
   UserPreferences,
@@ -116,7 +117,7 @@ export const updateUserPreferences = createAsyncThunk(
   }
 );
 
-export const fetchUserFavorites = createAsyncThunk(
+export const fetchUserFavoritesThunk = createAsyncThunk(
   "users/fetchFavorites",
   async (_, { rejectWithValue }) => {
     try {
@@ -131,11 +132,11 @@ export const fetchUserFavorites = createAsyncThunk(
   }
 );
 
-export const addUserFavorite = createAsyncThunk(
+export const addUserFavoriteThunk = createAsyncThunk(
   "users/addFavorite",
   async (professionalId: string, { rejectWithValue }) => {
     try {
-      const response = await addUserFavoriteService(professionalId);
+      const response = await addUserFavorite(professionalId);
       if (response.error) {
         return rejectWithValue(response.error);
       }
@@ -146,11 +147,11 @@ export const addUserFavorite = createAsyncThunk(
   }
 );
 
-export const removeUserFavorite = createAsyncThunk(
+export const removeUserFavoriteThunk = createAsyncThunk(
   "users/removeFavorite",
   async (professionalId: string, { rejectWithValue }) => {
     try {
-      const response = await removeUserFavoriteService(professionalId);
+      const response = await removeUserFavorite(professionalId);
       if (response.error) {
         return rejectWithValue(response.error);
       }
@@ -189,6 +190,21 @@ export const fetchUserAppointmentHistory = createAsyncThunk(
       return rejectWithValue(
         error.message || "Failed to fetch appointment history"
       );
+    }
+  }
+);
+
+export const checkUserFavoriteThunk = createAsyncThunk(
+  "users/checkFavorite",
+  async (professionalId: string, { rejectWithValue }) => {
+    try {
+      const response = await checkUserFavorite(professionalId);
+      if (response.error) {
+        return rejectWithValue(response.error);
+      }
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.message || "Failed to check user favorite");
     }
   }
 );
@@ -282,11 +298,11 @@ const userSlice = createSlice({
 
     // Fetch user favorites
     builder
-      .addCase(fetchUserFavorites.pending, (state) => {
+      .addCase(fetchUserFavoritesThunk.pending, (state) => {
         state.status = "loading";
         state.error = null;
       })
-      .addCase(fetchUserFavorites.fulfilled, (state, action) => {
+      .addCase(fetchUserFavoritesThunk.fulfilled, (state, action) => {
         state.status = "succeeded";
         if (action.payload) {
           state.favorites = action.payload;
@@ -294,35 +310,35 @@ const userSlice = createSlice({
           state.favorites = [];
         }
       })
-      .addCase(fetchUserFavorites.rejected, (state, action) => {
+      .addCase(fetchUserFavoritesThunk.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload as string;
       });
 
     // Add user favorite
     builder
-      .addCase(addUserFavorite.pending, (state) => {
+      .addCase(addUserFavoriteThunk.pending, (state) => {
         state.status = "loading";
         state.error = null;
       })
-      .addCase(addUserFavorite.fulfilled, (state, action) => {
+      .addCase(addUserFavoriteThunk.fulfilled, (state, action) => {
         state.status = "succeeded";
         if (action.payload) {
           state.favorites.push(action.payload);
         }
       })
-      .addCase(addUserFavorite.rejected, (state, action) => {
+      .addCase(addUserFavoriteThunk.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload as string;
       });
 
     // Remove user favorite
     builder
-      .addCase(removeUserFavorite.pending, (state) => {
+      .addCase(removeUserFavoriteThunk.pending, (state) => {
         state.status = "loading";
         state.error = null;
       })
-      .addCase(removeUserFavorite.fulfilled, (state, action) => {
+      .addCase(removeUserFavoriteThunk.fulfilled, (state, action) => {
         state.status = "succeeded";
         if (action.payload) {
           state.favorites = state.favorites.filter(
@@ -330,7 +346,7 @@ const userSlice = createSlice({
           );
         }
       })
-      .addCase(removeUserFavorite.rejected, (state, action) => {
+      .addCase(removeUserFavoriteThunk.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload as string;
       });

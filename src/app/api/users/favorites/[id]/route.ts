@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { extractToken, createAuthClient } from "@/lib/supabase/client";
 
+// DELETE /api/users/favorites/:id
 export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -28,7 +29,7 @@ export async function DELETE(
       .from("user_favorites")
       .delete()
       .eq("user_id", data.user.id)
-      .eq("professional_id", id);
+      .eq("company_id", id);
 
     if (deleteError) {
       console.error("Error removing user favorite:", deleteError);
