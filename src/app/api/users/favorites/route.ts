@@ -29,12 +29,20 @@ export async function GET(request: Request) {
           id,
           name,
           description,
-          address,
+          phone,
+          website,
+          addresses (
+          id,
+          formatted_address,
+          street_number,
+          street_name,
           city,
           postal_code,
           country,
-          phone,
-          website
+          state,
+          latitude,
+          longitude
+          )
         )
       `
       )
