@@ -165,25 +165,25 @@ export default function ClientBookingsPage() {
       case "pending":
         return (
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-            En attente
+            {t("bookings.status.pending")}
           </span>
         );
       case "confirmed":
         return (
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-            Confirmé
+            {t("bookings.status.confirmed")}
           </span>
         );
       case "cancelled":
         return (
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-            Annulé
+            {t("bookings.status.cancelled")}
           </span>
         );
       case "completed":
         return (
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-            Terminé
+            {t("bookings.status.completed")}
           </span>
         );
       default:
@@ -219,7 +219,7 @@ export default function ClientBookingsPage() {
 
   return (
     <div className="container mx-auto py-8 px-4">
-      <h1 className="text-2xl font-bold mb-6">Mes rendez-vous</h1>
+      <h1 className="text-2xl font-bold mb-6">{t("bookings.title")}</h1>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
@@ -234,7 +234,7 @@ export default function ClientBookingsPage() {
                 ).length
               }
             </div>
-            <p className="text-muted-foreground">Aujourd'hui</p>
+            <p className="text-muted-foreground">{t("bookings.stats.today")}</p>
           </CardContent>
         </Card>
         <Card>
@@ -248,7 +248,9 @@ export default function ClientBookingsPage() {
                 ).length
               }
             </div>
-            <p className="text-muted-foreground">À venir</p>
+            <p className="text-muted-foreground">
+              {t("bookings.stats.upcoming")}
+            </p>
           </CardContent>
         </Card>
         <Card className="sm:col-span-2 md:col-span-1">
@@ -256,7 +258,9 @@ export default function ClientBookingsPage() {
             <div className="text-2xl font-bold">
               {bookingHistory.filter((a) => a.status === "cancelled").length}
             </div>
-            <p className="text-muted-foreground">Annulés</p>
+            <p className="text-muted-foreground">
+              {t("bookings.stats.cancelled")}
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -265,16 +269,16 @@ export default function ClientBookingsPage() {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
         <TabsList className="mb-4 w-full flex flex-wrap sm:flex-nowrap">
           <TabsTrigger className="flex-1" value="upcoming">
-            À venir
+            {t("bookings.tabs.upcoming")}
           </TabsTrigger>
           <TabsTrigger className="flex-1" value="today">
-            Aujourd'hui
+            {t("bookings.tabs.today")}
           </TabsTrigger>
           <TabsTrigger className="flex-1" value="past">
-            Passés
+            {t("bookings.tabs.past")}
           </TabsTrigger>
           <TabsTrigger className="flex-1" value="cancelled">
-            Annulés
+            {t("bookings.tabs.cancelled")}
           </TabsTrigger>
         </TabsList>
 
@@ -283,10 +287,10 @@ export default function ClientBookingsPage() {
           <Card>
             <CardHeader>
               <CardTitle>
-                {activeTab === "upcoming" && "Rendez-vous à venir"}
-                {activeTab === "today" && "Rendez-vous aujourd'hui"}
-                {activeTab === "past" && "Rendez-vous passés"}
-                {activeTab === "cancelled" && "Rendez-vous annulés"}
+                {activeTab === "upcoming" && t("bookings.tabs.upcoming")}
+                {activeTab === "today" && t("bookings.tabs.today")}
+                {activeTab === "past" && t("bookings.tabs.past")}
+                {activeTab === "cancelled" && t("bookings.tabs.cancelled")}
               </CardTitle>
             </CardHeader>
             <CardContent className="p-0 sm:p-6">
@@ -295,12 +299,21 @@ export default function ClientBookingsPage() {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="w-[30%]">Prestataire</TableHead>
-                        <TableHead className="w-[25%]">Service</TableHead>
-                        <TableHead className="w-[25%]">Date & Heure</TableHead>
-                        <TableHead className="w-[10%]">Statut</TableHead>
+                        <TableHead className="w-[30%]">
+                          {t("bookings.table.professional")}
+                        </TableHead>
+                        <TableHead className="w-[25%]">
+                          {t("bookings.table.service")}
+                        </TableHead>
+                        <TableHead className="w-[25%]">
+                          {t("bookings.table.date")} &{" "}
+                          {t("bookings.table.time")}
+                        </TableHead>
+                        <TableHead className="w-[10%]">
+                          {t("bookings.table.status")}
+                        </TableHead>
                         <TableHead className="text-right w-[10%]">
-                          Actions
+                          {t("bookings.table.actions")}
                         </TableHead>
                       </TableRow>
                     </TableHeader>
@@ -355,7 +368,9 @@ export default function ClientBookingsPage() {
                               }}
                             >
                               <MoreHorizontal className="h-4 w-4" />
-                              <span className="sr-only">Détails</span>
+                              <span className="sr-only">
+                                {t("bookings.details.title")}
+                              </span>
                             </Button>
                           </TableCell>
                         </TableRow>
@@ -365,7 +380,7 @@ export default function ClientBookingsPage() {
                 </div>
               ) : (
                 <div className="text-center py-8 text-muted-foreground">
-                  Aucun rendez-vous trouvé.
+                  {t("bookings.noBookings")}
                 </div>
               )}
             </CardContent>
@@ -377,7 +392,7 @@ export default function ClientBookingsPage() {
       <Dialog open={detailsDialogOpen} onOpenChange={setDetailsDialogOpen}>
         <DialogContent className="sm:max-w-md max-w-[calc(100%-2rem)] overflow-y-auto max-h-[90vh]">
           <DialogHeader>
-            <DialogTitle>Détails du rendez-vous</DialogTitle>
+            <DialogTitle>{t("bookings.details.title")}</DialogTitle>
           </DialogHeader>
 
           {selectedAppointment && (
@@ -385,7 +400,7 @@ export default function ClientBookingsPage() {
               <div className="space-y-2">
                 <h3 className="font-medium flex items-center">
                   <Calendar className="w-4 h-4 mr-2 text-primary flex-shrink-0" />
-                  Date et heure
+                  {t("bookings.details.dateTime")}
                 </h3>
                 <div className="bg-muted p-3 rounded-md">
                   <p className="text-sm sm:text-base">
@@ -405,7 +420,7 @@ export default function ClientBookingsPage() {
               <div className="space-y-2">
                 <h3 className="font-medium flex items-center">
                   <Building className="w-4 h-4 mr-2 text-primary flex-shrink-0" />
-                  Prestataire
+                  {t("bookings.details.provider")}
                 </h3>
                 <div className="bg-muted p-3 rounded-md space-y-1">
                   <p className="font-medium">
@@ -431,7 +446,7 @@ export default function ClientBookingsPage() {
               <div className="space-y-2">
                 <h3 className="font-medium flex items-center">
                   <Clock className="w-4 h-4 mr-2 text-primary flex-shrink-0" />
-                  Service
+                  {t("bookings.details.service")}
                 </h3>
                 <div className="bg-muted p-3 rounded-md">
                   <p className="font-medium text-sm sm:text-base">
@@ -449,7 +464,7 @@ export default function ClientBookingsPage() {
               <div className="space-y-2">
                 <h3 className="font-medium flex items-center">
                   <User className="w-4 h-4 mr-2 text-primary flex-shrink-0" />
-                  Vos informations
+                  {t("bookings.details.yourInfo")}
                 </h3>
                 <div className="bg-muted p-3 rounded-md space-y-1">
                   <p className="font-medium">
@@ -470,7 +485,7 @@ export default function ClientBookingsPage() {
                 <div className="space-y-2">
                   <h3 className="font-medium flex items-center">
                     <MessageSquare className="w-4 h-4 mr-2 text-primary flex-shrink-0" />
-                    Notes
+                    {t("bookings.details.notes")}
                   </h3>
                   <div className="bg-muted p-3 rounded-md">
                     <p className="text-xs sm:text-sm">
@@ -481,7 +496,7 @@ export default function ClientBookingsPage() {
               )}
 
               <div className="space-y-2">
-                <h3 className="font-medium">Statut</h3>
+                <h3 className="font-medium">{t("bookings.details.status")}</h3>
                 <div className="flex justify-between items-center">
                   <div>
                     {getStatusBadge(selectedAppointment.status ?? "pending")}
@@ -497,7 +512,9 @@ export default function ClientBookingsPage() {
                         setConfirmDialogOpen(true);
                       }}
                     >
-                      <span className="hidden sm:inline">Annuler</span>
+                      <span className="hidden sm:inline">
+                        {t("bookings.details.cancel")}
+                      </span>
                       <XCircle className="w-4 h-4 sm:ml-2 sm:hidden" />
                     </Button>
                   )}
@@ -512,7 +529,7 @@ export default function ClientBookingsPage() {
               onClick={() => setDetailsDialogOpen(false)}
               className="w-full sm:w-auto"
             >
-              Fermer
+              {t("bookings.details.close")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -522,9 +539,9 @@ export default function ClientBookingsPage() {
       <Dialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
         <DialogContent className="sm:max-w-md max-w-[calc(100%-2rem)]">
           <DialogHeader>
-            <DialogTitle>Annuler le rendez-vous</DialogTitle>
+            <DialogTitle>{t("bookings.cancelDialog.title")}</DialogTitle>
             <DialogDescription>
-              Êtes-vous sûr de vouloir annuler ce rendez-vous ?
+              {t("bookings.cancelDialog.description")}
             </DialogDescription>
           </DialogHeader>
 
@@ -549,7 +566,7 @@ export default function ClientBookingsPage() {
               disabled={bookingLoading}
               className="w-full sm:w-auto"
             >
-              Retour
+              {t("bookings.cancelDialog.back")}
             </Button>
             <Button
               variant="destructive"
@@ -565,7 +582,7 @@ export default function ClientBookingsPage() {
               ) : (
                 <XCircle className="w-4 h-4 mr-2" />
               )}
-              Confirmer l'annulation
+              {t("bookings.cancelDialog.confirm")}
             </Button>
           </DialogFooter>
         </DialogContent>

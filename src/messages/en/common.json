@@ -445,7 +445,12 @@
     "profile": "Profile",
     "favoriteProfessionals": "My favorite professionals",
     "removeFavoriteConfirmation": "Are you sure you want to remove this favorite?",
-    "removeFavoriteConfirmationDescription": "This action is irreversible."
+    "removeFavoriteConfirmationDescription": "This action is irreversible.",
+    "today": "Today",
+    "past": "Past",
+    "upcoming": "Upcoming",
+    "cancelled": "Cancelled",
+    "completed": "Completed"
   },
   "notFound": {
     "title": "404",
@@ -617,5 +622,56 @@
     "noPlans": "No subscription plans available at the moment",
     "mostPopular": "Most Popular",
     "tryItFree": "Try it free"
+  },
+  "bookings": {
+    "title": "My Appointments",
+    "stats": {
+      "today": "Today",
+      "upcoming": "Upcoming",
+      "cancelled": "Cancelled"
+    },
+    "tabs": {
+      "upcoming": "Upcoming",
+      "today": "Today",
+      "past": "Past",
+      "cancelled": "Cancelled"
+    },
+    "table": {
+      "professional": "Professional",
+      "service": "Service",
+      "date": "Date",
+      "time": "Time",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "status": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "cancelled": "Cancelled",
+      "completed": "Completed"
+    },
+    "details": {
+      "title": "Appointment Details",
+      "dateTime": "Date and Time",
+      "provider": "Provider",
+      "service": "Service",
+      "yourInfo": "Your Information",
+      "notes": "Notes",
+      "status": "Status",
+      "cancel": "Cancel",
+      "close": "Close"
+    },
+    "cancelDialog": {
+      "title": "Cancel Appointment",
+      "description": "Are you sure you want to cancel this appointment?",
+      "back": "Back",
+      "confirm": "Confirm Cancellation"
+    },
+    "noBookings": "No appointments found.",
+    "unauthorized": {
+      "title": "Unauthorized Access",
+      "message": "Please log in to access this page.",
+      "login": "Login"
+    }
   }
 }

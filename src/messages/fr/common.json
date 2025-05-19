@@ -437,7 +437,12 @@
     "profile": "Profil",
     "favoriteProfessionals": "Mes professionnels préférés",
     "removeFavoriteConfirmation": "Êtes-vous sûr de vouloir supprimer ce favori ?",
-    "removeFavoriteConfirmationDescription": "Cette action est irréversible."
+    "removeFavoriteConfirmationDescription": "Cette action est irréversible.",
+    "today": "Aujourd'hui",
+    "past": "Passé",
+    "upcoming": "À venir",
+    "cancelled": "Annulé",
+    "completed": "Terminé"
   },
   "notFound": {
     "title": "404",
@@ -678,6 +683,57 @@
       "amount": "Montant",
       "status": "Statut",
       "view": "Voir"
+    }
+  },
+  "bookings": {
+    "title": "Mes rendez-vous",
+    "stats": {
+      "today": "Aujourd'hui",
+      "upcoming": "À venir",
+      "cancelled": "Annulés"
+    },
+    "tabs": {
+      "upcoming": "À venir",
+      "today": "Aujourd'hui",
+      "past": "Passés",
+      "cancelled": "Annulés"
+    },
+    "table": {
+      "professional": "Professionnel",
+      "service": "Service",
+      "date": "Date",
+      "time": "Heure",
+      "status": "Statut",
+      "actions": "Actions"
+    },
+    "status": {
+      "pending": "En attente",
+      "confirmed": "Confirmé",
+      "cancelled": "Annulé",
+      "completed": "Terminé"
+    },
+    "details": {
+      "title": "Détails du rendez-vous",
+      "dateTime": "Date et heure",
+      "provider": "Prestataire",
+      "service": "Service",
+      "yourInfo": "Vos informations",
+      "notes": "Notes",
+      "status": "Statut",
+      "cancel": "Annuler",
+      "close": "Fermer"
+    },
+    "cancelDialog": {
+      "title": "Annuler le rendez-vous",
+      "description": "Êtes-vous sûr de vouloir annuler ce rendez-vous ?",
+      "back": "Retour",
+      "confirm": "Confirmer l'annulation"
+    },
+    "noBookings": "Aucun rendez-vous trouvé.",
+    "unauthorized": {
+      "title": "Accès non autorisé",
+      "message": "Veuillez vous connecter pour accéder à cette page.",
+      "login": "Se connecter"
     }
   }
 }
