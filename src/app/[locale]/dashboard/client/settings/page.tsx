@@ -14,9 +14,20 @@ import {
   selectUserError,
   updateUserPreferences,
   updateUserProfile,
+  removeUserFavoriteThunk,
 } from "@/lib/redux/slices/userSlice";
 import { FavoriteProfessional } from "@/lib/services/user";
 import { selectIsAuthenticated } from "@/lib/redux/slices/authSlice";
+import { useTranslations } from "@/hooks/useTranslations";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 import {
   fetchBookingByUserIdThunk,
@@ -44,7 +55,7 @@ import LoadingSpinner from "@/components/ui/LoadingSpinner";
 export default function UserDashboard() {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
-
+  const { t } = useTranslations();
   // Redux state
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const profile = useSelector(selectUserProfile);
@@ -70,6 +81,8 @@ export default function UserDashboard() {
     theme: "system",
     language: "english",
   });
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [favoriteToRemove, setFavoriteToRemove] = useState<string | null>(null);
 
   useEffect(() => {
     // Fetch user data
@@ -123,6 +136,19 @@ export default function UserDashboard() {
   const saveProfile = () => {
     dispatch(updateUserProfile(profileForm));
     setEditingProfile(false);
+  };
+
+  const handleRemoveFavorite = (id: string) => {
+    setFavoriteToRemove(id);
+    setShowConfirmDialog(true);
+  };
+
+  const confirmRemoveFavorite = () => {
+    if (favoriteToRemove) {
+      dispatch(removeUserFavoriteThunk(favoriteToRemove));
+      setShowConfirmDialog(false);
+      setFavoriteToRemove(null);
+    }
   };
 
   const savePreferences = () => {
@@ -203,7 +229,9 @@ export default function UserDashboard() {
           {activeTab === "profile" && (
             <div>
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">My Profile</h2>
+                <h2 className="text-2xl font-bold text-gray-900">
+                  {t("common.profile")}
+                </h2>
                 <button
                   onClick={() => setEditingProfile(!editingProfile)}
                   className={`inline-flex items-center px-4 py-2 rounded-md shadow-sm text-sm font-medium
@@ -216,12 +244,12 @@ export default function UserDashboard() {
                   {editingProfile ? (
                     <>
                       <XCircleIcon className="h-5 w-5 mr-2" />
-                      Cancel
+                      {t("common.cancel")}
                     </>
                   ) : (
                     <>
                       <PencilIcon className="h-5 w-5 mr-2" />
-                      Edit Profile
+                      {t("common.edit")}
                     </>
                   )}
                 </button>
@@ -232,7 +260,7 @@ export default function UserDashboard() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <p className="text-sm font-medium text-gray-500">
-                        First Name
+                        {t("common.firstName")}
                       </p>
                       <p className="mt-1 text-lg text-gray-900">
                         {profile?.first_name || "-"}
@@ -240,7 +268,7 @@ export default function UserDashboard() {
                     </div>
                     <div>
                       <p className="text-sm font-medium text-gray-500">
-                        Last Name
+                        {t("common.lastName")}
                       </p>
                       <p className="mt-1 text-lg text-gray-900">
                         {profile?.last_name || "-"}
@@ -248,7 +276,7 @@ export default function UserDashboard() {
                     </div>
                     <div>
                       <p className="text-sm font-medium text-gray-500">
-                        Email Address
+                        {t("common.email")}
                       </p>
                       <p className="mt-1 text-lg text-gray-900">
                         {profile?.email || "-"}
@@ -256,7 +284,7 @@ export default function UserDashboard() {
                     </div>
                     <div>
                       <p className="text-sm font-medium text-gray-500">
-                        Phone Number
+                        {t("common.phone")}
                       </p>
                       <p className="mt-1 text-lg text-gray-900">
                         {profile?.phone || "-"}
@@ -271,7 +299,7 @@ export default function UserDashboard() {
                           htmlFor="first_name"
                           className="block text-sm font-medium text-gray-700"
                         >
-                          First Name
+                          {t("common.firstName")}
                         </label>
                         <input
                           type="text"
@@ -287,7 +315,7 @@ export default function UserDashboard() {
                           htmlFor="last_name"
                           className="block text-sm font-medium text-gray-700"
                         >
-                          Last Name
+                          {t("common.lastName")}
                         </label>
                         <input
                           type="text"
@@ -303,7 +331,7 @@ export default function UserDashboard() {
                           htmlFor="email"
                           className="block text-sm font-medium text-gray-700"
                         >
-                          Email Address
+                          {t("common.email")}
                         </label>
                         <input
                           type="email"
@@ -319,7 +347,7 @@ export default function UserDashboard() {
                           htmlFor="phone"
                           className="block text-sm font-medium text-gray-700"
                         >
-                          Phone Number
+                          {t("common.phone")}
                         </label>
                         <input
                           type="tel"
@@ -352,7 +380,7 @@ export default function UserDashboard() {
             <div>
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold text-gray-900">
-                  My Preferences
+                  {t("common.preferences")}
                 </h2>
                 <button
                   onClick={() => setEditingPreferences(!editingPreferences)}
@@ -366,12 +394,12 @@ export default function UserDashboard() {
                   {editingPreferences ? (
                     <>
                       <XCircleIcon className="h-5 w-5 mr-2" />
-                      Cancel
+                      {t("common.cancel")}
                     </>
                   ) : (
                     <>
                       <PencilIcon className="h-5 w-5 mr-2" />
-                      {preferences ? "Edit Preferences" : "Create Preferences"}
+                      {preferences ? t("common.edit") : t("common.create")}
                     </>
                   )}
                 </button>
@@ -388,12 +416,12 @@ export default function UserDashboard() {
                         {preferences?.notifications_enabled ? (
                           <>
                             <CheckCircleIcon className="h-5 w-5 text-green-500 mr-2" />
-                            Enabled
+                            {t("common.enabled")}
                           </>
                         ) : (
                           <>
                             <XCircleIcon className="h-5 w-5 text-red-500 mr-2" />
-                            Disabled
+                            {t("common.disabled")}
                           </>
                         )}
                       </p>
@@ -430,7 +458,7 @@ export default function UserDashboard() {
                             htmlFor="notifications_enabled"
                             className="ml-2 block text-sm text-gray-900"
                           >
-                            Enable Notifications
+                            {t("common.enableNotifications")}
                           </label>
                         </div>
                       </div>
@@ -439,7 +467,7 @@ export default function UserDashboard() {
                           htmlFor="theme"
                           className="block text-sm font-medium text-gray-700"
                         >
-                          Theme
+                          {t("common.theme")}
                         </label>
                         <select
                           id="theme"
@@ -458,7 +486,7 @@ export default function UserDashboard() {
                           htmlFor="language"
                           className="block text-sm font-medium text-gray-700"
                         >
-                          Language
+                          {t("common.language")}
                         </label>
                         <select
                           id="language"
@@ -482,7 +510,7 @@ export default function UserDashboard() {
                         className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                       >
                         <CheckIcon className="h-5 w-5 mr-2" />
-                        Save Preferences
+                        {t("common.save")}
                       </button>
                     </div>
                   </form>
@@ -495,7 +523,7 @@ export default function UserDashboard() {
           {activeTab === "favorites" && (
             <div>
               <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                My Favorite Professionals
+                {t("common.favoriteProfessionals")}
               </h2>
 
               {favorites && favorites.length ? (
@@ -517,10 +545,13 @@ export default function UserDashboard() {
                         </p>
                         <div className="flex justify-between">
                           <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                            View Profile
+                            {t("common.viewProfile")}
                           </button>
-                          <button className="text-red-600 hover:text-red-800 text-sm font-medium">
-                            Remove
+                          <button
+                            onClick={() => handleRemoveFavorite(favorite.id)}
+                            className="text-red-600 hover:text-red-800 text-sm font-medium"
+                          >
+                            {t("common.remove")}
                           </button>
                         </div>
                       </div>
@@ -531,17 +562,17 @@ export default function UserDashboard() {
                 <div className="text-center py-12 bg-gray-50 rounded-lg">
                   <HeartIcon className="mx-auto h-12 w-12 text-gray-400" />
                   <h3 className="mt-2 text-lg font-medium text-gray-900">
-                    No favorites yet
+                    {t("common.noFavorites")}
                   </h3>
                   <p className="mt-1 text-sm text-gray-500">
-                    Start adding professionals to your favorites list.
+                    {t("common.startAddingProfessionals")}
                   </p>
                   <div className="mt-6">
                     <button
                       type="button"
                       className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
                     >
-                      Browse Professionals
+                      {t("common.browseProfessionals")}
                     </button>
                   </div>
                 </div>
@@ -550,6 +581,28 @@ export default function UserDashboard() {
           )}
         </div>
       </div>
+
+      <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("common.removeFavoriteConfirmation")}</DialogTitle>
+            <DialogDescription>
+              {t("common.removeFavoriteConfirmationDescription")}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowConfirmDialog(false)}
+            >
+              {t("common.cancel")}
+            </Button>
+            <Button variant="destructive" onClick={confirmRemoveFavorite}>
+              {t("common.remove")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
