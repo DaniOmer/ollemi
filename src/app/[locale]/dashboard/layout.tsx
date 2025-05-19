@@ -19,7 +19,7 @@ import {
   CreditCard,
 } from "lucide-react";
 
-import { useTranslations } from "@/hooks/useTranslations";
+import { useTranslations } from "next-intl";
 import { useAppSelector, useAppDispatch } from "@/lib/redux/store";
 import { selectUserProfile, resetState } from "@/lib/redux/slices/userSlice";
 import { logout } from "@/lib/redux/slices/authSlice";
@@ -35,7 +35,7 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const user = useAppSelector(selectUserProfile);
   const dispatch = useAppDispatch();
-  const { t } = useTranslations();
+  const t = useTranslations();
 
   // Add effect to set sidebar open by default on desktop
   useEffect(() => {
@@ -72,7 +72,7 @@ export default function DashboardLayout({
         },
         {
           href: "/dashboard/pro/bookings",
-          label: t("dashboard.pro.bookings"),
+          label: t("dashboard.pro.bookings.sidebar"),
           icon: Calendar,
         },
         {

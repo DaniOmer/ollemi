@@ -381,11 +381,71 @@
     "profileDescription": "Manage your profile, business information, and account settings.",
     "pro": {
       "overview": "Dashboard",
-      "bookings": "Bookings",
-      "availabilities": "Availabilities",
-      "services": "Services",
-      "customers": "Customers",
-      "settings": "Settings"
+      "bookings": {
+        "sidebar": "Appointments",
+        "title": "Appointment Management",
+        "tabs": {
+          "upcoming": "Upcoming",
+          "today": "Today",
+          "tomorrow": "Tomorrow",
+          "thisWeek": "This Week",
+          "completed": "Completed",
+          "cancelled": "Cancelled"
+        },
+        "filters": {
+          "title": "Filters",
+          "clientName": "Client Name",
+          "service": "Service",
+          "date": "Date",
+          "status": "Status",
+          "apply": "Apply",
+          "reset": "Reset",
+          "all": "All"
+        },
+        "table": {
+          "client": "Client",
+          "service": "Service",
+          "date": "Date",
+          "time": "Time",
+          "status": "Status",
+          "actions": "Actions"
+        },
+        "status": {
+          "pending": "Pending",
+          "confirmed": "Confirmed",
+          "completed": "Completed",
+          "cancelled": "Cancelled"
+        },
+        "details": {
+          "title": "Appointment Details",
+          "clientInfo": "Client Information",
+          "serviceInfo": "Service Information",
+          "notes": "Notes",
+          "close": "Close"
+        },
+        "confirmDialog": {
+          "title": "Confirm Action",
+          "confirm": "Confirm",
+          "cancel": "Cancel",
+          "confirmBooking": "Are you sure you want to confirm this appointment?",
+          "completeBooking": "Are you sure you want to mark this appointment as completed?",
+          "cancelBooking": "Are you sure you want to cancel this appointment?"
+        },
+        "toast": {
+          "success": {
+            "confirmed": "The appointment has been confirmed",
+            "completed": "The appointment has been marked as completed",
+            "cancelled": "The appointment has been cancelled"
+          },
+          "error": "An error occurred while updating the appointment"
+        },
+        "noBookings": "No appointments found",
+        "loading": "Loading appointments..."
+      },
+      "logout": "Logout",
+      "footer": {
+        "rights": "All rights reserved."
+      }
     },
     "logout": "Logout",
     "footer": {

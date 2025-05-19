@@ -14,6 +14,7 @@ import {
   Scissors,
   Settings,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 // Components
 import { Button } from "@/components/ui/button";
@@ -47,6 +48,7 @@ import { AppDispatch } from "@/lib/redux/store";
 import { Service, Booking } from "@/types";
 
 export default function ProfessionalDashboard() {
+  const t = useTranslations("dashboard.pro");
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
 
@@ -92,19 +94,19 @@ export default function ProfessionalDashboard() {
 
   const stats = [
     {
-      title: "Rendez-vous aujourd'hui",
+      title: t("stats.todayBookings"),
       value: todayBookings,
       icon: Calendar,
       color: "text-blue-500",
     },
     {
-      title: "Services actifs",
+      title: t("stats.activeServices"),
       value: totalServices,
       icon: Scissors,
       color: "text-purple-500",
     },
     {
-      title: "Clients uniques",
+      title: t("stats.uniqueClients"),
       value: totalCustomers,
       icon: Users,
       color: "text-green-500",
@@ -122,7 +124,7 @@ export default function ProfessionalDashboard() {
       {/* Welcome Section */}
       <div>
         <h1 className="text-3xl font-bold text-foreground">
-          Bonjour, {currentCompany?.name}
+          {t("welcome", { name: currentCompany?.name })}
         </h1>
       </div>
 
@@ -159,7 +161,7 @@ export default function ProfessionalDashboard() {
           onClick={() => router.push("/dashboard/pro/bookings")}
         >
           <Calendar className="w-4 h-4 mr-2" />
-          Voir les rendez-vous
+          {t("quickActions.viewBookings")}
         </Button>
         <Button
           className="w-full"
@@ -167,7 +169,7 @@ export default function ProfessionalDashboard() {
           onClick={() => router.push("/dashboard/pro/services")}
         >
           <Scissors className="w-4 h-4 mr-2" />
-          Gérer les services
+          {t("quickActions.manageServices")}
         </Button>
         <Button
           className="w-full"
@@ -175,7 +177,7 @@ export default function ProfessionalDashboard() {
           onClick={() => router.push("/dashboard/pro/settings")}
         >
           <Settings className="w-4 h-4 mr-2" />
-          Paramètres
+          {t("quickActions.settings")}
         </Button>
       </div>
 
@@ -184,7 +186,7 @@ export default function ProfessionalDashboard() {
         <CardHeader>
           <CardTitle className="flex items-center">
             <Clock className="w-5 h-5 mr-2" />
-            Programme du jour
+            {t("todaySchedule.title")}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -218,7 +220,7 @@ export default function ProfessionalDashboard() {
                       router.push(`/dashboard/pro/bookings/${booking.id}`)
                     }
                   >
-                    Voir détails
+                    {t("todaySchedule.viewDetails")}
                   </Button>
                 </div>
               ))}
@@ -228,7 +230,7 @@ export default function ProfessionalDashboard() {
                 new Date().toDateString()
             ).length === 0 && (
               <div className="text-center text-muted-foreground py-4">
-                Aucun rendez-vous aujourd'hui
+                {t("todaySchedule.noBookings")}
               </div>
             )}
           </div>
@@ -255,16 +257,14 @@ export default function ProfessionalDashboard() {
         {/* Business tips or summary */}
         <Card>
           <CardHeader>
-            <CardTitle>Votre page publique</CardTitle>
+            <CardTitle>{t("publicPage.title")}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground mb-4">
-              Partagez ce QR code pour permettre à vos clients d'accéder
-              facilement à votre profil et prendre rendez-vous.
+              {t("publicPage.description1")}
             </p>
             <p className="text-muted-foreground">
-              Vous pouvez l'imprimer et l'afficher dans votre établissement ou
-              l'inclure sur vos cartes de visite.
+              {t("publicPage.description2")}
             </p>
           </CardContent>
         </Card>

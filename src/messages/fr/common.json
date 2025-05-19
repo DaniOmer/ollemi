@@ -374,11 +374,92 @@
     "profileDescription": "Gérez votre profil, les informations de votre entreprise et les paramètres de votre compte.",
     "pro": {
       "overview": "Tableau de bord",
-      "bookings": "Réservations",
+      "bookings": {
+        "sidebar": "Rendez-vous",
+        "title": "Gestion des rendez-vous",
+        "tabs": {
+          "upcoming": "À venir",
+          "today": "Aujourd'hui",
+          "tomorrow": "Demain",
+          "thisWeek": "Cette semaine",
+          "completed": "Terminés",
+          "cancelled": "Annulés"
+        },
+        "filters": {
+          "title": "Filtres",
+          "clientName": "Nom du client",
+          "service": "Service",
+          "date": "Date",
+          "status": "Statut",
+          "apply": "Appliquer",
+          "reset": "Réinitialiser",
+          "all": "Tous"
+        },
+        "table": {
+          "client": "Client",
+          "service": "Service",
+          "date": "Date",
+          "time": "Heure",
+          "status": "Statut",
+          "actions": "Actions"
+        },
+        "status": {
+          "pending": "En attente",
+          "confirmed": "Confirmé",
+          "completed": "Terminé",
+          "cancelled": "Annulé"
+        },
+        "details": {
+          "title": "Détails du rendez-vous",
+          "clientInfo": "Informations client",
+          "serviceInfo": "Informations service",
+          "notes": "Notes",
+          "close": "Fermer"
+        },
+        "confirmDialog": {
+          "title": "Confirmer l'action",
+          "confirm": "Confirmer",
+          "cancel": "Annuler",
+          "confirmBooking": "Êtes-vous sûr de vouloir confirmer ce rendez-vous ?",
+          "completeBooking": "Êtes-vous sûr de vouloir marquer ce rendez-vous comme terminé ?",
+          "cancelBooking": "Êtes-vous sûr de vouloir annuler ce rendez-vous ?"
+        },
+        "toast": {
+          "success": {
+            "confirmed": "Le rendez-vous a été confirmé",
+            "completed": "Le rendez-vous a été marqué comme terminé",
+            "cancelled": "Le rendez-vous a été annulé"
+          },
+          "error": "Une erreur est survenue lors de la mise à jour du rendez-vous"
+        },
+        "noBookings": "Aucun rendez-vous trouvé",
+        "loading": "Chargement des rendez-vous..."
+      },
       "availabilities": "Disponibilités",
       "services": "Services",
       "customers": "Clients",
-      "settings": "Paramètres"
+      "settings": "Paramètres",
+      "welcome": "Bonjour, {name}",
+      "stats": {
+        "todayBookings": "Rendez-vous aujourd'hui",
+        "activeServices": "Services actifs",
+        "uniqueClients": "Clients uniques"
+      },
+      "quickActions": {
+        "viewBookings": "Voir les rendez-vous",
+        "manageServices": "Gérer les services",
+        "settings": "Paramètres"
+      },
+      "todaySchedule": {
+        "title": "Programme du jour",
+        "noBookings": "Aucun rendez-vous aujourd'hui",
+        "viewDetails": "Voir détails"
+      },
+      "publicPage": {
+        "title": "Votre page publique",
+        "description1": "Partagez ce QR code pour permettre à vos clients d'accéder facilement à votre profil et prendre rendez-vous.",
+        "description2": "Vous pouvez l'imprimer et l'afficher dans votre établissement ou l'inclure sur vos cartes de visite."
+      }
     },
     "logout": "Déconnexion",
     "footer": {
