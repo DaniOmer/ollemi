@@ -50,8 +50,10 @@ export async function updateUserPreferences(
 export interface FavoriteProfessional {
   id: string;
   name: string;
-  businessName: string;
-  imageUrl?: string;
+  description?: string;
+  address?: string;
+  phone?: string;
+  website?: string;
 }
 
 // User favorite get endpoint

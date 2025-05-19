@@ -31,17 +31,9 @@ export async function GET(request: Request) {
           description,
           phone,
           website,
-          addresses (
+          address:addresses (
           id,
           formatted_address,
-          street_number,
-          street_name,
-          city,
-          postal_code,
-          country,
-          state,
-          latitude,
-          longitude
           )
         )
       `
@@ -61,10 +53,7 @@ export async function GET(request: Request) {
       id: favorite.company_id,
       name: favorite.companies?.name || "",
       description: favorite.companies?.description || "",
-      address: favorite.companies?.address || "",
-      city: favorite.companies?.city || "",
-      postalCode: favorite.companies?.postal_code || "",
-      country: favorite.companies?.country || "",
+      address: favorite.companies?.address?.formatted_address || "",
       phone: favorite.companies?.phone || "",
       website: favorite.companies?.website || "",
     }));

@@ -83,6 +83,9 @@ export default function UserDashboard() {
   });
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [favoriteToRemove, setFavoriteToRemove] = useState<string | null>(null);
+  const [showFavoritesDetails, setShowFavoritesDetails] = useState(false);
+  const [selectedFavorite, setSelectedFavorite] =
+    useState<FavoriteProfessional | null>(null);
 
   useEffect(() => {
     // Fetch user data
@@ -541,10 +544,16 @@ export default function UserDashboard() {
                           <HeartIcon className="h-6 w-6 text-red-500" />
                         </div>
                         <p className="text-sm text-gray-600 mb-4">
-                          {favorite.businessName}
+                          {favorite.description}
                         </p>
                         <div className="flex justify-between">
-                          <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                          <button
+                            onClick={() => {
+                              setSelectedFavorite(favorite);
+                              setShowFavoritesDetails(true);
+                            }}
+                            className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                          >
                             {t("common.viewProfile")}
                           </button>
                           <button
@@ -582,6 +591,7 @@ export default function UserDashboard() {
         </div>
       </div>
 
+      {/* Confirmation Dialog */}
       <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
         <DialogContent>
           <DialogHeader>
@@ -601,6 +611,42 @@ export default function UserDashboard() {
               {t("common.remove")}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Favorites details modal */}
+      <Dialog
+        open={showFavoritesDetails}
+        onOpenChange={setShowFavoritesDetails}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{selectedFavorite?.name}</DialogTitle>
+          </DialogHeader>
+          <div>
+            <div className="flex flex-col gap-4">
+              <p>{selectedFavorite?.description}</p>
+              <p>
+                {t("common.address")} :{" "}
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                    selectedFavorite?.address || ""
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-blue-600 hover:underline truncate"
+                >
+                  {selectedFavorite?.address}
+                </a>
+              </p>
+              <p>
+                {t("common.phone")} : {selectedFavorite?.phone}
+              </p>
+              <p>
+                {t("common.website")} : {selectedFavorite?.website}
+              </p>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

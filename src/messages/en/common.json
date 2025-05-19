@@ -396,6 +396,8 @@
     "firstName": "First name",
     "lastName": "Last name",
     "phone": "Phone",
+    "website": "Website",
+    "address": "Address",
     "email": "Email",
     "name": "Name",
     "error": "Error",

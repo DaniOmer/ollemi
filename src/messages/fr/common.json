@@ -389,6 +389,8 @@
     "firstName": "Prénom",
     "lastName": "Nom",
     "phone": "Numéro de téléphone",
+    "website": "Site web",
+    "address": "Adresse",
     "email": "Adresse e-mail",
     "name": "Nom",
     "error": "Erreur",
