@@ -202,6 +202,8 @@ export default function SubscriptionSettings() {
     }
   };
 
+  console.log(currentSubscription);
+
   return (
     <Card>
       <CardHeader>
@@ -216,7 +218,7 @@ export default function SubscriptionSettings() {
         ) : (
           <>
             {/* Current Subscription Details */}
-            {/* {currentSubscription && (
+            {currentSubscription && (
               <Card className="mt-8">
                 <CardHeader>
                   <CardTitle>{t("subscription.details")}</CardTitle>
@@ -310,7 +312,7 @@ export default function SubscriptionSettings() {
                   )}
                 </CardFooter>
               </Card>
-            )} */}
+            )}
 
             {/* Billing interval selector */}
             <div className="flex justify-end mb-6">
