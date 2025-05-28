@@ -81,7 +81,7 @@ const CategoryPage = () => {
   }: {
     professional: Professional & {
       photos?: Photo[];
-      addresses?: Address;
+      address?: Address;
       services?: Service[];
     };
   }) => {
@@ -107,7 +107,7 @@ const CategoryPage = () => {
           <h3 className="text-xl font-semibold mb-2">{professional.name}</h3>
           <div className="flex items-center text-sm text-muted-foreground mb-3">
             <MapPin className="w-4 h-4 mr-1" />
-            {professional.addresses?.city || t("professional.noLocation")}
+            {professional.address?.city || t("professional.noLocation")}
           </div>
           {professional.services && professional.services.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-4">

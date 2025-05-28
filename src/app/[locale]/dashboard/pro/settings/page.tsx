@@ -44,18 +44,18 @@ export default function SettingsPage() {
       });
 
       // Initialize address data if available
-      if (company.addresses) {
+      if (company.address) {
         setAddressFormData({
-          formatted_address: company.addresses.formatted_address,
-          street_number: company.addresses.street_number,
-          street_name: company.addresses.street_name,
-          city: company.addresses.city,
-          state: company.addresses.state,
-          postal_code: company.addresses.postal_code,
-          country: company.addresses.country,
-          place_id: company.addresses.place_id,
-          latitude: company.addresses.latitude,
-          longitude: company.addresses.longitude,
+          formatted_address: company.address.formatted_address,
+          street_number: company.address.street_number,
+          street_name: company.address.street_name,
+          city: company.address.city,
+          state: company.address.state,
+          postal_code: company.address.postal_code,
+          country: company.address.country,
+          place_id: company.address.place_id,
+          latitude: company.address.latitude,
+          longitude: company.address.longitude,
         });
       }
     }
@@ -95,7 +95,7 @@ export default function SettingsPage() {
       saturday: { open: true, start: "10:00", end: "17:00" },
       sunday: { open: false, start: "", end: "" },
     },
-    addresses: {
+    address: {
       id: "1",
       company_id: "1",
       formatted_address: "7 Rue Lamennais, 75008 Paris, France",

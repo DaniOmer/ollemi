@@ -115,7 +115,7 @@ export default function Home() {
     professional: Professional & {
       photos: Photo[];
       services: Service[];
-      addresses: Address;
+      address: Address;
     };
   }) => {
     return (
@@ -140,7 +140,7 @@ export default function Home() {
           <h3 className="text-xl font-semibold mb-2">{professional.name}</h3>
           <div className="flex items-center text-sm text-muted-foreground mb-3">
             <MapPin className="w-4 h-4 mr-1" />
-            {professional.addresses?.formatted_address}
+            {professional.address?.formatted_address}
           </div>
           <div className="flex flex-wrap gap-2 mb-4">
             {professional.services &&
@@ -203,7 +203,7 @@ export default function Home() {
                         placeholder={t("client.home.search.servicePlaceholder")}
                       />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-white">
                       {categoryOptions.map((option) => (
                         <SelectItem key={option.value} value={option.value}>
                           {option.label}
@@ -364,7 +364,7 @@ export default function Home() {
                     company: Company & {
                       photos: Photo[];
                       services: Service[];
-                      addresses: Address;
+                      address: Address;
                     }
                   ) => (
                     <ProfessionalCard key={company.id} professional={company} />

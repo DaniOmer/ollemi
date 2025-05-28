@@ -17,9 +17,9 @@ import {
   AddressData,
 } from "@/components/forms/AddressAutocomplete";
 
-// Extend the Company type to include addresses
+// Extend the Company type to include address
 type ExtendedCompany = Company & {
-  addresses?: Address;
+  address?: Address;
 };
 
 type LocationSettingsProps = {
@@ -36,18 +36,18 @@ export default function LocationSettings({ company }: LocationSettingsProps) {
 
   // Initialize address data from company
   useEffect(() => {
-    if (company && company.addresses) {
+    if (company && company.address) {
       setAddressFormData({
-        formatted_address: company.addresses.formatted_address,
-        street_number: company.addresses.street_number,
-        street_name: company.addresses.street_name,
-        city: company.addresses.city,
-        state: company.addresses.state,
-        postal_code: company.addresses.postal_code,
-        country: company.addresses.country,
-        place_id: company.addresses.place_id,
-        latitude: company.addresses.latitude,
-        longitude: company.addresses.longitude,
+        formatted_address: company.address.formatted_address,
+        street_number: company.address.street_number,
+        street_name: company.address.street_name,
+        city: company.address.city,
+        state: company.address.state,
+        postal_code: company.address.postal_code,
+        country: company.address.country,
+        place_id: company.address.place_id,
+        latitude: company.address.latitude,
+        longitude: company.address.longitude,
       });
     }
   }, [company]);
@@ -75,12 +75,12 @@ export default function LocationSettings({ company }: LocationSettingsProps) {
     try {
       // Update or create address
       if (Object.keys(addressFormData).length > 0) {
-        if (company.addresses?.id) {
+        if (company.address?.id) {
           // Update existing address
           await dispatch(
             updateAddressThunk({
               companyId: company.id,
-              addressId: company.addresses.id,
+              addressId: company.address.id,
               addressData: addressFormData,
             })
           ).unwrap();
@@ -117,7 +117,7 @@ export default function LocationSettings({ company }: LocationSettingsProps) {
           <Label>{t("settings.locationInfo")}</Label>
           <AddressAutocomplete
             onAddressSelect={handleAddressSelect}
-            defaultValue={company.addresses?.formatted_address || ""}
+            defaultValue={company.address?.formatted_address || ""}
             label={t("settings.streetAddress")}
             className="mt-2"
           />

@@ -18,7 +18,7 @@ export async function GET(
       .select(
         `
         *,
-        addresses (
+        address:addresses (
           id,
           formatted_address,
           street_number,
@@ -94,12 +94,19 @@ export async function GET(
       );
     }
 
+    const rating =
+      company.reviews?.reduce((acc: number, review: any) => {
+        return acc + review.rating;
+      }, 0) / company.reviews?.length;
+
+    console.log("rating ", rating);
+
     // Transform the data to match the expected format
     const transformedCompany = {
       ...company,
       photos: company.photos || [],
       services: company.services || [],
-      addresses: company.addresses || {},
+      address: company.address || {},
       opening_hours:
         company.opening_hours?.reduce((acc: any, curr: any) => {
           acc[curr.day_of_week] = {
@@ -113,6 +120,7 @@ export async function GET(
         }, {}) || {},
       categories:
         company.company_categories?.map((cc: any) => cc.category) || [],
+      rating: rating ? rating.toFixed(1) : 0,
     };
 
     return NextResponse.json(transformedCompany);

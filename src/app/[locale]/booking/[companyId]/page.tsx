@@ -8,6 +8,7 @@ import { EnhancedBookingFlow } from "@/components/booking/EnhancedBookingFlow";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import { ArrowLeft, MapPin, Phone, Globe, Clock } from "lucide-react";
+import GoogleMapLink from "@/components/GoogleMapLink";
 
 import { useAppSelector, useAppDispatch } from "@/lib/redux/store";
 import {
@@ -92,38 +93,32 @@ export default function BookingPage() {
               )}
 
               <div className="space-y-3">
-                {company.addresses?.formatted_address && (
-                  <div className="flex items-start">
-                    <MapPin className="w-5 h-5 text-gray-400 mt-0.5 mr-3 flex-shrink-0" />
-                    <span>{company.addresses.formatted_address}</span>
-                  </div>
-                )}
+                <div className="flex items-start">
+                  <MapPin className="w-5 h-5 text-gray-400 mt-0.5 mr-3 flex-shrink-0" />
+                  <GoogleMapLink address={company.address?.formatted_address} />
+                </div>
 
-                {company.phone && (
-                  <div className="flex items-center">
-                    <Phone className="w-5 h-5 text-gray-400 mr-3 flex-shrink-0" />
-                    <a
-                      href={`tel:${company.phone}`}
-                      className="hover:text-primary"
-                    >
-                      {company.phone}
-                    </a>
-                  </div>
-                )}
+                <div className="flex items-center">
+                  <Phone className="w-5 h-5 text-gray-400 mr-3 flex-shrink-0" />
+                  <a
+                    href={`tel:${company?.phone}`}
+                    className="hover:text-primary"
+                  >
+                    {company.phone}
+                  </a>
+                </div>
 
-                {company.website && (
-                  <div className="flex items-center">
-                    <Globe className="w-5 h-5 text-gray-400 mr-3 flex-shrink-0" />
-                    <a
-                      href={company.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hover:text-primary truncate"
-                    >
-                      {company.website.replace(/^https?:\/\//, "")}
-                    </a>
-                  </div>
-                )}
+                <div className="flex items-center">
+                  <Globe className="w-5 h-5 text-gray-400 mr-3 flex-shrink-0" />
+                  <a
+                    href={company.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-primary truncate"
+                  >
+                    {company.website.replace(/^https?:\/\//, "")}
+                  </a>
+                </div>
 
                 <div className="flex items-start">
                   <Clock className="w-5 h-5 text-gray-400 mt-0.5 mr-3 flex-shrink-0" />

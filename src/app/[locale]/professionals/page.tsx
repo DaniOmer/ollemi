@@ -32,7 +32,7 @@ import {
 type ExtendedCompany = Company & {
   photos?: Photo[];
   services?: Service[];
-  addresses?: Address;
+  address?: Address;
   city?: string;
   zipcode?: string;
   rating?: number;
@@ -209,7 +209,7 @@ export default function ProfessionalsPage() {
           <h3 className="text-xl font-semibold mb-2">{professional.name}</h3>
           <div className="flex items-center text-sm text-muted-foreground mb-3">
             <MapPin className="w-4 h-4 mr-1" />
-            {professional.addresses?.city ||
+            {professional.address?.city ||
               professional.city ||
               t("common.noLocation")}
           </div>

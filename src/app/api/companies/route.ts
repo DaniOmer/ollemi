@@ -6,7 +6,7 @@ export async function GET() {
     const { data, error } = await supabase.from("companies").select(
       `
         *,
-        addresses (
+        address:addresses (
           id,
           formatted_address,
           street_number,

@@ -68,7 +68,7 @@ export async function GET(
           description, 
           phone, 
           website, 
-          addresses (
+          address:addresses (
             id, 
             formatted_address, 
             street_number, 
@@ -113,7 +113,7 @@ export async function GET(
         description: company.description,
         phone: company.phone,
         website: company.website,
-        addresses: company.addresses,
+        address: company.address,
         services: company.services,
         photos: company.photos,
       }));

@@ -509,7 +509,7 @@ export default function SearchResults() {
                           <div className="flex items-center text-muted-foreground mb-3">
                             <MapPin className="w-4 h-4 mr-1 shrink-0" />
                             <span className="truncate">
-                              {company.addresses?.formatted_address}
+                              {company.address?.formatted_address}
                             </span>
                           </div>
 
