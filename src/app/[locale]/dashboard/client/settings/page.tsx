@@ -95,7 +95,7 @@ export default function UserDashboard() {
       dispatch(fetchUserFavoritesThunk());
       dispatch(fetchBookingByUserIdThunk(profile?.id));
     }
-  }, [dispatch, isAuthenticated]);
+  }, [dispatch, profile, preferences, favorites]);
 
   useEffect(() => {
     // Update local form state when profile data loads

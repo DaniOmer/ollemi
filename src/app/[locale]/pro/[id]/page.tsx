@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "@/hooks/useTranslations";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/store";
 import {
   selectCurrentCompany,
@@ -35,15 +35,19 @@ import {
 import GoogleMapLink from "@/components/GoogleMapLink";
 
 export default function ProfessionalPage() {
-  const [activeTab, setActiveTab] = useState("prestations");
-  const [isFavorite, setIsFavorite] = useState(false);
   const { id } = useParams();
+  const searchParams = useSearchParams();
+  const tab = searchParams.get("tab") || "prestations";
   const { t } = useTranslations();
   const { toast } = useToast();
   const dispatch = useAppDispatch();
+
   const professional = useAppSelector(selectCurrentCompany);
   const loading = useAppSelector(selectCompaniesLoading);
   const user = useAppSelector(selectUserProfile);
+
+  const [activeTab, setActiveTab] = useState(tab);
+  const [isFavorite, setIsFavorite] = useState(false);
   const [showShareTooltip, setShowShareTooltip] = useState(false);
 
   useEffect(() => {
@@ -224,10 +228,10 @@ export default function ProfessionalPage() {
             {[
               "photos",
               "prestations",
-              "equipe",
+              "team",
               "events",
-              "avis",
-              "apropos",
+              "reviews",
+              "about",
             ].map((tab) => (
               <button
                 key={tab}
@@ -240,10 +244,10 @@ export default function ProfessionalPage() {
               >
                 {tab === "photos" && "Photos"}
                 {tab === "prestations" && "Prestations"}
-                {tab === "equipe" && "Équipe"}
+                {tab === "team" && "Équipe"}
                 {tab === "events" && "Événements"}
-                {tab === "avis" && "Avis"}
-                {tab === "apropos" && "À propos"}
+                {tab === "reviews" && "Avis"}
+                {tab === "about" && "À propos"}
               </button>
             ))}
           </div>
@@ -258,13 +262,13 @@ export default function ProfessionalPage() {
             professional={professional}
             servicesByCategory={servicesByCategory}
           />
-        ) : activeTab === "equipe" ? (
+        ) : activeTab === "team" ? (
           <TeamTabs professional={professional} />
         ) : activeTab === "events" ? (
           <EventsTab />
-        ) : activeTab === "avis" ? (
+        ) : activeTab === "reviews" ? (
           <ReviewsTab professional={professional} />
-        ) : activeTab === "apropos" ? (
+        ) : activeTab === "about" ? (
           <AboutTab professional={professional} />
         ) : (
           <BuyTab professional={professional} />

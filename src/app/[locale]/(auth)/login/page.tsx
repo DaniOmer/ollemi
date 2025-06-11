@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -13,15 +13,15 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/store";
 import {
-  login,
   selectAuthLoading,
   selectAuthError,
-  selectIsAuthenticated,
   clearError,
-  selectUser,
 } from "@/lib/redux/slices/authSlice";
 
-import { selectUserProfile } from "@/lib/redux/slices/userSlice";
+import {
+  selectUserIsAuthenticated,
+  selectUserProfile,
+} from "@/lib/redux/slices/userSlice";
 import {
   Form,
   FormControl,
@@ -33,6 +33,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Mail, Lock, Loader2, AlertCircle } from "lucide-react";
 import { signInWithGoogle } from "@/lib/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 // Define the form schema with zod
 const loginFormSchema = z.object({
@@ -45,7 +46,7 @@ const loginFormSchema = z.object({
   rememberMe: z.boolean().default(false),
 });
 
-type LoginFormValues = z.infer<typeof loginFormSchema>;
+export type LoginFormValues = z.infer<typeof loginFormSchema>;
 
 export default function LoginPage() {
   const { t } = useTranslations();
@@ -53,34 +54,49 @@ export default function LoginPage() {
   const dispatch = useAppDispatch();
   const isLoading = useAppSelector(selectAuthLoading);
   const error = useAppSelector(selectAuthError);
-  const isAuthenticated = useAppSelector(selectIsAuthenticated);
-  const user = useAppSelector(selectUser);
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get("redirect");
+  const tab = searchParams.get("tab");
+  const { login } = useAuth();
+  const isAuthenticated = useAppSelector(selectUserIsAuthenticated);
+  const user = useAppSelector(selectUserProfile);
+
   // Clear any previous errors when the component mounts
   useEffect(() => {
     dispatch(clearError());
   }, [dispatch]);
 
+  // Handle form submission
+  const onSubmit = async (values: LoginFormValues) => {
+    await login(values);
+  };
+
+  // Handle redirection after successful login
   useEffect(() => {
+    console.log("isAuthenticated", isAuthenticated);
+    console.log("user", user);
+
     if (isAuthenticated && user) {
       try {
-        // Check if the function exists before calling it
         const role = user.role;
         const isOnboardingComplete = user.onboarding_completed;
 
         if (!isOnboardingComplete && role === "pro") {
-          // User needs to complete onboarding
           router.replace("/onboarding/business-name");
         } else {
-          // User doesn't need onboarding or it's complete
-          router.replace(`/dashboard/${role}`);
+          if (redirect) {
+            const params = new URLSearchParams();
+            params.set("tab", tab || "");
+            router.replace(`${redirect}?${params.toString()}`);
+          } else {
+            router.replace(`/dashboard/${role}`);
+          }
         }
       } catch (error) {
         console.error("Error checking onboarding status:", error);
-        // Fallback to default navigation
-        // router.push(`/dashboard/${user.user_metadata.role}`);
       }
     }
-  }, [isAuthenticated, user, router]);
+  }, [isAuthenticated, user]);
 
   // Set up the form with react-hook-form and zod validation
   const form = useForm<LoginFormValues>({
@@ -91,20 +107,6 @@ export default function LoginPage() {
       rememberMe: false,
     },
   });
-
-  // Handle form submission
-  const onSubmit = async (values: LoginFormValues) => {
-    try {
-      await dispatch(
-        login({
-          email: values.email,
-          password: values.password,
-        })
-      ).unwrap();
-    } catch (error) {
-      console.error("Login failed:", error);
-    }
-  };
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
@@ -291,7 +293,8 @@ export default function LoginPage() {
                     // In a complete implementation, we would dispatch an action to set the error
                   }
                 }}
-                disabled={isLoading}
+                // disabled={isLoading}
+                disabled={true}
               >
                 {isLoading ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

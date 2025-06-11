@@ -2,7 +2,7 @@
 
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { createSelector } from "@reduxjs/toolkit";
-import { User } from "@/types";
+import { User, Review } from "@/types";
 import { RootState } from "../store";
 
 import {
@@ -23,17 +23,20 @@ import {
 
 // Define the state type
 interface UserState {
+  isAuthenticated: boolean;
   profile: User | null;
   preferences: UserPreferences;
   favorites: FavoriteProfessional[];
   points: UserPoints;
-  appointmentHistory: string[]; // IDs of past appointments
+  appointmentHistory: string[];
+  review: Pick<Review, "review" | "rating" | "company_id"> | null;
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
 }
 
 // Initial state
 const initialState: UserState = {
+  isAuthenticated: false,
   profile: null,
   preferences: {
     notifications: true,
@@ -46,6 +49,7 @@ const initialState: UserState = {
     history: [],
   },
   appointmentHistory: [],
+  review: null,
   status: "idle",
   error: null,
 };
@@ -214,8 +218,23 @@ const userSlice = createSlice({
   name: "users",
   initialState,
   reducers: {
+    setIsAuthenticated: (state, action: PayloadAction<boolean>) => {
+      state.isAuthenticated = action.payload;
+    },
+    setUser: (state, action: PayloadAction<User | null>) => {
+      state.profile = action.payload;
+    },
     clearError: (state) => {
       state.error = null;
+    },
+    setReview: (
+      state,
+      action: PayloadAction<Pick<
+        Review,
+        "review" | "rating" | "company_id"
+      > | null>
+    ) => {
+      state.review = action.payload;
     },
     setTheme: (state, action: PayloadAction<"light" | "dark" | "system">) => {
       state.preferences.theme = action.payload;
@@ -390,13 +409,25 @@ const userSlice = createSlice({
 });
 
 // Export actions and reducer
-export const { clearError, setTheme, setLanguage, resetState } =
-  userSlice.actions;
+export const {
+  clearError,
+  setTheme,
+  setLanguage,
+  resetState,
+  setReview,
+  setIsAuthenticated,
+  setUser,
+} = userSlice.actions;
 
 // Base selector
 const selectUserState = (state: RootState) => (state as any).user;
 
 // Memoized selectors
+export const selectUserIsAuthenticated = createSelector(
+  [selectUserState],
+  (state) => state.isAuthenticated
+);
+
 export const selectUserProfile = createSelector(
   [selectUserState],
   (state) => state.profile
@@ -461,6 +492,11 @@ export const selectUserPointsTotal = createSelector(
 export const selectUserPointsHistory = createSelector(
   [selectUserPoints],
   (points) => points.history
+);
+
+export const selectUserReview = createSelector(
+  [selectUserState],
+  (state) => state.review
 );
 
 export default userSlice.reducer;

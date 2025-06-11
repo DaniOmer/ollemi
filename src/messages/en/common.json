@@ -510,7 +510,8 @@
     "past": "Past",
     "upcoming": "Upcoming",
     "cancelled": "Cancelled",
-    "completed": "Completed"
+    "completed": "Completed",
+    "loginToAddReview": "Login to add a review"
   },
   "notFound": {
     "title": "404",

@@ -1,5 +1,6 @@
 "use client";
 
+import { cookies } from "next/headers";
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { createSelector } from "@reduxjs/toolkit";
 import { User } from "@/types";
@@ -9,7 +10,7 @@ import { RootState } from "../store";
 // Define the state type
 interface AuthState {
   user: User | null;
-  token: string | null;
+  refreshToken: string | null;
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
 }
@@ -17,7 +18,7 @@ interface AuthState {
 // Initial state
 const initialState: AuthState = {
   user: null,
-  token: null,
+  refreshToken: null,
   status: "idle",
   error: null,
 };
@@ -123,7 +124,6 @@ const authSlice = createSlice({
     },
     setUser: (state, action: PayloadAction<User | null>) => {
       state.user = action.payload;
-      state.token = action.payload ? "valid-session" : null; // Just a marker, not a real token
     },
   },
   extraReducers: (builder) => {
@@ -137,7 +137,7 @@ const authSlice = createSlice({
         if (action.payload) {
           state.status = "succeeded";
           state.user = action.payload.user_data;
-          state.token = action.payload.session.access_token;
+          state.refreshToken = action.payload.session.refresh_token || null;
         }
       })
       .addCase(login.rejected, (state, action) => {
@@ -171,7 +171,7 @@ const authSlice = createSlice({
       .addCase(logout.fulfilled, (state) => {
         state.status = "succeeded";
         state.user = null;
-        state.token = null;
+        state.refreshToken = null;
       })
       .addCase(logout.rejected, (state, action) => {
         state.status = "failed";
@@ -206,9 +206,9 @@ const selectAuthState = (state: RootState) => (state as any).auth;
 // Memoized selectors
 export const selectAuth = createSelector([selectAuthState], (state) => state);
 
-export const selectToken = createSelector(
+export const selectRefreshToken = createSelector(
   [selectAuthState],
-  (state) => state.token
+  (state) => state.refreshToken
 );
 
 export const selectUser = createSelector(
@@ -221,7 +221,7 @@ export const selectIsAuthenticated = createSelector(
   (state) => {
     // Check both token and user existence for a more reliable authentication check
     // In practice, this will also check HTTP-only cookies through the useAuth hook
-    return !!state.token && !!state.user;
+    return !!state.refreshToken && !!state.user;
   }
 );
 

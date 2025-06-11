@@ -523,7 +523,8 @@
     "past": "Passé",
     "upcoming": "À venir",
     "cancelled": "Annulé",
-    "completed": "Terminé"
+    "completed": "Terminé",
+    "loginToAddReview": "Connectez-vous pour ajouter un avis"
   },
   "notFound": {
     "title": "404",

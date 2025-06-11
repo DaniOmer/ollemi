@@ -1,32 +1,27 @@
-import { useAppSelector, useAppDispatch } from "@/lib/redux/store";
-import { useEffect, useState, useCallback, useRef } from "react";
-import {
-  selectAuthLoading,
-  selectAuthError,
-  logout,
-  setUser,
-} from "@/lib/redux/slices/authSlice";
-import { selectUserProfile } from "@/lib/redux/slices/userSlice";
-import { httpClientPrivate } from "@/lib/services/api";
 import { useRouter } from "next/navigation";
+import { useEffect, useState, useCallback, useRef } from "react";
 
-interface AuthStatus {
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  user: any;
-  error: string | null;
-}
+import { logout, login } from "@/lib/redux/slices/authSlice";
+import { setUser } from "@/lib/redux/slices/userSlice";
+import {
+  resetState,
+  setIsAuthenticated,
+  selectUserProfile,
+} from "@/lib/redux/slices/userSlice";
+import { httpClientPrivate } from "@/lib/services/api";
+import { useAppSelector, useAppDispatch } from "@/lib/redux/store";
+import { LoginFormValues } from "@/app/[locale]/(auth)/login/page";
+import { User } from "@/types";
 
-export function useAuth(): AuthStatus & {
+export function useAuth(): {
+  login: (values: LoginFormValues) => Promise<void>;
   logout: () => Promise<void>;
   checkSessionStatus: () => Promise<boolean>;
 } {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const user = useAppSelector(selectUserProfile);
-  const isLoading = useAppSelector(selectAuthLoading);
-  const error = useAppSelector(selectAuthError);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(!!user);
+
   const [isSessionChecked, setIsSessionChecked] = useState(false);
   const refreshTimerRef = useRef<NodeJS.Timeout | null>(null);
   const sessionCheckTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -73,7 +68,7 @@ export function useAuth(): AuthStatus & {
       // If we already have a user in the Redux store, just setup refresh timer
       if (user) {
         setupRefreshTimer();
-        setIsAuthenticated(true);
+        dispatch(setIsAuthenticated(true));
         setIsSessionChecked(true);
         return true;
       }
@@ -91,21 +86,43 @@ export function useAuth(): AuthStatus & {
         // Check if we need to refresh the token and setup refresh timer
         await checkAndRefreshToken();
 
-        setIsAuthenticated(true);
+        dispatch(setIsAuthenticated(true));
         setIsSessionChecked(true);
         return true;
       } else {
-        setIsAuthenticated(false);
+        dispatch(setIsAuthenticated(false));
         setIsSessionChecked(true);
         return false;
       }
     } catch (error) {
       console.error("Session check error:", error);
-      setIsAuthenticated(false);
+      dispatch(setIsAuthenticated(false));
       setIsSessionChecked(true);
       return false;
     }
   }, [user, dispatch, setupRefreshTimer, checkAndRefreshToken]);
+
+  // Handle login
+  const handleLogin = useCallback(
+    async (values: LoginFormValues) => {
+      try {
+        const response = await dispatch(
+          login({
+            email: values.email,
+            password: values.password,
+          })
+        ).unwrap();
+        console.log("response", response);
+        dispatch(setIsAuthenticated(true));
+        dispatch(setUser(response?.user_data as User));
+
+        setupRefreshTimer();
+      } catch (error) {
+        console.error("Login failed:", error);
+      }
+    },
+    [dispatch]
+  );
 
   // Handle logout
   const handleLogout = useCallback(async () => {
@@ -117,14 +134,15 @@ export function useAuth(): AuthStatus & {
       }
 
       await dispatch(logout()).unwrap();
-      setIsAuthenticated(false);
+      dispatch(resetState());
+      dispatch(setIsAuthenticated(false));
       // Get locale from path for proper redirect
       const locale = window.location.pathname.split("/")[1] || "fr";
       router.push(`/${locale}/login`);
     } catch (error) {
       console.error("Logout error:", error);
       // Even if logout API fails, clear local state
-      setIsAuthenticated(false);
+      dispatch(setIsAuthenticated(false));
       dispatch(setUser(null));
     }
   }, [dispatch, router]);
@@ -141,7 +159,7 @@ export function useAuth(): AuthStatus & {
     // Set up periodic session check (every 5 minutes)
     sessionCheckTimerRef.current = setInterval(() => {
       checkSessionStatus();
-    }, 5 * 60 * 1000); // 5 minutes
+    }, 60 * 60 * 1000); // 1 hour
 
     // Cleanup function to clear timers
     return () => {
@@ -155,10 +173,7 @@ export function useAuth(): AuthStatus & {
   }, [isSessionChecked, checkSessionStatus]);
 
   return {
-    isAuthenticated,
-    isLoading,
-    user,
-    error,
+    login: handleLogin,
     logout: handleLogout,
     checkSessionStatus,
   };

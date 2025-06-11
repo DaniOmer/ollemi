@@ -33,14 +33,14 @@ export async function GET(request: Request) {
           website,
           address:addresses (
           id,
-          formatted_address,
+          formatted_address
           )
         )
       `
       )
       .eq("user_id", data.user.id);
 
-    if (favoritesError) {
+    if (favoritesError && favoritesError.code !== "PGRST116") {
       console.error("Error fetching user favorites:", favoritesError);
       return NextResponse.json(
         { error: "Error fetching user favorites" },
@@ -49,7 +49,7 @@ export async function GET(request: Request) {
     }
 
     // Transform data to match the expected format
-    const formattedFavorites = favorites.map((favorite: any) => ({
+    const formattedFavorites = favorites?.map((favorite: any) => ({
       id: favorite.company_id,
       name: favorite.companies?.name || "",
       description: favorite.companies?.description || "",
