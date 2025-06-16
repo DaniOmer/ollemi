@@ -3,6 +3,11 @@
 import { ReactNode, useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
+import { useAppSelector } from "@/lib/redux/store";
+import {
+  selectUserIsAuthenticated,
+  selectUserProfile,
+} from "@/lib/redux/slices/userSlice";
 
 type AuthGuardProps = {
   children: ReactNode;
@@ -21,12 +26,9 @@ export default function AuthGuard({
 }: AuthGuardProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const {
-    isAuthenticated,
-    user,
-    checkSessionStatus,
-    isLoading: authLoading,
-  } = useAuth();
+  const { checkSessionStatus } = useAuth();
+  const isAuthenticated = useAppSelector(selectUserIsAuthenticated);
+  const user = useAppSelector(selectUserProfile);
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [authError, setAuthError] = useState<string | null>(null);
@@ -82,7 +84,7 @@ export default function AuthGuard({
       }
     };
 
-    if (!authLoading) {
+    if (!isLoading) {
       validateSession();
     }
   }, [
@@ -94,7 +96,7 @@ export default function AuthGuard({
     redirectTo,
     locale,
     checkSessionStatus,
-    authLoading,
+    isLoading,
   ]);
 
   // Afficher le composant de chargement personnalisé ou un loader par défaut
