@@ -6,6 +6,7 @@ import {
   Photo,
   Address,
   SearchParams,
+  Review,
 } from "@/types";
 
 // Public endpoints
@@ -189,4 +190,14 @@ export async function searchCompanies(
   }
 
   return fetchApi<Company[]>(`/search?${params.toString()}`);
+}
+
+// Reviews endpoints
+export async function addReview(
+  review: Pick<Review, "comment" | "rating" | "company_id">
+): Promise<ApiResponse<Review>> {
+  return fetchPrivateApi<Review>(`/companies/${review.company_id}/reviews`, {
+    method: "POST",
+    data: review,
+  });
 }

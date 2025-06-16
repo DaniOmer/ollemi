@@ -50,7 +50,7 @@ export async function GET() {
         reviews (
           id,
           rating,
-          review,
+          comment,
           user_id,
           created_at
         )

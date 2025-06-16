@@ -4,7 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useTranslations } from "@/hooks/useTranslations";
 import { Button } from "../ui/button";
-import { User } from "@/types";
 
 const reviewFormSchema = z.object({
   rating: z.number().min(1).max(5),
@@ -74,7 +73,9 @@ function AddReview({ isLoggedIn, data, handleSubmit }: AddReviewProps) {
         </div>
         <div className="flex justify-end">
           <Button type="submit" disabled={isLoading}>
-            {isLoggedIn ? t("common.add") : t("common.loginToAddReview")}
+            {isLoggedIn
+              ? t("client.reviews.addReview")
+              : t("common.loginToAddReview")}
           </Button>
         </div>
       </form>

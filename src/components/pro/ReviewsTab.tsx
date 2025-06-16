@@ -5,6 +5,8 @@ import { ReviewFormValues } from "../forms/AddReview";
 import { Company, Address, Review, User } from "@/types";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/store";
 import { selectUserReview, setReview } from "@/lib/redux/slices/userSlice";
+import { selectUserIsAuthenticated } from "@/lib/redux/slices/userSlice";
+import { addReviewThunk } from "@/lib/redux/slices/userSlice";
 
 function ReviewsTab({
   professional,
@@ -20,12 +22,13 @@ function ReviewsTab({
   const router = useRouter();
   const dispatch = useAppDispatch();
   const review = useAppSelector(selectUserReview);
+  const isAuthenticated = useAppSelector(selectUserIsAuthenticated);
 
   const handleSubmit = (data: ReviewFormValues) => {
-    if (!user) {
+    if (!isAuthenticated) {
       dispatch(
         setReview({
-          review: data.comment,
+          comment: data.comment,
           rating: data.rating,
           company_id: professional.id,
         })
@@ -40,7 +43,13 @@ function ReviewsTab({
       return;
     }
 
-    console.log(data);
+    dispatch(
+      addReviewThunk({
+        comment: data.comment,
+        rating: data.rating,
+        company_id: professional.id,
+      })
+    );
   };
 
   return (
@@ -62,9 +71,7 @@ function ReviewsTab({
               ))}
             </div>
             <span className="ml-2 text-2xl font-bold text-gray-900">
-              {professional.reviews?.length
-                ? professional.rating?.toFixed(1)
-                : "0"}
+              {professional.reviews?.length ? professional.rating : "0"}
             </span>
             <span className="ml-1 text-gray-500">
               ({professional.reviews?.length})
@@ -92,7 +99,9 @@ function ReviewsTab({
                   </svg>
                 </div>
                 <div>
-                  <div className="font-medium text-gray-900">Client</div>
+                  <div className="font-medium text-gray-900">
+                    {review.user.first_name} {review.user.last_name}
+                  </div>
                   <div className="text-sm text-gray-500">
                     {new Date(review.created_at).toLocaleDateString()}
                   </div>
@@ -112,7 +121,7 @@ function ReviewsTab({
                   </svg>
                 ))}
               </div>
-              <p className="text-gray-700">{review.review}</p>
+              <p className="text-gray-700">{review.comment}</p>
             </div>
           ))
         ) : (
@@ -121,7 +130,7 @@ function ReviewsTab({
           </div>
         )}
         <AddReview
-          isLoggedIn={!!user}
+          isLoggedIn={isAuthenticated}
           handleSubmit={handleSubmit}
           data={review || { rating: 0, comment: "" }}
         />

@@ -62,8 +62,8 @@ export async function GET(
         reviews (
           id,
           rating,
-          review,
-          user_id,
+          comment,
+          user:users(first_name, last_name),
           created_at
         )
       `

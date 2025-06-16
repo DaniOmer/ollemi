@@ -1,5 +1,5 @@
 import { fetchPrivateApi, ApiResponse } from "./api";
-import { User } from "@/types";
+import { Review, User } from "@/types";
 
 // User profile endpoints
 export async function getUserProfile(): Promise<ApiResponse<User>> {

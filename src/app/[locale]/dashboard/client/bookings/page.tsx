@@ -55,10 +55,15 @@ import {
 
 import { useAppSelector, useAppDispatch } from "@/lib/redux/store";
 import { Booking } from "@/types";
+import { selectUserProfile } from "@/lib/redux/slices/userSlice";
+import { selectUserLoading } from "@/lib/redux/slices/userSlice";
+import { selectUserIsAuthenticated } from "@/lib/redux/slices/userSlice";
 
 export default function ClientBookingsPage() {
   const { t } = useTranslations();
-  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
+  const isAuthenticated = useAppSelector(selectUserIsAuthenticated);
+  const user = useAppSelector(selectUserProfile);
+  const authLoading = useAppSelector(selectUserLoading);
   const { toast } = useToast();
   const dispatch = useAppDispatch();
 

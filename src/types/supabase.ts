@@ -658,15 +658,18 @@ export type Database = {
         Row: {
           id: string;
           rating: number;
-          review: string;
-          user_id: string;
+          comment: string;
+          user: {
+            first_name: string;
+            last_name: string;
+          };
           company_id: string;
           created_at: string;
         };
         Insert: {
           id: string;
           rating: number;
-          review: string;
+          comment: string;
           user_id: string;
           company_id: string;
           created_at: string;
@@ -674,7 +677,7 @@ export type Database = {
         Update: {
           id: string;
           rating: number;
-          review: string;
+          comment: string;
           user_id: string;
           company_id: string;
           created_at: string;

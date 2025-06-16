@@ -72,6 +72,9 @@
       "tryDifferentSearch": "Try a different search term or clear the search",
       "clearSearch": "Clear Search",
       "comingSoon": "Advanced filter options coming soon"
+    },
+    "reviews": {
+      "addReview": "Add Review"
     }
   },
   "professional": {

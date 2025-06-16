@@ -59,7 +59,7 @@ export function useAuth(): {
     // Set a timer to refresh tokens 50 minutes after authentication (before the 60-minute expiry)
     refreshTimerRef.current = setTimeout(async () => {
       await checkAndRefreshToken();
-    }, 50 * 60 * 1000); // 50 minutes
+    }, 5 * 60 * 1000); // 5 minutes
   }, [checkAndRefreshToken]);
 
   // Check session status on mount and when browser tab becomes visible

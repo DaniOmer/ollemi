@@ -20,6 +20,7 @@ import {
   FavoriteProfessional,
   UserPoints,
 } from "@/lib/services/user";
+import { addReview } from "@/lib/services/companies";
 
 // Define the state type
 interface UserState {
@@ -29,7 +30,7 @@ interface UserState {
   favorites: FavoriteProfessional[];
   points: UserPoints;
   appointmentHistory: string[];
-  review: Pick<Review, "review" | "rating" | "company_id"> | null;
+  review: Pick<Review, "comment" | "rating" | "company_id"> | null;
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
 }
@@ -213,6 +214,24 @@ export const checkUserFavoriteThunk = createAsyncThunk(
   }
 );
 
+export const addReviewThunk = createAsyncThunk(
+  "users/addReview",
+  async (
+    review: Pick<Review, "comment" | "rating" | "company_id">,
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await addReview(review);
+      if (response.error) {
+        return rejectWithValue(response.error);
+      }
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.message || "Failed to add review");
+    }
+  }
+);
+
 // Create the user slice
 const userSlice = createSlice({
   name: "users",
@@ -231,7 +250,7 @@ const userSlice = createSlice({
       state,
       action: PayloadAction<Pick<
         Review,
-        "review" | "rating" | "company_id"
+        "comment" | "rating" | "company_id"
       > | null>
     ) => {
       state.review = action.payload;
@@ -405,6 +424,23 @@ const userSlice = createSlice({
         state.status = "failed";
         state.error = action.payload as string;
       });
+
+    // Add review
+    builder
+      .addCase(addReviewThunk.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(addReviewThunk.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        if (action.payload) {
+          state.review = action.payload;
+        }
+      })
+      .addCase(addReviewThunk.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload as string;
+      });
   },
 });
 
@@ -497,6 +533,21 @@ export const selectUserPointsHistory = createSelector(
 export const selectUserReview = createSelector(
   [selectUserState],
   (state) => state.review
+);
+
+export const selectUserReviewStatus = createSelector(
+  [selectUserState],
+  (state) => state.status
+);
+
+export const selectUserReviewError = createSelector(
+  [selectUserState],
+  (state) => state.error
+);
+
+export const selectUserReviewLoading = createSelector(
+  [selectUserState],
+  (state) => state.status === "loading"
 );
 
 export default userSlice.reducer;
