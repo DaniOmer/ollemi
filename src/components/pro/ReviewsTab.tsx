@@ -4,9 +4,13 @@ import AddReview from "../forms/AddReview";
 import { ReviewFormValues } from "../forms/AddReview";
 import { Company, Address, Review, User } from "@/types";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/store";
-import { selectUserReview, setReview } from "@/lib/redux/slices/userSlice";
+import { resetReview, selectUserReview } from "@/lib/redux/slices/userSlice";
 import { selectUserIsAuthenticated } from "@/lib/redux/slices/userSlice";
-import { addReviewThunk } from "@/lib/redux/slices/userSlice";
+import {
+  addReviewThunk,
+  selectUserReviewLoading,
+} from "@/lib/redux/slices/userSlice";
+import { fetchCompanyById } from "@/lib/redux/slices/companiesSlice";
 
 function ReviewsTab({
   professional,
@@ -23,33 +27,37 @@ function ReviewsTab({
   const dispatch = useAppDispatch();
   const review = useAppSelector(selectUserReview);
   const isAuthenticated = useAppSelector(selectUserIsAuthenticated);
+  const isLoading = useAppSelector(selectUserReviewLoading);
 
-  const handleSubmit = (data: ReviewFormValues) => {
-    if (!isAuthenticated) {
-      dispatch(
-        setReview({
+  const handleSubmit = async (data: ReviewFormValues) => {
+    try {
+      if (!isAuthenticated) {
+        const query = {
+          redirect: `/pro/${professional.id}`,
+          tab: "reviews",
+        };
+        const params = new URLSearchParams(query);
+        router.push(`/login?${params.toString()}`);
+        return;
+      }
+
+      await dispatch(
+        addReviewThunk({
           comment: data.comment,
           rating: data.rating,
           company_id: professional.id,
         })
-      );
+      ).unwrap();
 
-      const query = {
-        redirect: `/pro/${professional.id}`,
-        tab: "reviews",
-      };
-      const params = new URLSearchParams(query);
-      router.push(`/login?${params.toString()}`);
-      return;
+      // Reset the review state
+      dispatch(resetReview());
+
+      // Reload professional data
+      // TODO: use the redux store to update the professional data
+      dispatch(fetchCompanyById(professional.id));
+    } catch (error) {
+      console.error("Something went wrong");
     }
-
-    dispatch(
-      addReviewThunk({
-        comment: data.comment,
-        rating: data.rating,
-        company_id: professional.id,
-      })
-    );
   };
 
   return (
@@ -131,6 +139,7 @@ function ReviewsTab({
         )}
         <AddReview
           isLoggedIn={isAuthenticated}
+          isLoading={isLoading}
           handleSubmit={handleSubmit}
           data={review || { rating: 0, comment: "" }}
         />

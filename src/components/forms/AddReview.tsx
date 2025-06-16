@@ -1,9 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useTranslations } from "@/hooks/useTranslations";
 import { Button } from "../ui/button";
+
+import { useAppDispatch } from "@/lib/redux/store";
+import { setReview } from "@/lib/redux/slices/userSlice";
+import { Loader2 } from "lucide-react";
 
 const reviewFormSchema = z.object({
   rating: z.number().min(1).max(5),
@@ -15,20 +19,33 @@ export type ReviewFormValues = z.infer<typeof reviewFormSchema>;
 export interface AddReviewProps {
   isLoggedIn: boolean;
   handleSubmit: (data: ReviewFormValues) => void;
-  data: ReviewFormValues;
+  data: ReviewFormValues | null;
+  isLoading: boolean;
 }
 
-function AddReview({ isLoggedIn, data, handleSubmit }: AddReviewProps) {
+function AddReview({
+  isLoggedIn,
+  data,
+  handleSubmit,
+  isLoading,
+}: AddReviewProps) {
   const { t } = useTranslations();
-  const [isLoading, setIsLoading] = useState(false);
-
+  const dispatch = useAppDispatch();
   const form = useForm<ReviewFormValues>({
     resolver: zodResolver(reviewFormSchema),
     defaultValues: {
-      rating: data.rating,
-      comment: data.comment,
+      rating: data?.rating || 0,
+      comment: data?.comment || "",
     },
   });
+
+  // Reset form when data changes (e.g., after successful submission)
+  useEffect(() => {
+    form.reset({
+      rating: data?.rating || 0,
+      comment: data?.comment || "",
+    });
+  }, [data, form]);
 
   return (
     <div className="mt-4 max-w-lg mx-auto">
@@ -40,6 +57,16 @@ function AddReview({ isLoggedIn, data, handleSubmit }: AddReviewProps) {
                 key={i}
                 type="button"
                 onClick={() => form.setValue("rating", i + 1)}
+                onChange={(e) => {
+                  form.setValue("rating", i + 1);
+                  dispatch(
+                    setReview({
+                      comment: form.getValues("comment"),
+                      rating: i + 1,
+                      company_id: "",
+                    })
+                  );
+                }}
                 className={`text-gray-300 ${
                   form.watch("rating") >= i + 1 ? "text-yellow-400" : ""
                 }`}
@@ -67,15 +94,32 @@ function AddReview({ isLoggedIn, data, handleSubmit }: AddReviewProps) {
             <textarea
               id="comment"
               {...form.register("comment")}
+              onChange={(e) => {
+                form.setValue("comment", e.target.value);
+                dispatch(
+                  setReview({
+                    comment: e.target.value,
+                    rating: form.getValues("rating"),
+                    company_id: "",
+                  })
+                );
+              }}
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
             />
           </div>
         </div>
         <div className="flex justify-end">
           <Button type="submit" disabled={isLoading}>
-            {isLoggedIn
-              ? t("client.reviews.addReview")
-              : t("common.loginToAddReview")}
+            {isLoading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />{" "}
+                {t("client.reviews.addReview")}
+              </>
+            ) : isLoggedIn ? (
+              t("client.reviews.addReview")
+            ) : (
+              t("common.loginToAddReview")
+            )}
           </Button>
         </div>
       </form>

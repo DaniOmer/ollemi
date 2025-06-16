@@ -255,6 +255,9 @@ const userSlice = createSlice({
     ) => {
       state.review = action.payload;
     },
+    resetReview: (state) => {
+      state.review = null;
+    },
     setTheme: (state, action: PayloadAction<"light" | "dark" | "system">) => {
       state.preferences.theme = action.payload;
     },
@@ -433,9 +436,9 @@ const userSlice = createSlice({
       })
       .addCase(addReviewThunk.fulfilled, (state, action) => {
         state.status = "succeeded";
-        if (action.payload) {
-          state.review = action.payload;
-        }
+        // if (action.payload) {
+        //   state. = action.payload;
+        // }
       })
       .addCase(addReviewThunk.rejected, (state, action) => {
         state.status = "failed";
@@ -451,6 +454,7 @@ export const {
   setLanguage,
   resetState,
   setReview,
+  resetReview,
   setIsAuthenticated,
   setUser,
 } = userSlice.actions;
