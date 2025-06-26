@@ -59,14 +59,17 @@ export type SubscriptionPlan = {
   updated_at: string | null;
 };
 
-export type SubscriptionStatus =
-  | "incomplete"
-  | "incomplete_expired"
-  | "trialing"
-  | "active"
-  | "past_due"
-  | "canceled"
-  | "unpaid";
+export enum SubscriptionStatus {
+  INCOMPLETE = "incomplete",
+  INCOMPLETE_EXPIRED = "incomplete_expired",
+  TRIALING = "trialing",
+  ACTIVE = "active",
+  PAST_DUE = "past_due",
+  CANCELED = "canceled",
+  UNPAID = "unpaid",
+  EXPIRING_SOON = "expiring_soon",
+  EXPIRED = "expired",
+}
 
 export type Subscription = {
   id: string;
@@ -202,3 +205,8 @@ export type TeamMember = {
   phone: string;
   image_url: string | null;
 };
+
+export enum BillingInterval {
+  MONTH = "month",
+  YEAR = "year",
+}

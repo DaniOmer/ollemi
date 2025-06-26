@@ -1,8 +1,6 @@
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { stripe } from "@/lib/services/stripe";
 
+import { stripe } from "@/lib/services/stripe";
 import { supabase } from "@/lib/supabase/client";
 import { subscriptionPlans } from "@/data/subscription_plans";
 
@@ -10,8 +8,6 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const interval = searchParams.get("interval");
-
-    const supabase = createRouteHandlerClient({ cookies });
 
     const { data: plans, error } = await supabase
       .from("subscription_plans")
@@ -34,7 +30,6 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   // Create subscription plans in Supabase
-  console.log("Creating subscription plans...");
   const { data, error } = await supabase
     .from("subscription_plans")
     .insert(subscriptionPlans)

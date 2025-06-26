@@ -24,8 +24,7 @@ import {
   resumeSubscription,
 } from "@/lib/services/subscriptions";
 import Badge from "@/components/ui/badge";
-
-type BillingInterval = "month" | "year";
+import { SubscriptionStatus, BillingInterval } from "@/types";
 
 export default function SubscriptionSettings() {
   const { t } = useTranslations();
@@ -38,8 +37,9 @@ export default function SubscriptionSettings() {
 
   const [isSubscribing, setIsSubscribing] = useState(false);
   const [currentSubscription, setCurrentSubscription] = useState<any>(null);
-  const [billingInterval, setBillingInterval] =
-    useState<BillingInterval>("month");
+  const [billingInterval, setBillingInterval] = useState<BillingInterval>(
+    BillingInterval.MONTH
+  );
   const [invoices, setInvoices] = useState<any[]>([]);
 
   // New states for cancellation confirmation
@@ -59,6 +59,19 @@ export default function SubscriptionSettings() {
     dispatch(fetchSubscriptionPlansThunk(billingInterval));
     dispatch(fetchActiveSubscriptionThunk());
   }, [dispatch, billingInterval]);
+
+  // Check if subscription is expiring soon
+  const isSubscriptionExpiringSoon = (subscription: any) => {
+    if (!subscription?.current_period_end) return false;
+    return subscription.status === SubscriptionStatus.EXPIRING_SOON;
+  };
+
+  const canSubscribeToNewPlan = () => {
+    if (!activeSubscription) return true;
+    if (activeSubscription.cancel_at_period_end) return true;
+    if (isSubscriptionExpiringSoon(activeSubscription)) return true;
+    return false;
+  };
 
   // Handle subscription checkout
   const handleSubscribe = async (planId: string) => {
@@ -202,8 +215,6 @@ export default function SubscriptionSettings() {
     }
   };
 
-  console.log(currentSubscription);
-
   return (
     <Card>
       <CardHeader>
@@ -317,17 +328,17 @@ export default function SubscriptionSettings() {
             {/* Billing interval selector */}
             <div className="flex justify-end mb-6">
               <Tabs
-                defaultValue="month"
+                defaultValue={BillingInterval.MONTH}
                 className="w-[200px]"
                 onValueChange={(value) =>
                   setBillingInterval(value as BillingInterval)
                 }
               >
                 <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="month">
+                  <TabsTrigger value={BillingInterval.MONTH}>
                     {t("subscription.monthly")}
                   </TabsTrigger>
-                  <TabsTrigger value="year">
+                  <TabsTrigger value={BillingInterval.YEAR}>
                     {t("subscription.yearly")}
                   </TabsTrigger>
                 </TabsList>
@@ -433,7 +444,11 @@ export default function SubscriptionSettings() {
                         className="w-full"
                         variant={isCurrentPlan(plan.id) ? "outline" : "default"}
                         onClick={() => handleSubscribe(plan.id)}
-                        disabled={isSubscribing || isCurrentPlan(plan.id)}
+                        disabled={
+                          isSubscribing ||
+                          isCurrentPlan(plan.id) ||
+                          !canSubscribeToNewPlan()
+                        }
                       >
                         {isSubscribing ? (
                           <Loader2 className="h-4 w-4 animate-spin mr-2" />
