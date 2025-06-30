@@ -38,9 +38,8 @@ const persistConfig = {
     "categories",
     "availability",
     "bookings",
-    "subscription",
     "storage",
-  ], // Not persist auth (which has tokens)
+  ], // Not persist auth (which has tokens) and subscription (which has stripe data)
 };
 
 // Combine reducers
