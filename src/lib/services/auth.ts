@@ -19,7 +19,8 @@ export async function signUp(
   lastName?: string,
   phone?: string,
   role: string = "client",
-  acceptTerms: boolean = false
+  acceptTerms: boolean = false,
+  discount_code?: string | null
 ): Promise<ApiResponse<AuthResponse>> {
   const response = await fetchApi<AuthResponse>("/auth/signup", {
     method: "POST",
@@ -31,6 +32,7 @@ export async function signUp(
       phone,
       role,
       accept_terms: acceptTerms,
+      discount_code,
     },
   });
 

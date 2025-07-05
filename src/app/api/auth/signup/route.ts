@@ -11,6 +11,7 @@ export async function POST(request: Request) {
       phone,
       role,
       accept_terms,
+      discount_code,
     } = await request.json();
 
     if (!email || !password || !first_name || !last_name || !accept_terms) {
@@ -82,6 +83,95 @@ export async function POST(request: Request) {
         { error: "Failed to create user" },
         { status: 500 }
       );
+    }
+
+    // Create a user in the database
+    const { data: userData, error: userError } = await supabase
+      .from("users")
+      .insert({
+        id: authData.user.id,
+        email: authData.user.email,
+        first_name: authData.user.user_metadata.first_name,
+        last_name: authData.user.user_metadata.last_name,
+        phone: authData.user.user_metadata.phone,
+        role: authData.user.user_metadata.role,
+        accept_terms: authData.user.user_metadata.accept_terms,
+        onboarding_completed: authData.user.user_metadata.onboarding_completed,
+      });
+
+    if (userError) {
+      console.error("User creation error:", userError, authData);
+      return NextResponse.json(
+        { error: "Failed to create user" },
+        { status: 500 }
+      );
+    }
+
+    // Check if the user is a professional and has a discount code
+    if (discount_code && authData.user.user_metadata.role === "pro") {
+      const { data: discountData, error: discountError } = await supabase
+        .from("discounts")
+        .select("*")
+        .eq("code", discount_code)
+        .single();
+
+      if (discountError) {
+        console.error("Discount code error:", discountError);
+        return NextResponse.json(
+          { error: "Invalid discount code" },
+          { status: 400 }
+        );
+      }
+
+      if (discountData.discount_expiration_date < new Date()) {
+        return NextResponse.json(
+          { error: "Discount code expired" },
+          { status: 400 }
+        );
+      }
+
+      if (discount_code === "WELCOME") {
+        //  First get Basic subscription plan
+        const { data: subscriptionPlanData, error: subscriptionPlanError } =
+          await supabase
+            .from("subscription_plans")
+            .select("*")
+            .eq("name", "Basic")
+            .single();
+
+        if (subscriptionPlanError) {
+          console.error("Subscription plan error:", subscriptionPlanError);
+          return NextResponse.json(
+            { error: "Failed to get subscription plan" },
+            { status: 500 }
+          );
+        }
+
+        // Then create a subscription
+        const { data: subscriptionData, error: subscriptionError } =
+          await supabase.from("subscriptions").insert({
+            user_id: authData?.user?.id,
+            plan_id: subscriptionPlanData.id,
+            discount_id: discountData.id,
+            status: "active",
+            current_period_start: new Date(),
+            current_period_end: new Date(
+              new Date().setFullYear(new Date().getFullYear() + 1)
+            ),
+            trial_start: new Date(),
+            trial_end: new Date(
+              new Date().setFullYear(new Date().getFullYear() + 1)
+            ),
+          });
+
+        if (subscriptionError) {
+          console.error("Subscription error:", subscriptionError);
+          return NextResponse.json(
+            { error: "Failed to create subscription" },
+            { status: 500 }
+          );
+        }
+      }
     }
 
     // Create a response with the user data

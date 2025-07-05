@@ -8,6 +8,7 @@ import {
   getSubscriptionPlans,
   createCheckoutSession,
   getActiveSubscription,
+  checkDiscountCode,
 } from "@/lib/services/subscriptions";
 import { StripeCheckoutSession } from "@/lib/services/stripe";
 import { RootState } from "../store";
@@ -70,6 +71,15 @@ export const fetchActiveSubscriptionThunk = createAsyncThunk(
     return data.data;
   }
 );
+
+export const checkDiscountCodeThunk = createAsyncThunk(
+  "subscriptions/checkDiscountCode",
+  async (code: string) => {
+    const data = await checkDiscountCode(code);
+    return data.data;
+  }
+);
+
 const subscriptionSlice = createSlice({
   name: "subscriptions",
   initialState,

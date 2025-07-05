@@ -53,6 +53,7 @@ export const registerThunk = createAsyncThunk(
       phone,
       role,
       acceptTerms,
+      discount_code,
     }: {
       email: string;
       password: string;
@@ -61,6 +62,7 @@ export const registerThunk = createAsyncThunk(
       phone?: string;
       role?: string;
       acceptTerms?: boolean;
+      discount_code?: string;
     },
     { rejectWithValue }
   ) => {
@@ -72,7 +74,8 @@ export const registerThunk = createAsyncThunk(
         lastName,
         phone,
         role || "client",
-        acceptTerms || false
+        acceptTerms || false,
+        discount_code || null
       );
       if (response.error) {
         return rejectWithValue(response.error);

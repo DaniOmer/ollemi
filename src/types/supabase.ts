@@ -683,6 +683,27 @@ export type Database = {
           created_at: string;
         };
       };
+      discounts: {
+        Row: {
+          id: string;
+          code: string;
+          description: string | null;
+          discount_type: string;
+          discount_value: number;
+          discount_expiration_date: string;
+          max_uses: number;
+          created_at: string;
+          updated_at: string | null;
+        };
+      };
+      discounts_usage: {
+        Row: {
+          id: string;
+          discount_id: string;
+          user_id: string;
+          created_at: string;
+        };
+      };
     };
     Views: {
       [_ in never]: never;

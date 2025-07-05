@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useTranslations } from "@/hooks/useTranslations";
@@ -36,16 +36,13 @@ import {
   AlertCircle,
   Phone,
   CheckCircle,
+  Gift,
 } from "lucide-react";
 import { signInWithGoogle } from "@/lib/supabase/client";
 
 import { useAppDispatch, useAppSelector } from "@/lib/redux/store";
 import { registerThunk, selectAuthLoading } from "@/lib/redux/slices/authSlice";
-
-import {
-  AddressAutocomplete,
-  AddressData,
-} from "@/components/forms/AddressAutocomplete";
+import { checkDiscountCodeThunk } from "@/lib/redux/slices/subscriptionSlice";
 
 // Define the form schema with zod
 const signupFormSchema = z
@@ -68,6 +65,7 @@ const signupFormSchema = z
     acceptTerms: z.boolean().refine((val) => val === true, {
       message: "You must accept the terms and privacy policy.",
     }),
+    discountCode: z.string().optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
@@ -95,6 +93,7 @@ export default function SignupPage() {
       confirmPassword: "",
       role: "client",
       acceptTerms: false,
+      discountCode: "",
     },
   });
 
@@ -102,7 +101,27 @@ export default function SignupPage() {
   const onSubmit = async (values: SignupFormValues) => {
     setError(null); // Clear previous errors
     try {
-      const response = await dispatch(registerThunk(values));
+      // Check if the discount code is valid
+      const discountCode = values.discountCode;
+      if (discountCode) {
+        const response = await dispatch(checkDiscountCodeThunk(discountCode));
+        if (response.type.includes("rejected")) {
+          setError(response.payload as string);
+          return;
+        }
+        const responseData = response.payload as any;
+        if (!responseData?.is_valid) {
+          setError(t("common.discountCodeInvalid"));
+          return;
+        }
+      }
+
+      const response = await dispatch(
+        registerThunk({
+          ...values,
+          discount_code: discountCode,
+        })
+      );
 
       // Check if there was an error in the response
       if (response.type.includes("rejected")) {
@@ -382,7 +401,7 @@ export default function SignupPage() {
                                 <SelectValue />
                               </SelectTrigger>
                             </FormControl>
-                            <SelectContent>
+                            <SelectContent className="bg-white">
                               <SelectItem value="pro">
                                 {t("auth.signup.proProfessional")}
                               </SelectItem>
@@ -397,6 +416,33 @@ export default function SignupPage() {
                     </FormItem>
                   )}
                 />
+
+                {form.watch("role") === "pro" && (
+                  <FormField
+                    control={form.control}
+                    name="discountCode"
+                    render={({ field }) => (
+                      <FormItem
+                        className="animate-slide-up"
+                        style={{ animationDelay: "500ms" }}
+                      >
+                        <FormLabel>{t("common.discountCode")}</FormLabel>
+                        <div className="relative">
+                          <Gift
+                            className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground z-10"
+                            strokeWidth={1.5}
+                          />
+                          <Input
+                            placeholder={t("common.discountCodePlaceholder")}
+                            className="pl-10 border-primary/20 focus:border-primary"
+                            {...field}
+                          />
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
 
                 <FormField
                   control={form.control}
@@ -417,14 +463,14 @@ export default function SignupPage() {
                         <FormLabel className="text-sm font-normal">
                           {t("auth.signup.terms")}{" "}
                           <Link
-                            href="#"
+                            href="/legal/terms"
                             className="font-medium text-primary hover:text-primary/80 transition-colors"
                           >
                             {t("auth.signup.termsOfService")}
                           </Link>{" "}
                           {t("auth.signup.and")}{" "}
                           <Link
-                            href="#"
+                            href="/legal/privacy"
                             className="font-medium text-primary hover:text-primary/80 transition-colors"
                           >
                             {t("auth.signup.privacyPolicy")}

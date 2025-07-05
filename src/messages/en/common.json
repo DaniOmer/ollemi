@@ -514,7 +514,10 @@
     "upcoming": "Upcoming",
     "cancelled": "Cancelled",
     "completed": "Completed",
-    "loginToAddReview": "Login to add a review"
+    "loginToAddReview": "Login to add a review",
+    "discountCode": "Discount Code",
+    "discountCodePlaceholder": "Enter discount code",
+    "discountCodeInvalid": "Discount code is invalid or expired"
   },
   "notFound": {
     "title": "404",

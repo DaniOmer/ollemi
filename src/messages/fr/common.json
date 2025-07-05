@@ -527,7 +527,10 @@
     "upcoming": "À venir",
     "cancelled": "Annulé",
     "completed": "Terminé",
-    "loginToAddReview": "Connectez-vous pour ajouter un avis"
+    "loginToAddReview": "Connectez-vous pour ajouter un avis",
+    "discountCode": "Code de réduction",
+    "discountCodePlaceholder": "Entrer le code de réduction",
+    "discountCodeInvalid": "Code de réduction invalide ou expiré"
   },
   "notFound": {
     "title": "404",

@@ -12,6 +12,7 @@ export type OpeningHours = Database["public"]["Tables"]["opening_hours"]["Row"];
 export type Address = Database["public"]["Tables"]["addresses"]["Row"];
 export type Photo = Database["public"]["Tables"]["photos"]["Row"];
 export type Review = Database["public"]["Tables"]["reviews"]["Row"];
+export type Discount = Database["public"]["Tables"]["discounts"]["Row"];
 
 // Legacy types (to be removed once migration is complete)
 export type Professional = Company;

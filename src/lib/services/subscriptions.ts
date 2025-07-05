@@ -6,6 +6,7 @@ import {
   SubscriptionStatus,
   SubscriptionInvoice,
   InvoiceStatus,
+  Discount,
 } from "@/types";
 import {
   stripe,
@@ -204,4 +205,26 @@ export const setDefaultPaymentMethod = async (
       method: "POST",
     }
   );
+};
+
+/**
+ * Check if a discount code is valid
+ */
+export const checkDiscountCode = async (
+  code: string
+): Promise<
+  ApiResponse<{
+    discount: Discount;
+    is_valid: boolean;
+    message: string;
+  }>
+> => {
+  return await fetchApi<{
+    discount: Discount;
+    is_valid: boolean;
+    message: string;
+  }>(`/subscriptions/discounts/check`, {
+    method: "POST",
+    data: { code },
+  });
 };
